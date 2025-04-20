@@ -16,12 +16,11 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained('users');
             $table->foreignId('project_id')->constrained('projects');
             $table->float('price');
-            $table->timestamp('deadline');
-            $table->timestamp('start_date');
+            $table->timestamp('deadline')->nullable();
+            $table->timestamp('start_date')->nullable();
             $table->text('description');
             $table->enum('type', ['basic', 'final']);
-            $table->timestamp('expire_date');
-            $table->timestamps();
+            $table->timestamp('expire_date')->nullable();
             $table->timestamps();
         });
     }

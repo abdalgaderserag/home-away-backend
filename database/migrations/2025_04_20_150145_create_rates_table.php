@@ -19,8 +19,6 @@ return new class extends Migration
             $table->unsignedTinyInteger('rate')->default(1);
             $table->text('description');
             $table->timestamps();
-
-            $table->check('rate BETWEEN 1 AND 5');
         });
     }
 

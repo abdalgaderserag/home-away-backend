@@ -20,7 +20,7 @@ return new class extends Migration
             $table->text('description');
             $table->enum('unit_type', ['house', 'apartment', 'villa']);
             $table->integer('space');
-            $table->enum('location', ['urban', 'suburban', 'rural']);
+            $table->enum('location', ['cairo']);
             $table->timestamp('deadline');
             $table->float('min_price');
             $table->float('max_price');
