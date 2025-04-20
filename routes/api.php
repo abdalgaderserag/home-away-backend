@@ -6,6 +6,7 @@ use App\Http\Controllers\MessageController;
 use App\Http\Controllers\MilestoneController;
 use App\Http\Controllers\OfferController;
 use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\RateController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth:sanctum')->group(function () {
@@ -16,6 +17,7 @@ Route::middleware('auth:sanctum')->group(function () {
         ->parameters(['offer' => 'offer'])
         ->names('offers.milestones');
     Route::apiResource('messages', MessageController::class);
+    Route::apiResource('rates', RateController::class);
 });
 
 
