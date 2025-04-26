@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Enum\Project\Status;
+use App\Http\Requests\Project\IndexRequest;
 use App\Models\Project;
 use App\Http\Requests\StoreProjectRequest;
 use App\Http\Requests\UpdateProjectRequest;
@@ -9,9 +11,42 @@ use Illuminate\Support\Facades\Auth;
 
 class ProjectController extends Controller
 {
-    public function index()
+    public function index(IndexRequest $request)
     {
-        return Project::with(['client', 'designer'])->paginate();
+        $query = Project::with(['client'])
+            ->when($request->filled('status'), function ($q) use ($request) {
+                $q->where('status', $request->status);
+            }, function ($q) {
+                $q->where('status', Status::Published->value);
+            })
+            ->when($request->filled('search'), function ($q) use ($request) {
+                $q->where('title', 'like', '%' . $request->search . '%');
+            })
+            ->when($request->filled('min_price'), function ($q) use ($request) {
+                $q->where('min_price', '>=', $request->min_price);
+            })
+            ->when($request->filled('max_price'), function ($q) use ($request) {
+                $q->where('max_price', '<=', $request->max_price);
+            })
+            ->when($request->filled('unit_type'), function ($q) use ($request) {
+                $q->where('unit_type', $request->unit_type);
+            })
+            ->when($request->filled('location'), function ($q) use ($request) {
+                $q->where('location', $request->location);
+            })
+            ->when($request->filled('skill'), function ($q) use ($request) {
+                $q->where('skill', $request->skill);
+            });
+
+        // Sorting
+        $sortBy = $request->sort_by ?? 'created_at';
+        $sortOrder = $request->sort_order ?? 'asc';
+        $query->orderBy($sortBy, $sortOrder);
+
+        // Pagination
+        $perPage = $request->per_page ?? 10;
+
+        return $query->paginate($perPage);
     }
 
     public function store(StoreProjectRequest $request)
