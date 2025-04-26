@@ -24,9 +24,20 @@ class Project extends Model
     ];
 
     protected $fillable = [
-        'client_id', 'designer_id', 'status', 'title', 'description',
-        'unit_type', 'space', 'location', 'deadline', 'min_price',
-        'max_price', 'resources', 'skill', 'attachments'
+        'client_id',
+        'designer_id',
+        'status',
+        'title',
+        'description',
+        'unit_type',
+        'space',
+        'location',
+        'deadline',
+        'min_price',
+        'max_price',
+        'resources',
+        'skill',
+        'attachments'
     ];
 
     public function client()

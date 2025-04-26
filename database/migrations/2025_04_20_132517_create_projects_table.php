@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('projects', function (Blueprint $table) {
             $table->id();
             $table->foreignId('client_id')->constrained('users');
-            $table->foreignId('designer_id')->nullable()->constrained('users');
+            $table->integer('designer_id', 0, 1)->nullable();
             $table->enum('status', ['draft', 'pending', 'published', 'in_progress', 'completed'])->default('draft');
             $table->string('title');
             $table->text('description');

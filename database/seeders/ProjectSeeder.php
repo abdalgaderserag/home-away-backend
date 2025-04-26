@@ -1,4 +1,5 @@
 <?php
+
 namespace Database\Seeders;
 
 use App\Models\Project;
@@ -10,10 +11,10 @@ class ProjectSeeder extends Seeder
     public function run()
     {
         $users = User::all();
-
+        $cli = $users->random()->id;
         Project::factory()->count(20)->create([
-            'client_id' => fn() => $users->random()->id,
-            'designer_id' => fn() => $users->where('id', '!=', request('client_id'))->random()->id,
+            'client_id' => $cli,
+            'designer_id' => $users->where('id', '!=', $cli)->random()->id,
         ]);
     }
 }

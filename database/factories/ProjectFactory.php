@@ -21,8 +21,8 @@ class ProjectFactory extends Factory
     public function definition(): array
     {
         return [
-            'client_id' => \App\Models\User::factory(),
-            'designer_id' => \App\Models\User::factory()->nullable(),
+            // 'client_id' => \App\Models\User::factory(),
+            // 'designer_id' => \App\Models\User::factory()->nullable(),
             'status' => fake()->randomElement(Status::cases()),
             'title' => fake()->sentence(),
             'description' => fake()->paragraph(),
