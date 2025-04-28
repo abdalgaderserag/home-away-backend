@@ -8,6 +8,8 @@ use App\Enum\Project\Location;
 use App\Enum\Project\Skill;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Project extends Model
 {
@@ -40,13 +42,18 @@ class Project extends Model
         'attachments'
     ];
 
-    public function client()
+    public function client(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    public function designer()
+    public function designer(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function offers(): HasMany
+    {
+        return $this->hasMany(Offer::class);
     }
 }
