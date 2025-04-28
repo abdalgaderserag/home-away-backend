@@ -9,9 +9,10 @@ use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\RateController;
 use Illuminate\Support\Facades\Route;
 
+Route::apiResource('projects', ProjectController::class)->except(['create']);
+Route::get('projects/create', [ProjectController::class, "create"]);
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/logout', [LoginController::class, "logout"])->name('logout');
-    Route::apiResource('projects', ProjectController::class);
     Route::apiResource('offers', OfferController::class);
     Route::apiResource('offers/{offer}/milestones', MilestoneController::class)
         ->parameters(['offer' => 'offer'])

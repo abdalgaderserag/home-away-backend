@@ -16,6 +16,14 @@ class ProjectController extends Controller
     {
         $validated = $request->validated();
 
+        if (empty($validated['sort_by'])) {
+            $validated['sort_by'] = "created_at";
+        }
+
+        if (empty($validated['sort_order'])) {
+            $validated['sort_order'] = "asc";
+        }
+
         // filters
         $query = Project::with(['client'])
             ->where('status', $validated['status'] ?? Status::Published->value)
@@ -60,55 +68,52 @@ class ProjectController extends Controller
 
     public function create()
     {
-        $pro = Project::where('status', "draft")->first();
-        if (empty($pro)) {
-            return response()->json($pro, 200);
+        $pro = Project::where('client_id', Auth::id())
+            ->where('status', Status::Draft->value)
+            ->first();
+        if (!$pro) {
+            $project = new Project();
+            $project->client_id = Auth::id();
+            $project->status = Status::Draft;
+            $project->save();
+            return response()->json($project, 201);
         }
-        $project = new Project();
-        $project->status = "draft";
-        $project->save();
-        return response()->json($project, 201);
+        return response()->json($pro, 200);
     }
 
     public function show(Project $project)
     {
-        if ($project->status == "published") {
-            return $project->load(['client', 'offers.user.rate']);
+        if ($project->status !== Status::Published->value) {
+            return response()->json(['message' => 'Not found'], 404);
         }
-        return response("the project you are looking for is not found", 404);
+        return $project->load(['client', 'offers.user.rate']);
     }
 
     public function update(UpdateProjectRequest $request, Project $project)
     {
-        if ($this->validateOwner($project->client_id))
-            return response("you are not the project owner", 403);
-
-        try {
-            $project->update($request->validated());
-            $project->status = "pending";
-            $project->save();
-        } catch (ValidationException $error) {
-            $project->status = "draft";
-            $project->save();
+        if ($project->client_id !== Auth::id() && $project->status !== Status::Draft->value) {
+            return response(["message" => "you are not allowed to edit this project"], 403);
         }
-        return response()->json($project, 200);
+        $project->update($request->validated());
+        $project->refresh();
+        return response()->json($project);
     }
 
     public function destroy(Project $project)
     {
         if ($this->validateOwner($project->client_id))
             return response("you are not the project owner", 403);
-        switch ($project->status) {
-            case 'in_progress':
-            case 'completed':
-                // todo : make the delete unless agree both
-                return response("not allowed", 401);
-                break;
-            default:
-                $project->delete();
-                return response()->noContent();
-                break;
+
+        if (in_array($project->status, [
+            Status::InProgress->value,
+            Status::Completed->value
+        ])) {
+            return response()->json([
+                'message' => 'Cannot delete project in current state'
+            ], 403);
         }
+        $project->delete();
+        return response()->noContent();
     }
 
     private function validateOwner($id)

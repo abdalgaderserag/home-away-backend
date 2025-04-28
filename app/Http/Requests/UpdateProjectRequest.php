@@ -24,18 +24,17 @@ class UpdateProjectRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'designer_id' => 'nullable|exists:users,id',
-            'status' => ['required', new Enum(Status::class)],
-            'title' => 'required|string|max:255',
-            'description' => 'required|string',
-            'unit_type' => ['required', new Enum(UnitType::class)],
-            'space' => 'required|integer|min:1',
-            'location' => ['required', new Enum(Location::class)],
-            'deadline' => 'required|date',
-            'min_price' => 'required|numeric|min:0',
-            'max_price' => 'required|numeric|gt:min_price',
-            'resources' => 'boolean',
-            'skill' => ['required', new Enum(Skill::class)],
+            'status' => ['nullable', new Enum(Status::class)],
+            'title' => 'nullable|string|max:255',
+            'description' => 'nullable|string',
+            'unit_type' => ['nullable', new Enum(UnitType::class)],
+            'space' => 'nullable|integer|min:1',
+            'location' => ['nullable', new Enum(Location::class)],
+            'deadline' => 'nullable|date',
+            'min_price' => 'nullable|numeric|min:0',
+            'max_price' => 'nullable|numeric|gt:min_price',
+            'resources' => 'nullable|boolean',
+            'skill' => ['nullable', new Enum(Skill::class)],
             'attachments' => 'nullable|json',
         ];
     }

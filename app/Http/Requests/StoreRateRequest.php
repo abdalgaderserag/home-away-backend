@@ -22,9 +22,6 @@ class StoreRateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'project_id' => 'required|exists:projects,id',
-            'client_id' => 'required|exists:users,id',
-            'designer_id' => 'required|exists:users,id',
             'rate' => 'required|integer|min:1|max:5',
             'description' => 'required|string|max:500',
         ];
