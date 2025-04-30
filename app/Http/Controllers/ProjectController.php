@@ -4,10 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Enum\Project\Status;
 use App\Http\Requests\Project\IndexRequest;
-use App\Models\Project;
+use App\Http\Requests\StoreProjectRequest;
 use App\Http\Requests\UpdateProjectRequest;
-use Illuminate\Http\Client\Request;
-use Illuminate\Validation\ValidationException;
+use App\Models\Project;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class ProjectController extends Controller
@@ -66,27 +66,28 @@ class ProjectController extends Controller
         return response()->json($query->paginate($perPage));
     }
 
-    public function create()
+    public function projects($status = "")
     {
-        $pro = Project::where('client_id', Auth::id())
-            ->where('status', Status::Draft->value)
-            ->first();
-        if (!$pro) {
-            $project = new Project();
-            $project->client_id = Auth::id();
-            $project->status = Status::Draft;
-            $project->save();
-            return response()->json($project, 201);
+        $projects = Project::with('offers')->where('client_id', Auth::id());
+        if ($status !== "") {
+            $projects = $projects->where("status", $status);
         }
-        return response()->json($pro, 200);
+        return response($projects);
     }
 
-    public function show(Project $project)
+    public function create()
     {
-        if ($project->status !== Status::Published->value) {
-            return response()->json(['message' => 'Not found'], 404);
-        }
-        return $project->load(['client', 'offers.user.rate']);
+        // $pro = Project::where('client_id', Auth::id())
+        // ->where('status', Status::Draft->value)
+        // ->first();
+        // if (!$pro) {
+        $project = new Project();
+        $project->client_id = Auth::id();
+        $project->status = Status::Draft;
+        $project->save();
+        return response()->json($project, 201);
+        // }
+        // return response()->json($pro, 200);
     }
 
     public function update(UpdateProjectRequest $request, Project $project)
@@ -97,6 +98,23 @@ class ProjectController extends Controller
         $project->update($request->validated());
         $project->refresh();
         return response()->json($project);
+    }
+
+    public function save(StoreProjectRequest $request, Project $project)
+    {
+        if ($project->client_id !== Auth::id() && $project->status !== Status::Draft->value) {
+            return response(["message" => "you are not allowed to edit this project"], 403);
+        }
+        $project->status = Status::Pending->value;
+        $project->update($request->validated());
+    }
+
+    public function show(Project $project)
+    {
+        if ($project->status !== Status::Published->value) {
+            return response()->json(['message' => 'Not found'], 404);
+        }
+        return $project->load(['client', 'offers.user.rate']);
     }
 
     public function destroy(Project $project)

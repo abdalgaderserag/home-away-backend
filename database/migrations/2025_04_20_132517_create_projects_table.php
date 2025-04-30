@@ -16,17 +16,18 @@ return new class extends Migration
             $table->foreignId('client_id')->constrained('users');
             $table->integer('designer_id', 0, 1)->nullable();
             $table->enum('status', ['draft', 'pending', 'published', 'in_progress', 'completed'])->default('draft');
-            $table->string('title');
-            $table->text('description');
-            $table->enum('unit_type', ['house', 'apartment', 'villa']);
-            $table->integer('space');
-            $table->enum('location', ['cairo']);
-            $table->timestamp('deadline');
-            $table->float('min_price');
-            $table->float('max_price');
+            $table->string('title')->nullable();
+            $table->text('description')->nullable();
+            $table->enum('unit_type', ['house', 'apartment', 'villa'])->nullable();
+            $table->integer('space')->nullable();
+            $table->enum('location', ['cairo'])->nullable();
+            $table->timestamp('deadline')->nullable();
+            $table->float('min_price')->nullable();
+            $table->float('max_price')->nullable();
             $table->boolean('resources')->default(false);
-            $table->enum('skill', ['construction', 'design', 'renovation']);
+            $table->enum('skill', ['construction', 'design', 'renovation'])->nullable();
             $table->json('attachments')->nullable();
+            $table->timestamp('approved_at')->nullable();
             $table->timestamps();
         });
     }

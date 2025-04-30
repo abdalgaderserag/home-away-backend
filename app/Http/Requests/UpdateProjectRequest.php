@@ -23,9 +23,9 @@ class UpdateProjectRequest extends FormRequest
      */
     public function rules(): array
     {
+        return [];
         return [
-            'status' => ['nullable', new Enum(Status::class)],
-            'title' => 'nullable|string|max:255',
+            'title' => 'string|max:255',
             'description' => 'nullable|string',
             'unit_type' => ['nullable', new Enum(UnitType::class)],
             'space' => 'nullable|integer|min:1',
@@ -35,7 +35,7 @@ class UpdateProjectRequest extends FormRequest
             'max_price' => 'nullable|numeric|gt:min_price',
             'resources' => 'nullable|boolean',
             'skill' => ['nullable', new Enum(Skill::class)],
-            'attachments' => 'nullable|json',
+            'attachments' => 'json',
         ];
     }
 }
