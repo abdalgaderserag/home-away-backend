@@ -7,6 +7,7 @@ use App\Http\Controllers\MilestoneController;
 use App\Http\Controllers\OfferController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\RateController;
+use App\Http\Controllers\SettingsController;
 use Illuminate\Support\Facades\Route;
 
 Route::apiResource('projects', ProjectController::class)->only(['index']);
@@ -22,6 +23,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/email/verify/resend', 'Auth\VerificationController@emailResend');
     Route::post('/phone/verify', 'Auth\VerificationController@verifyPhone');
     Route::post('/phone/verify/resend', 'Auth\VerificationController@phoneResend');
+
+    Route::get('/user/settings', [SettingsController::class, 'index'])->name('settings');
+    Route::put('/user/settings', [SettingsController::class, 'update'])->name('settings');
 
     Route::get('projects/create', [ProjectController::class, "create"]);
     Route::apiResource('projects', ProjectController::class)->except(['index', 'create']);

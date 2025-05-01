@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User\Settings;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class SettingsController extends Controller
 {
@@ -12,38 +13,23 @@ class SettingsController extends Controller
      */
     public function index()
     {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(Settings $settings)
-    {
-        //
+        $user = Auth::user();
+        return response($user->setting);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Settings $settings)
+    public function update(Request $request)
     {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Settings $settings)
-    {
-        //
+        $request->validate([
+            'email' => 'required|boolean',
+            'phone' => 'required|boolean'
+        ]);
+        $user = Auth::user();
+        $user->setting->email = $request->email;
+        $user->setting->phone = $request->phone;
+        $user->setting->update();
+        return response($user->setting);
     }
 }

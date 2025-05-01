@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\RegisterRequest;
 use App\Models\User;
+use App\Models\User\Settings;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
@@ -23,6 +24,13 @@ class RegisterController extends Controller
         }
         $user->password = Hash::make($request->password);
         $user->save();
+
+        // create user settings
+        $settings = new Settings();
+        $settings->user_id = $user->id;
+        $settings->save();
+
+        // send verification request
         if ($request->email) {
             $user->sendEmailVerificationNotification();
         }
