@@ -13,6 +13,16 @@ Route::apiResource('projects', ProjectController::class)->only(['index']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/logout', [LoginController::class, "logout"])->name('logout');
+
+    Route::post('/password/reset/send', 'Auth\ResetPasswordController@sendResetLink');
+    Route::post('/password/reset', 'Auth\ResetPasswordController@reset');
+
+    // verification for registration verification
+    Route::post('/email/verify', 'Auth\VerificationController@verifyEmail');
+    Route::post('/email/verify/resend', 'Auth\VerificationController@emailResend');
+    Route::post('/phone/verify', 'Auth\VerificationController@verifyPhone');
+    Route::post('/phone/verify/resend', 'Auth\VerificationController@phoneResend');
+
     Route::get('projects/create', [ProjectController::class, "create"]);
     Route::apiResource('projects', ProjectController::class)->except(['index', 'create']);
     Route::apiResource('offers', OfferController::class);

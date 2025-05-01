@@ -13,12 +13,16 @@ class LoginController extends Controller
 {
     public function login(LoginRequest $request): Response
     {
-        if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
-            $user = Auth::user();
-            $token = $user->createToken("token:" . $user->id);
-            return response(['token' => $token->plainTextToken]);
+        $user = User::where('email', $request->email)
+            ->orWhere('phone', $request->phone)
+            ->first();
+        if (!$user || !Hash::check($request->password, $user->password)) {
+            return response('Invalid credentials', Response::HTTP_UNAUTHORIZED);
         }
-        return response(['error' => "password and email didn't match"],401);
+        $token = $user->createToken('authToken', [
+            'remember' => $request->remember_me
+        ])->plainTextToken;
+        return response($token, Response::HTTP_OK);
     }
 
     public function logout(): Response

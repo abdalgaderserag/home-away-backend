@@ -12,16 +12,25 @@ use Illuminate\Support\Facades\Hash;
 
 class RegisterController extends Controller
 {
-    public function register(RegisterRequest $request) : Response {
-        // return response($request->all());
+    public function register(RegisterRequest $request): Response
+    {
         $user = new User();
         $user->name = $request->name;
-        $user->email = $request->email;
+        if ($request->email) {
+            $user->email = $request->email;
+        } else {
+            $user->phone = $request->phone;
+        }
         $user->password = Hash::make($request->password);
         $user->save();
-        $token = $user->createToken("token:".$user->id);
+        if ($request->email) {
+            $user->sendEmailVerificationNotification();
+        }
+        if ($request->phone) {
+            $user->sendPhoneVerificationNotification();
+        }
+        $token = $user->createToken("token:" . $user->id);
         Auth::login($user);
-
-        return response($token->plainTextToken,201);
+        return response($token->plainTextToken, 201);
     }
 }
