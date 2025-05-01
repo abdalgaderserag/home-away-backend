@@ -59,6 +59,7 @@ class User extends Authenticatable implements MustVerifyEmail
         ];
     }
 
+    // relations
     public function settings(): HasOne
     {
         return $this->hasOne(Settings::class);
@@ -74,6 +75,24 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(Offer::class);
     }
 
+    public function hasSocialAccount($provider)
+    {
+        return $this->socialAccounts()->where('provider', $provider)->exists();
+    }
+
+    public function socialLogin($providerUser, $provider)
+    {
+        if (!$this->email_verified_at) {
+            $this->forceFill(['email_verified_at' => now()])->save();
+        }
+
+        return $this->socialAccounts()->updateOrCreate(
+            ['provider' => $provider, 'provider_user_id' => $providerUser->getId()],
+            ['updated_at' => now()]
+        );
+    }
+
+    // Verification
     public function sendPhoneVerificationNotification()
     {
         $this->notify(new VerifyPhone);

@@ -16,6 +16,17 @@ class LoginController extends Controller
         $user = User::where('email', $request->email)
             ->orWhere('phone', $request->phone)
             ->first();
+
+        if ($user && !Hash::check($request->password, $user->password)) {
+            if ($user->socialAccounts()->exists()) {
+                return response([
+                    'error' => 'This account was created with social login',
+                    'available_providers' => $user->socialAccounts->pluck('provider')
+                ], 422);
+            }
+            return response(['error' => 'Invalid credentials'], 401);
+        }
+
         if (!$user || !Hash::check($request->password, $user->password)) {
             return response('Invalid credentials', Response::HTTP_UNAUTHORIZED);
         }

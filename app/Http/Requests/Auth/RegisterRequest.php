@@ -2,8 +2,11 @@
 
 namespace App\Http\Requests\Auth;
 
+use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
+
 
 class RegisterRequest extends FormRequest
 {
@@ -24,7 +27,19 @@ class RegisterRequest extends FormRequest
     {
         return [
             "name" => "required|string|min:3|max:25",
-            'email' => 'required_without:phone|email|unique:users',
+            'email' => [
+                'required_without:phone',
+                'email',
+                Rule::unique('users')->whereNull('deleted_at'),
+                function ($attribute, $value, $fail) {
+                    if (User::where('email', $value)
+                        ->whereNotNull('password')
+                        ->exists()
+                    ) {
+                        $fail('This email is already registered with password-based login.');
+                    }
+                }
+            ],
             'phone' => 'required_without:email|string|unique:users',
             "password" => "required|min:8"
         ];
