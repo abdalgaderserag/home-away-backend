@@ -2,37 +2,72 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Message;
 use App\Http\Requests\StoreMessageRequest;
-use App\Http\Requests\UpdateMessageRequest;
+use App\Models\Chat;
+use App\Models\Message;
+use App\Models\User;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Auth;
+use Symfony\Component\HttpFoundation\Response;
 
 class MessageController extends Controller
 {
-    public function index()
+    public function index(): JsonResponse
     {
-        return Message::with(['sender', 'receiver'])->paginate();
+        $userId = Auth::id();
+
+        $chats = Chat::with(['first_user', 'second_user', 'latestMessage'])
+            ->where(function ($query) use ($userId) {
+                $query->where('first_user_id', $userId)
+                    ->orWhere('second_user_id', $userId);
+            })
+            ->orderByDesc('updated_at')
+            ->get()
+            ->map(function ($chat) use ($userId) {
+                $chat->other_user = $chat->first_user_id === $userId
+                    ? $chat->second_user
+                    : $chat->first_user;
+                return $chat->only(['id', 'other_user', 'latestMessage']);
+            });
+
+        return response()->json($chats);
     }
 
-    public function store(StoreMessageRequest $request)
+    public function show(Chat $chat): JsonResponse
     {
-        $message = Message::create($request->validated());
-        return response()->json($message->load(['sender', 'receiver']), 201);
+        //todo: add authorization
+        $chat->load(['messages' => function ($query) {
+            $query->orderBy('created_at', 'desc');
+        }, 'first_user', 'second_user']);
+
+        $otherUserId = $chat->first_user_id === Auth::id()
+            ? $chat->second_user_id
+            : $chat->first_user_id;
+
+        return response()->json([
+            'messages' => $chat->messages,
+            'other_user' => User::find($otherUserId)
+        ]);
     }
 
-    public function show(Message $message)
+    public function store(StoreMessageRequest $request, User $user): JsonResponse
     {
-        return $message->load(['sender', 'receiver']);
-    }
+        if ($user->id === Auth::id()) {
+            return response()->json([
+                'message' => 'Cannot send message to yourself'
+            ], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
 
-    public function update(StoreMessageRequest $request, Message $message)
-    {
-        $message->update($request->validated());
-        return response()->json($message);
-    }
+        $chat = Chat::firstOrCreateChat(Auth::id(), $user->id);
 
-    public function destroy(Message $message)
-    {
-        $message->delete();
-        return response()->noContent();
+        $message = new Message($request->validated());
+        $message->sender()->associate(Auth::user());
+        $message->receiver()->associate($user);
+        $message->chat()->associate($chat);
+        $message->save();
+
+        $chat->touch();
+
+        return response()->json($message->load(['sender', 'receiver']), Response::HTTP_CREATED);
     }
 }
