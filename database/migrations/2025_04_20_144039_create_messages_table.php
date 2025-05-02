@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('messages', function (Blueprint $table) {
             $table->id();
             $table->foreignId('project_id')->constrained()->nullable();
-            $table->foreignId('chat_id')->constrained();
+            $table->foreignId('chat_id')->constrained('chats');
             $table->foreignId('sender_id')->constrained('users');
             $table->foreignId('receiver_id')->constrained('users');
             $table->text('context')->nullable();
@@ -22,6 +22,12 @@ return new class extends Migration
             $table->timestamps();
 
             $table->index(['sender_id', 'receiver_id']);
+        });
+        Schema::table('chats', function (Blueprint $table) {
+            $table->foreignId('last_message_id')
+                  ->nullable()
+                  ->after('second_user')
+                  ->constrained('messages');
         });
     }
 
