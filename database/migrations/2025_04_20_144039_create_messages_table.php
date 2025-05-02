@@ -20,7 +20,7 @@ return new class extends Migration
             $table->text('context')->nullable();
             $table->json('attachments')->nullable();
             $table->timestamps();
-            
+
             $table->index(['sender_id', 'receiver_id']);
         });
     }

@@ -32,7 +32,7 @@ class IndexRequest extends FormRequest
             'page' => 'nullable|integer|min:1',
             'status' => 'nullable|in:' . implode(',', array_column(Status::cases(), 'value')),
             'unit_type' => 'nullable|in:house,apartment,villa',
-            'location' => 'nullable|in:urban,suburban,rural',
+            'location' => 'nullable|exist:locations.,city',
             'skill' => 'nullable|in:construction,design,renovation',
         ];
     }

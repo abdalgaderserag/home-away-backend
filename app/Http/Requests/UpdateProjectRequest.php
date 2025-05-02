@@ -29,7 +29,7 @@ class UpdateProjectRequest extends FormRequest
             'description' => 'nullable|string',
             'unit_type' => ['nullable', new Enum(UnitType::class)],
             'space' => 'nullable|integer|min:1',
-            'location' => ['nullable', new Enum(Location::class)],
+            'location' => 'nullable|exists:locations,city',
             'deadline' => 'nullable|date',
             'min_price' => 'nullable|numeric|min:0',
             'max_price' => 'nullable|numeric|gt:min_price',

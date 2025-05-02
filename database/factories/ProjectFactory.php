@@ -28,7 +28,7 @@ class ProjectFactory extends Factory
             'description' => fake()->paragraph(),
             'unit_type' => fake()->randomElement(UnitType::cases()),
             'space' => fake()->numberBetween(50, 500),
-            'location' => fake()->randomElement(Location::cases()),
+            'location' => \App\Models\Location::factory(),
             'deadline' => fake()->dateTimeBetween('+1 month', '+1 year'),
             'min_price' => fake()->randomFloat(2, 10000, 50000),
             'max_price' => fake()->randomFloat(2, 50000, 100000),

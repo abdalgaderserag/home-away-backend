@@ -13,6 +13,10 @@ return new class extends Migration
     {
         Schema::create('verifications', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('user_id')->constrained('users');
+            $table->enum('type', ['user', 'company', 'address']);
+            $table->json('attachments');
+            $table->boolean('verified')->default(false);
             $table->timestamps();
         });
     }

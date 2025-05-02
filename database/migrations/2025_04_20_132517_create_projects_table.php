@@ -20,7 +20,7 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->enum('unit_type', ['house', 'apartment', 'villa'])->nullable();
             $table->integer('space')->nullable();
-            $table->enum('location', ['cairo'])->nullable();
+            $table->string('location')->nullable();
             $table->timestamp('deadline')->nullable();
             $table->float('min_price')->nullable();
             $table->float('max_price')->nullable();
