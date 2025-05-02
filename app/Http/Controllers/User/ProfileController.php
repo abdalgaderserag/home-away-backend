@@ -5,6 +5,7 @@ namespace App\Http\Controllers\User;
 use App\Enum\Project\Status;
 use App\Enum\User\UserType;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\User\UpdateBioRequest;
 use App\Models\Rate;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -64,5 +65,15 @@ class ProfileController extends Controller
         $user->password = Hash::make($request->new_password);
         $user->save();
         return response(['message' => 'Password changed successfully']);
+    }
+
+    public function updateBio(UpdateBioRequest $request)
+    {
+        $bio = Auth::user()->bio();
+        $bio->about = $request->about;
+        $bio->price_per_meter = $request->price_per_meter;
+        $bio->locations = $request->locations;
+        $bio->update();
+        return $bio;
     }
 }

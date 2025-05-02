@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\RegisterRequest;
 use App\Models\User;
+use App\Models\User\Bio;
 use App\Models\User\Settings;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -29,6 +30,11 @@ class RegisterController extends Controller
         $settings = new Settings();
         $settings->user_id = $user->id;
         $settings->save();
+
+        // create user bio
+        $bio = new Bio();
+        $bio->user_id = $user->id;
+        $bio->save();
 
         // send verification request
         if ($request->email) {

@@ -10,6 +10,7 @@ use App\Http\Controllers\MilestoneController;
 use App\Http\Controllers\OfferController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\RateController;
+use App\Http\Controllers\User\ProfileController;
 use App\Http\Controllers\User\SettingsController;
 use Illuminate\Support\Facades\Route;
 
@@ -29,6 +30,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/user/settings', [SettingsController::class, 'index']);
     Route::put('/user/settings', [SettingsController::class, 'update']);
+    Route::get('/user/profile/{id?}', [ProfileController::class, 'profile']);
+    Route::put('/user/profile', [ProfileController::class, 'updateProfile']);
+
 
     Route::get('projects/create', [ProjectController::class, "create"]);
     Route::apiResource('projects', ProjectController::class)->except(['index', 'create']);
