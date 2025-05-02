@@ -7,7 +7,6 @@ use App\Http\Requests\Project\IndexRequest;
 use App\Http\Requests\StoreProjectRequest;
 use App\Http\Requests\UpdateProjectRequest;
 use App\Models\Project;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class ProjectController extends Controller
@@ -77,22 +76,16 @@ class ProjectController extends Controller
 
     public function create()
     {
-        // $pro = Project::where('client_id', Auth::id())
-        // ->where('status', Status::Draft->value)
-        // ->first();
-        // if (!$pro) {
         $project = new Project();
         $project->client_id = Auth::id();
         $project->status = Status::Draft;
         $project->save();
         return response()->json($project, 201);
-        // }
-        // return response()->json($pro, 200);
     }
 
     public function update(UpdateProjectRequest $request, Project $project)
     {
-        if ($project->client_id !== Auth::id() && $project->status !== Status::Draft->value) {
+        if ($this->validateOwner($project->client_id) && $project->status !== Status::Draft->value) {
             return response(["message" => "you are not allowed to edit this project"], 403);
         }
         $project->update($request->validated());
@@ -102,7 +95,7 @@ class ProjectController extends Controller
 
     public function save(StoreProjectRequest $request, Project $project)
     {
-        if ($project->client_id !== Auth::id() && $project->status !== Status::Draft->value) {
+        if ($this->validateOwner($project->client_id) && $project->status !== Status::Draft->value) {
             return response(["message" => "you are not allowed to edit this project"], 403);
         }
         $project->status = Status::Pending->value;

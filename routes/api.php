@@ -35,11 +35,14 @@ Route::middleware('auth:sanctum')->group(function () {
 
 
     Route::get('projects/create', [ProjectController::class, "create"]);
+    Route::put('projects/{project}/save', [ProjectController::class, "save"]);
     Route::apiResource('projects', ProjectController::class)->except(['index', 'create']);
+
     Route::apiResource('offers', OfferController::class);
     Route::apiResource('offers/{offer}/milestones', MilestoneController::class)
         ->parameters(['offer' => 'offer'])
         ->names('offers.milestones');
+
     Route::apiResource('messages', MessageController::class);
     Route::apiResource('rates', RateController::class);
 });
