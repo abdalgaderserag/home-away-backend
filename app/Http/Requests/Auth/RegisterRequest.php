@@ -2,11 +2,12 @@
 
 namespace App\Http\Requests\Auth;
 
+use App\Enum\User\UserType;
 use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
-
+use Illuminate\Validation\Rules\Enum;
 
 class RegisterRequest extends FormRequest
 {
@@ -41,7 +42,8 @@ class RegisterRequest extends FormRequest
                 }
             ],
             'phone' => 'required_without:email|string|unique:users',
-            "password" => "required|min:8"
+            "password" => "required|min:8",
+            'type' => ['required', new Enum(UserType::class)],
         ];
     }
 }

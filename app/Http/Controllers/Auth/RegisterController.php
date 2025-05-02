@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Enum\User\UserType;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\RegisterRequest;
 use App\Models\User;
@@ -24,6 +25,9 @@ class RegisterController extends Controller
             $user->phone = $request->phone;
         }
         $user->password = Hash::make($request->password);
+        if ($request->type === UserType::Designer->value) {
+            $user->type = UserType::Designer->value;
+        }
         $user->save();
 
         // create user settings

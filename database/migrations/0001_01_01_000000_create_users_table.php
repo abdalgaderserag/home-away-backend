@@ -23,6 +23,7 @@ return new class extends Migration
             $table->string('password');
             $table->rememberToken();
             $table->enum('type', ['client', 'designer'])->default('client');
+            $table->timestamp('deleted_at')->nullable();
             $table->timestamps();
         });
 
