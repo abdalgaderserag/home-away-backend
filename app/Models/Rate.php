@@ -15,6 +15,7 @@ class Rate extends Model
         'project_id',
         'client_id',
         'designer_id',
+        'type',
         'rate',
         'description'
     ];

@@ -44,12 +44,12 @@ class Project extends Model
 
     public function client(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'client_id', 'id');
     }
 
     public function designer(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'designer_id', 'id');
     }
 
     public function offers(): HasMany

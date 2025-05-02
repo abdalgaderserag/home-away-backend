@@ -16,12 +16,12 @@ class MessageController extends Controller
     {
         $userId = Auth::id();
 
-        $chats = Chat::with(['first_user', 'second_user', 'latestMessage'])
+        $chats = Chat::with(['first_user', 'second_user', 'last_message_id'])
             ->where(function ($query) use ($userId) {
                 $query->where('first_user_id', $userId)
                     ->orWhere('second_user_id', $userId);
             })
-            ->orderByDesc('updated_at')
+            ->orderByDesc('created_at')
             ->get()
             ->map(function ($chat) use ($userId) {
                 $chat->other_user = $chat->first_user_id === $userId

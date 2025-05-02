@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('rates', function (Blueprint $table) {
             $table->id();
             $table->foreignId('project_id')->constrained();
+            $table->enum('type', ['client', 'designer']);
             $table->foreignId('client_id')->constrained('users');
             $table->foreignId('designer_id')->constrained('users');
             $table->unsignedTinyInteger('rate')->default(1);
