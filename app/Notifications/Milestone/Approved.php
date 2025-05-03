@@ -2,6 +2,7 @@
 
 namespace App\Notifications\Milestone;
 
+use App\Models\Milestone;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -11,12 +12,13 @@ class Approved extends Notification
 {
     use Queueable;
 
+    private $milestone;
     /**
      * Create a new notification instance.
      */
-    public function __construct()
+    public function __construct(Milestone $milestone)
     {
-        //
+        $this->milestone = $milestone;
     }
 
     /**
@@ -26,7 +28,7 @@ class Approved extends Notification
      */
     public function via(object $notifiable): array
     {
-        return ['mail'];
+        return ['array'];
     }
 
     /**
@@ -48,7 +50,8 @@ class Approved extends Notification
     public function toArray(object $notifiable): array
     {
         return [
-            //
+            "message" => "Your Milestone Submission for {$this->milestone->project->title} has been approved.",
+            "milestone_id" => $this->milestone->id,
         ];
     }
 }

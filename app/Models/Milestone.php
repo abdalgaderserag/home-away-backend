@@ -6,6 +6,7 @@ use App\Enum\Offer\MilestoneStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 
 class Milestone extends Model
 {
@@ -31,5 +32,17 @@ class Milestone extends Model
     public function offer(): BelongsTo
     {
         return $this->belongsTo(Offer::class);
+    }
+
+    public function project(): HasOneThrough
+    {
+        return $this->hasOneThrough(
+            Project::class,
+            Offer::class,
+            'id',
+            'id',
+            'offer_id',
+            'project_id'
+        );
     }
 }

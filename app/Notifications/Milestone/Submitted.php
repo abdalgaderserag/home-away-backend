@@ -2,6 +2,7 @@
 
 namespace App\Notifications\Milestone;
 
+use App\Models\Milestone;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -11,12 +12,13 @@ class Submitted extends Notification
 {
     use Queueable;
 
+    private $milestone;
     /**
      * Create a new notification instance.
      */
-    public function __construct()
+    public function __construct(Milestone $milestone)
     {
-        //
+        $this->milestone = $milestone;
     }
 
     /**
@@ -26,7 +28,7 @@ class Submitted extends Notification
      */
     public function via(object $notifiable): array
     {
-        return ['mail'];
+        return ['array'];
     }
 
     /**
@@ -48,7 +50,9 @@ class Submitted extends Notification
     public function toArray(object $notifiable): array
     {
         return [
-            //
+            "message" => "{$this->milestone->user->name} has submitted a milestone.",
+            "milestone_id" => $this->milestone->id,
+            "client_id" => $this->milestone->project->client_id,
         ];
     }
 }
