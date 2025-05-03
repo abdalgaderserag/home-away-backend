@@ -10,6 +10,8 @@ use App\Models\User\Settings;
 use App\Notifications\Auth\ResetPasswordSms;
 use App\Notifications\Auth\VerifyEmail;
 use App\Notifications\Auth\VerifyPhone;
+use Coderflex\LaravelTicket\Contracts\CanUseTickets;
+use Coderflex\LaravelTicket\Models\Ticket;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -19,7 +21,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
-class User extends Authenticatable implements MustVerifyEmail
+class User extends Authenticatable implements MustVerifyEmail, CanUseTickets
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable, HasApiTokens;
@@ -60,6 +62,7 @@ class User extends Authenticatable implements MustVerifyEmail
             'password' => 'hashed',
         ];
     }
+
 
     // relations
     public function settings(): HasOne
@@ -104,10 +107,22 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(Favorite::class);
     }
 
+    /**
+     * Get the tickets associated with the user.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function tickets(): HasMany
+    {
+        return $this->hasMany(Ticket::class);
+    }
+
+
     public function hasSocialAccount($provider)
     {
         return $this->socialAccounts()->where('provider', $provider)->exists();
     }
+
 
     public function socialLogin($providerUser, $provider)
     {
