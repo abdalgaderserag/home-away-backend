@@ -57,6 +57,9 @@ Route::middleware('auth:sanctum')->group(function () {
 Route::post('/login', [LoginController::class, "login"])->name('login');
 Route::post('/register', [RegisterController::class, "register"])->name('register');
 Route::middleware('social.auth')->group(function () {
+    // for web application social authentication
     Route::get('/auth/{provider}', [SocialAuthController::class, 'redirect']);
     Route::get('/auth/{provider}/callback', [SocialAuthController::class, 'callback']);
+    // for mobile application social authentication
+    Route::post('/auth/social', [SocialAuthController::class, 'handleSocialLogin']);
 });
