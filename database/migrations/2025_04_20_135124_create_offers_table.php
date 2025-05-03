@@ -15,7 +15,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained('users');
             $table->foreignId('project_id')->constrained('projects');
-            $table->float('price');
+            $table->enum('status', ['accepted', 'declined', 'pending']);
+            $table->float('price',20, 2);
             $table->timestamp('deadline')->nullable();
             $table->timestamp('start_date')->nullable();
             $table->text('description');

@@ -7,18 +7,19 @@ use App\Http\Requests\StoreMilestoneRequest;
 use App\Http\Requests\UpdateMilestoneRequest;
 use App\Http\Requests\UpdateOfferRequest;
 use App\Models\Offer;
+use Symfony\Component\HttpFoundation\Response;
 
 class MilestoneController extends Controller
 {
     public function index(Offer $offer)
     {
-        return $offer->milestones()->paginate();
+        return $offer->milestones();
     }
 
     public function store(StoreMilestoneRequest $request, Offer $offer)
     {
         $milestone = $offer->milestones()->create($request->validated());
-        return response()->json($milestone, 201);
+        return response()->json($milestone, Response::HTTP_CREATED);
     }
 
     public function show(Offer $offer, Milestone $milestone)

@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Enum\Offer\OfferStatus;
+use App\Enum\Offer\OfferType;
 use App\Enum\Project\Status;
 use App\Models\Offer;
 use App\Http\Requests\StoreOfferRequest;
@@ -24,6 +26,7 @@ class OfferController extends Controller
             return response("you can't add offers to this project", Response::HTTP_FORBIDDEN);
         }
         $offer = new Offer($request->validated());
+        $offer->status = OfferStatus::Accepted->value;
         $offer->user_id = Auth::id();
         $offer->save();
         return response()->json($offer, Response::HTTP_CREATED);
@@ -56,6 +59,11 @@ class OfferController extends Controller
             $offer->project->designer_id = $offer->user_id;
             $offer->project->status = Status::InProgress->value;
             $offer->project->save();
+            $offers = $offer->project->offers()->where('id', '!=', $offer->id)->get();
+            foreach ($offers as $offer) {
+                $offer->status = OfferStatus::Declined->value;
+                $offer->update();
+            }
             return response($offer, Response::HTTP_CREATED);
         }
         return response("this offer doesn't belong to one of your projects", Response::HTTP_FORBIDDEN);

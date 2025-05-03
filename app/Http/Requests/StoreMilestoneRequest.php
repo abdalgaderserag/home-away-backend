@@ -24,9 +24,7 @@ class StoreMilestoneRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'status' => ['required', new Enum(MilestoneStatus::class)],
             'deadline' => 'required|date|after:now',
-            'delivery_date' => 'nullable|date|after:deadline',
             'attachments' => 'nullable|json',
             'price' => 'required|numeric|min:0',
             'description' => 'required|string|max:1000',
