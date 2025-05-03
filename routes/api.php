@@ -11,6 +11,7 @@ use App\Http\Controllers\MilestoneController;
 use App\Http\Controllers\OfferController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\RateController;
+use App\Http\Controllers\User\NotificationController;
 use App\Http\Controllers\User\ProfileController;
 use App\Http\Controllers\User\SettingsController;
 use Illuminate\Support\Facades\Route;
@@ -34,6 +35,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user/profile/{id?}', [ProfileController::class, 'profile']);
     Route::put('/user/profile', [ProfileController::class, 'updateProfile']);
 
+    Route::get('/user/notifications', NotificationController::class);
 
     Route::get('projects/create', [ProjectController::class, "create"]);
     Route::put('projects/{project}/save', [ProjectController::class, "save"]);
@@ -59,6 +61,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('messages', MessageController::class);
     Route::apiResource('rates', RateController::class);
     Route::apiResource('favorite', FavoriteController::class)->only(['index', 'store', 'destroy']);
+
 });
 
 
