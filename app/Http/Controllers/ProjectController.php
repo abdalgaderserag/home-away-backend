@@ -100,6 +100,7 @@ class ProjectController extends Controller
         }
         $project->status = Status::Pending->value;
         $project->update($request->validated());
+        return response($project);
     }
 
     public function show(Project $project)

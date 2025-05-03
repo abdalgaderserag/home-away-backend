@@ -4,6 +4,8 @@ namespace App\Http\Requests;
 
 use App\Enum\Offer\OfferType;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Enum;
 
 class StoreOfferRequest extends FormRequest
@@ -24,10 +26,14 @@ class StoreOfferRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'project_id' => 'required|exists:projects,id',
+            'project_id' => [
+                'required',
+                'exists:projects,id',
+                Rule::unique('offers')->where('user_id', Auth::id()),
+            ],
             'price' => 'required|numeric|min:0',
             'deadline' => 'required|date',
-            'start_date' => 'required|date|after:deadline',
+            'start_date' => 'required|date|before:deadline',
             'description' => 'required|string',
             'type' => ['required', new Enum(OfferType::class)],
             'expire_date' => 'required|date|after:start_date',

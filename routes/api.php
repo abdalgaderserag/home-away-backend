@@ -38,7 +38,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('projects/{project}/save', [ProjectController::class, "save"]);
     Route::apiResource('projects', ProjectController::class)->except(['index', 'create']);
 
-    Route::apiResource('offers', OfferController::class);
+    Route::get('offers', [OfferController::class, 'index']);
+    Route::post('offers', [OfferController::class, 'store']);
+    Route::get('offers/{project}', [OfferController::class, 'show']);
+    Route::put('offers/{offer}', [OfferController::class, 'update']);
+    Route::post('offers/{offer}/accept', [OfferController::class, 'accept']);
+    Route::delete('offers/{offer}', [OfferController::class, 'destroy']);
+
     Route::apiResource('offers/{offer}/milestones', MilestoneController::class)
         ->parameters(['offer' => 'offer'])
         ->names('offers.milestones');

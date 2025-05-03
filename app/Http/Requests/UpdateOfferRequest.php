@@ -26,7 +26,7 @@ class UpdateOfferRequest extends FormRequest
         return [
             'price' => 'required|numeric|min:0',
             'deadline' => 'required|date',
-            'start_date' => 'required|date|after:deadline',
+            'start_date' => 'required|date|before:deadline',
             'description' => 'required|string',
             'type' => ['required', new Enum(OfferType::class)],
             'expire_date' => 'required|date|after:start_date',

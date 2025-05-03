@@ -19,8 +19,8 @@ class OfferController extends Controller
 
     public function store(StoreOfferRequest $request)
     {
-        $project = Project::findOne($request->project_id);
-        if ($project->status != "published") {
+        $project = Project::find($request->project_id);
+        if ($project->status != Status::Published) {
             return response("you can't add offers to this project", Response::HTTP_FORBIDDEN);
         }
         $offer = new Offer($request->validated());
@@ -31,17 +31,23 @@ class OfferController extends Controller
 
     public function show(Project $project)
     {
-        $offers = $project->offers()->with("user")->get();
+        $offers = $project->offers()->with(["user"])->get();
+        $offers->each(function ($offer) {
+            $offer->user->rate = $offer->user->rates();
+        });
         return response($offers, Response::HTTP_OK);
     }
 
     public function update(UpdateOfferRequest $request, Offer $offer)
     {
-        if (!empty($offer->project->designer_id)) {
+        if (!empty($offer->project->designer_id) && $offer->project->status == Status::InProgress) {
             $offer->update($request->validated());
             return response()->json($offer);
         }
-        return response("not allowed to change offer", Response::HTTP_FORBIDDEN);
+        return response(
+            "not allowed to change offer",
+            Response::HTTP_FORBIDDEN
+        );
     }
 
     public function accept(Offer $offer)
@@ -58,7 +64,6 @@ class OfferController extends Controller
     public function destroy(Offer $offer)
     {
         if (!empty($offer->project->designer_id)) {
-
             $offer->delete();
             return response()->noContent();
         }

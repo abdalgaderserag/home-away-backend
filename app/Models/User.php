@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 
+use App\Enum\User\UserType;
 use App\Models\User\Settings;
 use App\Notifications\Auth\ResetPasswordSms;
 use App\Notifications\Auth\VerifyEmail;
@@ -78,6 +79,18 @@ class User extends Authenticatable implements MustVerifyEmail
     public function offers(): HasMany
     {
         return $this->hasMany(Offer::class);
+    }
+
+    public function rates()
+    {
+        $type = $this->type === UserType::Client ? 'client_id' : 'designer_id';
+        $rate = $this->hasMany(Rate::class, $type, 'id')->where('type', $this->type);
+        $sum = $rate->sum('rate');
+        $count = $rate->count();
+        if ($count === 0) {
+            return 0;
+        }
+        return $sum / $count;
     }
 
     public function hasSocialAccount($provider)
