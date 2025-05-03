@@ -99,6 +99,11 @@ class User extends Authenticatable implements MustVerifyEmail
         return $sum / $count;
     }
 
+    public function favorites(): HasMany
+    {
+        return $this->hasMany(Favorite::class);
+    }
+
     public function hasSocialAccount($provider)
     {
         return $this->socialAccounts()->where('provider', $provider)->exists();

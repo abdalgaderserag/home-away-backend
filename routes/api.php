@@ -5,6 +5,7 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\Auth\SocialAuthController;
 use App\Http\Controllers\Auth\VerificationController;
+use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\MilestoneController;
 use App\Http\Controllers\OfferController;
@@ -57,6 +58,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::apiResource('messages', MessageController::class);
     Route::apiResource('rates', RateController::class);
+    Route::apiResource('favorite', FavoriteController::class)->only(['index', 'store', 'destroy']);
 });
 
 
