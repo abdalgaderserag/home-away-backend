@@ -25,7 +25,6 @@ class StoreMilestoneRequest extends FormRequest
     {
         return [
             'deadline' => 'required|date|after:now',
-            'attachments' => 'nullable|json',
             'price' => 'required|numeric|min:0',
             'description' => 'required|string|max:1000',
         ];

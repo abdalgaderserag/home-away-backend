@@ -6,5 +6,6 @@ enum MilestoneStatus: string
 {
     case Waiting = 'waiting';
     case Pending = 'pending';
+    case Reviewing = 'reviewing';
     case Completed = 'completed';
 }

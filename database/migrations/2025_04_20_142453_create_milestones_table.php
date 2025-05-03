@@ -15,10 +15,10 @@ return new class extends Migration
             $table->id();
             $table->foreignId('offer_id')->constrained();
             $table->enum('status', ['waiting', 'pending', 'completed'])->default('waiting');
-            $table->json('attachments')->nullable();
             $table->float('price');
             $table->text('description');
             $table->timestamp('deadline');
+            $table->json('attachments')->nullable();
             $table->timestamp('delivery_date')->nullable();
             $table->timestamps();
         });

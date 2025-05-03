@@ -2,11 +2,9 @@
 
 namespace App\Http\Requests;
 
-use App\Enum\Offer\MilestoneStatus;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rules\Enum;
 
-class UpdateMilestoneRequest extends FormRequest
+class SubmitMilestoneRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,9 +22,7 @@ class UpdateMilestoneRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'deadline' => 'required|date|after:now',
-            'price' => 'required|numeric|min:0',
-            'description' => 'required|string|max:1000',
+            'attachments' => 'required|file|mimes:pdf,doc,docx|max:8096',
         ];
     }
 }

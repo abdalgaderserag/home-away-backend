@@ -45,9 +45,14 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('offers/{offer}/accept', [OfferController::class, 'accept']);
     Route::delete('offers/{offer}', [OfferController::class, 'destroy']);
 
-    Route::apiResource('offers/{offer}/milestones', MilestoneController::class)
-        ->parameters(['offer' => 'offer'])
-        ->names('offers.milestones');
+    Route::get('milestones/{offer}', [MilestoneController::class, 'index']);
+    Route::post('milestones/{offer}', [MilestoneController::class, 'store']);
+    Route::get('milestones/{milestone}', [MilestoneController::class, 'show']);
+    Route::put('milestones/{milestone}', [MilestoneController::class, 'update']);
+    Route::post('milestones/{milestone}/submit', [MilestoneController::class, 'submit']);
+    Route::post('milestones/{milestone}/accept', [MilestoneController::class, 'accept']);
+    Route::post('milestones/{milestone}/reject', [MilestoneController::class, 'reject']);
+    Route::delete('milestones/{milestone}', [MilestoneController::class, 'destroy']);
 
     Route::apiResource('messages', MessageController::class);
     Route::apiResource('rates', RateController::class);
