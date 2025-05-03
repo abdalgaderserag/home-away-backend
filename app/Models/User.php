@@ -5,6 +5,7 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 
 use App\Enum\User\UserType;
+use App\Models\User\Bio;
 use App\Models\User\Settings;
 use App\Notifications\Auth\ResetPasswordSms;
 use App\Notifications\Auth\VerifyEmail;
@@ -79,6 +80,11 @@ class User extends Authenticatable implements MustVerifyEmail
     public function offers(): HasMany
     {
         return $this->hasMany(Offer::class);
+    }
+
+    public function bio(): HasOne
+    {
+        return $this->hasOne(Bio::class);
     }
 
     public function rates()

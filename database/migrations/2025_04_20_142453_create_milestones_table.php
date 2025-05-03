@@ -18,7 +18,7 @@ return new class extends Migration
             $table->float('price');
             $table->text('description');
             $table->timestamp('deadline');
-            $table->json('attachments')->nullable();
+            $table->json('attachment')->nullable();
             $table->timestamp('delivery_date')->nullable();
             $table->timestamps();
         });

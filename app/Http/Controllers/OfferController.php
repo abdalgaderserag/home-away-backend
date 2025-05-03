@@ -69,6 +69,12 @@ class OfferController extends Controller
         return response("this offer doesn't belong to one of your projects", Response::HTTP_FORBIDDEN);
     }
 
+    public function invoice(Offer $offer)
+    {
+        $invoice = $offer->milestones()->get('attachment');
+        return response()->json(['invoice' => $invoice], Response::HTTP_OK);
+    }
+
     public function destroy(Offer $offer)
     {
         if (!empty($offer->project->designer_id)) {

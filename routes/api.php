@@ -43,6 +43,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('offers/{project}', [OfferController::class, 'show']);
     Route::put('offers/{offer}', [OfferController::class, 'update']);
     Route::post('offers/{offer}/accept', [OfferController::class, 'accept']);
+    Route::get('offers/{offer}/invoice', [OfferController::class, 'invoice']);
     Route::delete('offers/{offer}', [OfferController::class, 'destroy']);
 
     Route::get('milestones/{offer}', [MilestoneController::class, 'index']);
