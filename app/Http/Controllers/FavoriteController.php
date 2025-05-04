@@ -34,21 +34,6 @@ class FavoriteController extends Controller
         return redirect()->back()->with('success', 'Project added to favorites.');
     }
 
-    // /**
-    //  * Display the specified resource.
-    //  */
-    // public function show(Favorite $favorite)
-    // {
-    //     //
-    // }
-
-    // /**
-    //  * Update the specified resource in storage.
-    //  */
-    // public function update(Request $request, Favorite $favorite)
-    // {
-    //     //
-    // }
 
     /**
      * Remove the specified resource from storage.

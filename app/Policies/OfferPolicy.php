@@ -2,6 +2,7 @@
 
 namespace App\Policies;
 
+use App\Enum\Project\Status;
 use App\Models\Offer;
 use App\Models\User;
 use Illuminate\Auth\Access\Response;
@@ -13,7 +14,7 @@ class OfferPolicy
      */
     public function viewAny(User $user): bool
     {
-        return false;
+        return $user->hasPermissionTo('super access');
     }
 
     /**
@@ -21,7 +22,13 @@ class OfferPolicy
      */
     public function view(User $user, Offer $offer): bool
     {
-        return false;
+        $client = $offer->project->client;
+        $designer = $offer->project->designer;
+        if ($user->id === $client->id || $user->id === $designer->id) {
+            return true;
+        }
+        return $user->hasOpenTicket($client) ||
+            $user->hasOpenTicket($designer);
     }
 
     /**
@@ -29,7 +36,7 @@ class OfferPolicy
      */
     public function create(User $user): bool
     {
-        return false;
+        return $user->hasRole('designer');
     }
 
     /**
@@ -37,7 +44,14 @@ class OfferPolicy
      */
     public function update(User $user, Offer $offer): bool
     {
-        return false;
+        $client = $offer->project->client;
+        $designer = $offer->project->designer;
+        if ($user->id === $offer->user_id && ($offer->project->status === Status::Published->value ||
+            $offer->project->status === Status::InProgress->value)) {
+            return true;
+        }
+        return $user->hasOpenTicket($client) ||
+            $user->hasOpenTicket($designer);
     }
 
     /**
@@ -45,22 +59,9 @@ class OfferPolicy
      */
     public function delete(User $user, Offer $offer): bool
     {
-        return false;
-    }
-
-    /**
-     * Determine whether the user can restore the model.
-     */
-    public function restore(User $user, Offer $offer): bool
-    {
-        return false;
-    }
-
-    /**
-     * Determine whether the user can permanently delete the model.
-     */
-    public function forceDelete(User $user, Offer $offer): bool
-    {
+        if ($user->id === $offer->user_id && $offer->project->status === Status::Published->value) {
+            return true;
+        }
         return false;
     }
 }

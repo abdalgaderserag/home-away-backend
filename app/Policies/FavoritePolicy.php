@@ -2,26 +2,27 @@
 
 namespace App\Policies;
 
-use App\Models\Message;
+use App\Models\Favorite;
 use App\Models\User;
 use Illuminate\Auth\Access\Response;
+use Illuminate\Support\Facades\Auth;
 
-class MessagePolicy
+class FavoritePolicy
 {
     /**
      * Determine whether the user can view any models.
      */
     public function viewAny(User $user): bool
     {
-        return $user->hasPermissionTo('super access');
+        return false;
     }
 
     /**
      * Determine whether the user can view the model.
      */
-    public function view(User $user, Message $message): bool
+    public function view(User $user, Favorite $favorite): bool
     {
-        return $user->id === $message->sender_id || $user->id === $message->receiver_id;
+        return $favorite->user_id === $user->id;
     }
 
     /**
@@ -29,22 +30,22 @@ class MessagePolicy
      */
     public function create(User $user): bool
     {
-        return $user->hasPermissionTo('verified user');
+        return Auth::check();
     }
 
     /**
      * Determine whether the user can update the model.
      */
-    public function update(User $user, Message $message): bool
+    public function update(User $user, Favorite $favorite): bool
     {
-        return false;
+        return $favorite->user_id === $user->id;
     }
 
     /**
      * Determine whether the user can delete the model.
      */
-    public function delete(User $user, Message $message): bool
+    public function delete(User $user, Favorite $favorite): bool
     {
-        return false;
+        return $favorite->user_id === $user->id;
     }
 }

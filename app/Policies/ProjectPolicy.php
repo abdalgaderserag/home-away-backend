@@ -2,6 +2,7 @@
 
 namespace App\Policies;
 
+use App\Enum\Project\Status;
 use App\Models\Project;
 use App\Models\User;
 use Illuminate\Auth\Access\Response;
@@ -13,7 +14,7 @@ class ProjectPolicy
      */
     public function viewAny(User $user): bool
     {
-        return false;
+        return $user->hasPermissionTo('super access');
     }
 
     /**
@@ -21,7 +22,7 @@ class ProjectPolicy
      */
     public function view(User $user, Project $project): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -29,7 +30,7 @@ class ProjectPolicy
      */
     public function create(User $user): bool
     {
-        return false;
+        return $user->hasRole('client');
     }
 
     /**
@@ -37,7 +38,13 @@ class ProjectPolicy
      */
     public function update(User $user, Project $project): bool
     {
-        return false;
+        $client = $project->client;
+        $designer = $project->designer;
+        if ($user->id === $project->client_id && ($project->status === Status::Draft->value)) {
+            return true;
+        }
+        return $user->hasOpenTicket($client) ||
+            $user->hasOpenTicket($designer);
     }
 
     /**
@@ -45,22 +52,12 @@ class ProjectPolicy
      */
     public function delete(User $user, Project $project): bool
     {
-        return false;
-    }
-
-    /**
-     * Determine whether the user can restore the model.
-     */
-    public function restore(User $user, Project $project): bool
-    {
-        return false;
-    }
-
-    /**
-     * Determine whether the user can permanently delete the model.
-     */
-    public function forceDelete(User $user, Project $project): bool
-    {
-        return false;
+        $client = $project->client;
+        $designer = $project->designer;
+        if ($user->id === $client->id && $project->status === Status::Draft->value) {
+            return true;
+        }
+        return $user->hasOpenTicket($client) ||
+            $user->hasOpenTicket($designer);
     }
 }

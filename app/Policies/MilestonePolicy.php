@@ -2,6 +2,7 @@
 
 namespace App\Policies;
 
+use App\Enum\Offer\OfferStatus;
 use App\Models\Milestone;
 use App\Models\User;
 use Illuminate\Auth\Access\Response;
@@ -13,7 +14,7 @@ class MilestonePolicy
      */
     public function viewAny(User $user): bool
     {
-        return false;
+        return $user->hasPermissionTo('super access');
     }
 
     /**
@@ -21,7 +22,13 @@ class MilestonePolicy
      */
     public function view(User $user, Milestone $milestone): bool
     {
-        return false;
+        $client = $milestone->offer->project->client;
+        $designer = $milestone->offer->project->designer;
+        if ($user->id === $client->id || $user->id === $designer->id) {
+            return true;
+        }
+        return $user->hasOpenTicket($client) ||
+            $user->hasOpenTicket($designer);
     }
 
     /**
@@ -29,7 +36,7 @@ class MilestonePolicy
      */
     public function create(User $user): bool
     {
-        return false;
+        return $user->hasRole('designer');
     }
 
     /**
@@ -37,7 +44,13 @@ class MilestonePolicy
      */
     public function update(User $user, Milestone $milestone): bool
     {
-        return false;
+        $client = $milestone->offer->project->client;
+        $designer = $milestone->offer->project->designer;
+        if ($user->id === $designer->id && $milestone->status === OfferStatus::Pending->value) {
+            return true;
+        }
+        return $user->hasOpenTicket($client) ||
+            $user->hasOpenTicket($designer);
     }
 
     /**
@@ -45,22 +58,12 @@ class MilestonePolicy
      */
     public function delete(User $user, Milestone $milestone): bool
     {
-        return false;
-    }
-
-    /**
-     * Determine whether the user can restore the model.
-     */
-    public function restore(User $user, Milestone $milestone): bool
-    {
-        return false;
-    }
-
-    /**
-     * Determine whether the user can permanently delete the model.
-     */
-    public function forceDelete(User $user, Milestone $milestone): bool
-    {
-        return false;
+        $client = $milestone->offer->project->client;
+        $designer = $milestone->offer->project->designer;
+        if ($user->id === $designer->id && $milestone->status === OfferStatus::Pending->value) {
+            return true;
+        }
+        return $user->hasOpenTicket($client) ||
+            $user->hasOpenTicket($designer);
     }
 }

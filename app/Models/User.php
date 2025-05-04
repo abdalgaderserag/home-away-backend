@@ -118,6 +118,16 @@ class User extends Authenticatable implements MustVerifyEmail, CanUseTickets
         return $this->hasMany(Ticket::class);
     }
 
+    public function hasOpenTicket(User $user): bool
+    {
+        if ($this->hasRole('support') || $this->hasRole('admin')) {
+            return $user->tickets()
+                ->where('assigned_to', $this->id)
+                ->where('status', 'open')
+                ->exists();
+        }
+        return false;
+    }
 
 
     public function hasSocialAccount($provider)

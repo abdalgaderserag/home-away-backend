@@ -16,5 +16,11 @@ class PermissionSeeder extends Seeder
         Permission::create(['name' => 'verified user']);
         Permission::create(['name' => 'client']);
         Permission::create(['name' => 'designer']);
+
+        Permission::create(['name' => 'super access']);
+        Permission::create(['name' => 'edit locations']);
+        Permission::create(['name' => 'edit users']);
+        Permission::create(['name' => 'verify edit']);
+        Permission::create(['name' => 'edit bio']);
     }
 }
