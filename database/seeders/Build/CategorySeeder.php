@@ -1,6 +1,6 @@
 <?php
 
-namespace Database\Seeders;
+namespace Database\Seeders\Build;
 
 use Coderflex\LaravelTicket\Models\Category;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;

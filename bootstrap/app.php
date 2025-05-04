@@ -14,6 +14,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->alias([
             'social.auth' => \App\Http\Middleware\VerifySocialAccess::class,
+            'verified' => \App\Http\Middleware\VerifiedMiddleware::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

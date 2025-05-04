@@ -27,7 +27,9 @@ class RegisterController extends Controller
         }
         $user->password = Hash::make($request->password);
         if ($request->type === UserType::Designer->value) {
-            $user->type = UserType::Designer->value;
+            $user->assignRole('designer');
+        } else {
+            $user->assignRole('client');
         }
         $user->save();
 
@@ -50,6 +52,8 @@ class RegisterController extends Controller
         }
         $token = $user->createToken("token:" . $user->id);
         Auth::login($user);
+
+        // send welcome notification
         $user->notify(new Welcome);
         return response($token->plainTextToken, 201);
     }

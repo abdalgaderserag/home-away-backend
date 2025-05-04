@@ -49,6 +49,7 @@ class VerificationController extends Controller
         $verification->attachments = $request->attachments;
         $verification->verified = false;
         $verification->save();
+        $this->checkVerification($verification);
         return response($verification, Response::HTTP_CREATED);
     }
 
@@ -61,6 +62,23 @@ class VerificationController extends Controller
             $verification->delete();
             return response()->noContent();
         }
+        $this->checkVerification($verification);
         return response("you are not the ID owner", Response::HTTP_UNAUTHORIZED);
+    }
+
+    private function checkVerification($verifications)
+    {
+        $auth = Auth::user();
+        $user = Verification::where('user_id', $auth->id)
+            ->where('type', VerificationType::User->value)->first();
+        $company = Verification::where('user_id', $auth->id)
+            ->where('type', VerificationType::Company->value)->first();
+        $address  = Verification::where('user_id', $auth->id)
+            ->where('type', VerificationType::Address->value)->first();
+        if ($user->verified && $company->verified && $address->verified) {
+            $auth->givePermissionTo('verified user');
+        }else if($auth->hasPermissionTo('verified user')){
+            $auth->revokePermissionTo('verified user');
+        }
     }
 }

@@ -21,7 +21,7 @@ class MessagePolicy
      */
     public function view(User $user, Message $message): bool
     {
-        return false;
+        return $user->id === $message->sender_id || $user->id === $message->receiver_id;
     }
 
     /**
