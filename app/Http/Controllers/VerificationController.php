@@ -35,23 +35,37 @@ class VerificationController extends Controller
      */
     public function store(StoreVerificationRequest $request)
     {
-        $verification = Verification::where('user_id', Auth::id())->where('type', $request->type)->first();
-        if ($verification->verified) {
-            return response("you have already verified your " . $request->type, Response::HTTP_NOT_MODIFIED);
-        } elseif ($verification) {
-            $verification->user_id = Auth::id();
+        // Check if a verification of the given type already exists
+        $verification = Verification::where('user_id', Auth::id())
+            ->where('type', $request->type)
+            ->first();
+
+        // If the verification exists and is already verified, return a message
+        if ($verification) {
+            if ($verification->verified) {
+                return response("you have already verified your " . $request->type, Response::HTTP_NOT_MODIFIED);
+            }
+
+            // If it's not verified yet, update the verification with new data
             $verification->attachments = $request->attachments;
             $verification->update();
             return response($verification, Response::HTTP_OK);
         }
+
+        // If no verification exists, create a new one
         $verification = new Verification();
         $verification->user_id = Auth::id();
         $verification->attachments = $request->attachments;
         $verification->verified = false;
+        $verification->type = $request->type;  // Ensure the type is set
         $verification->save();
-        $this->checkVerification($verification);
+
+        // Check if all verifications are completed and assign permissions
+        $this->checkVerification();
+
         return response($verification, Response::HTTP_CREATED);
     }
+
 
     /**
      * Remove the specified resource from storage.
@@ -62,11 +76,11 @@ class VerificationController extends Controller
             $verification->delete();
             return response()->noContent();
         }
-        $this->checkVerification($verification);
+        $this->checkVerification();
         return response("you are not the ID owner", Response::HTTP_UNAUTHORIZED);
     }
 
-    private function checkVerification($verifications)
+    private function checkVerification()
     {
         $auth = Auth::user();
         $user = Verification::where('user_id', $auth->id)
@@ -77,7 +91,7 @@ class VerificationController extends Controller
             ->where('type', VerificationType::Address->value)->first();
         if ($user->verified && $company->verified && $address->verified) {
             $auth->givePermissionTo('verified user');
-        }else if($auth->hasPermissionTo('verified user')){
+        } else if ($auth->hasPermissionTo('verified user')) {
             $auth->revokePermissionTo('verified user');
         }
     }

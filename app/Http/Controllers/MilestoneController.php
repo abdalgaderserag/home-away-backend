@@ -18,13 +18,15 @@ use Symfony\Component\HttpFoundation\Response;
 
 class MilestoneController extends Controller
 {
-    // todo : add authorization
     public function index(Offer $offer)
     {
         if ($offer->user_id == Auth::id() || $offer->project->user_id == Auth::id()) {
-            return $offer->milestones();
+            return response()->json([
+                'milestones' => $offer->milestones,
+                'offer' => $offer
+            ]);
         }
-        return response()->json(['message' => 'You are not unauthorized the offer owner or the project owner'], Response::HTTP_UNAUTHORIZED);
+        return response()->json(['message' => 'You are not authorized to view these milestones.'], Response::HTTP_UNAUTHORIZED);
     }
 
     public function store(StoreMilestoneRequest $request, Offer $offer)
@@ -86,7 +88,7 @@ class MilestoneController extends Controller
 
     public function accept(Milestone $milestone)
     {
-        if ($milestone->status !== MilestoneStatus::Reviewing) {
+        if ($milestone->status !== MilestoneStatus::Reviewing->value) {
             return response()->json(["message" => "this milestone is not submitted by designer yet"], Response::HTTP_NOT_ACCEPTABLE);
         }
         $milestone->update([

@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Favorite;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Symfony\Component\HttpFoundation\Response;
+
 
 class FavoriteController extends Controller
 {
@@ -13,7 +15,7 @@ class FavoriteController extends Controller
      */
     public function index()
     {
-        $favorites = Auth::user()->favorites()->with('project');
+        $favorites = Auth::user()->favorites()->with('project')->get();
         return view('favorites.index', compact('favorites'));
     }
 
@@ -25,27 +27,27 @@ class FavoriteController extends Controller
         $request->validate([
             'project_id' => 'required|exists:projects,id',
         ]);
+        
+        $f = Favorite::where('user_id', Auth::id())
+            ->where('project_id', $request->project_id)
+            ->first();
+
+        if ($f) {
+            $f->delete();
+            return response()->json([
+                'message' => 'Project removed from favorites.',
+                'project_id' => $f->project_id,
+            ], Response::HTTP_OK);
+        }
 
         $favorite = new Favorite();
         $favorite->user_id = Auth::id();
         $favorite->project_id = $request->project_id;
         $favorite->save();
 
-        return redirect()->back()->with('success', 'Project added to favorites.');
-    }
-
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Favorite $favorite)
-    {
-        if ($favorite->user_id !== Auth::id()) {
-            return redirect()->back()->with('error', 'Unauthorized action.');
-        }
-
-        $favorite->delete();
-
-        return redirect()->back()->with('success', 'Project removed from favorites.');
+        return response()->json([
+            'message' => 'Project added to favorites.',
+            'project_id' => $favorite->project_id,
+        ], Response::HTTP_CREATED);
     }
 }

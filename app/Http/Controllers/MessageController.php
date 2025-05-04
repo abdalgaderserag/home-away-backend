@@ -16,7 +16,7 @@ class MessageController extends Controller
     {
         $userId = Auth::id();
 
-        $chats = Chat::with(['first_user', 'second_user', 'last_message_id'])
+        $chats = Chat::with(['firstUser', 'secondUser', 'lastMessage'])
             ->where(function ($query) use ($userId) {
                 $query->where('first_user_id', $userId)
                     ->orWhere('second_user_id', $userId);
@@ -27,7 +27,7 @@ class MessageController extends Controller
                 $chat->other_user = $chat->first_user_id === $userId
                     ? $chat->second_user
                     : $chat->first_user;
-                return $chat->only(['id', 'other_user', 'latestMessage']);
+                return $chat->only(['id', 'other_user', 'lastMessage']);
             });
 
         return response()->json($chats);
@@ -35,7 +35,6 @@ class MessageController extends Controller
 
     public function show(Chat $chat): JsonResponse
     {
-        //todo: add authorization
         $chat->load(['messages' => function ($query) {
             $query->orderBy('created_at', 'desc');
         }, 'first_user', 'second_user']);
@@ -46,7 +45,9 @@ class MessageController extends Controller
 
         return response()->json([
             'messages' => $chat->messages,
-            'other_user' => User::find($otherUserId)
+            'other_user' => $chat->first_user_id === Auth::id()
+                ? $chat->second_user
+                : $chat->first_user
         ]);
     }
 
@@ -65,7 +66,7 @@ class MessageController extends Controller
         $message->receiver()->associate($user);
         $message->chat()->associate($chat);
         $message->save();
-
+        
         $chat->touch();
 
         return response()->json($message->load(['sender', 'receiver']), Response::HTTP_CREATED);

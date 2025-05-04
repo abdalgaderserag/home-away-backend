@@ -3,11 +3,13 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Enum\User\UserType;
+use App\Enum\VerificationType;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\RegisterRequest;
 use App\Models\User;
 use App\Models\User\Bio;
 use App\Models\User\Settings;
+use App\Models\Verification;
 use App\Notifications\Welcome;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -42,6 +44,15 @@ class RegisterController extends Controller
         $bio = new Bio();
         $bio->user_id = $user->id;
         $bio->save();
+
+        // create ID verifications
+        $types = [VerificationType::User->value, VerificationType::Address->value, VerificationType::Company->value];
+        foreach ($types as $type) {
+            $v = new Verification();
+            $v->user_id = $user->id;
+            $v->type = $type;
+            $v->save();
+        }
 
         // send verification request
         if ($request->email) {

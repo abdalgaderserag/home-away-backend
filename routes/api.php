@@ -35,7 +35,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user/profile/{id?}', [ProfileController::class, 'profile']);
     Route::put('/user/profile', [ProfileController::class, 'updateProfile']);
 
-    Route::get('/user/notifications', NotificationController::class);
+    Route::post('/user/notifications', NotificationController::class, 'index');
+    Route::post('user/notifications/{notificationId}/read', [NotificationController::class, 'markAsRead']);
+
 
     Route::get('projects/create', [ProjectController::class, "create"]);
     Route::put('projects/{project}/save', [ProjectController::class, "save"]);
@@ -60,8 +62,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::apiResource('messages', MessageController::class);
     Route::apiResource('rates', RateController::class);
-    Route::apiResource('favorite', FavoriteController::class)->only(['index', 'store', 'destroy']);
-
+    Route::apiResource('favorite', FavoriteController::class)->only(['index', 'store']);
 });
 
 

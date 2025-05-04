@@ -8,6 +8,7 @@ use App\Http\Requests\StoreProjectRequest;
 use App\Http\Requests\UpdateProjectRequest;
 use App\Models\Project;
 use Illuminate\Support\Facades\Auth;
+use Symfony\Component\HttpFoundation\Response;
 
 class ProjectController extends Controller
 {
@@ -16,7 +17,7 @@ class ProjectController extends Controller
         $validated = $request->validated();
 
         if (empty($validated['sort_by'])) {
-            $validated['sort_by'] = "created_at";
+            $validated['sort_by'] = "published_at";
         }
 
         if (empty($validated['sort_order'])) {
@@ -47,11 +48,11 @@ class ProjectController extends Controller
 
         //sorting
         $sortBy = in_array(
-            $validated['sort_by'] ?? 'created_at',
+            $validated['sort_by'] ?? 'published_at',
             ['created_at', 'title', 'min_price', 'max_price', 'deadline']
         )
             ? $validated['sort_by']
-            : 'created_at';
+            : 'published_at';
 
         $sortOrder = in_array(strtolower($validated['sort_order'] ?? 'asc'), ['asc', 'desc'])
             ? strtolower($validated['sort_order'])
@@ -65,20 +66,20 @@ class ProjectController extends Controller
         return response()->json($query->paginate($perPage));
     }
 
-    public function projects($status = "")
+    public function projects($status = "", $perPage = 10, $page = 1)
     {
         $projects = Project::with('offers')->where('client_id', Auth::id());
         if ($status !== "") {
             $projects = $projects->where("status", $status);
         }
-        return response($projects);
+        return response()->json($projects->paginate($perPage, ['*'], 'page', $page));
     }
 
     public function create()
     {
         $project = new Project();
         $project->client_id = Auth::id();
-        $project->status = Status::Draft;
+        $project->status = Status::Draft->value;
         $project->save();
         return response()->json($project, 201);
     }
@@ -100,14 +101,17 @@ class ProjectController extends Controller
         }
         $project->status = Status::Pending->value;
         $project->update($request->validated());
-        return response($project);
+        return response()->json([
+            'project' => $project->refresh()
+        ], Response::HTTP_CREATED);
     }
 
     public function show(Project $project)
     {
-        if ($project->status !== Status::Published->value) {
-            return response()->json(['message' => 'Not found'], 404);
+        if ($project->status !== Status::Published->value && $project->client_id !== Auth::id()) {
+            return response()->json(['message' => 'Not found'], Response::HTTP_NOT_FOUND);
         }
+
         return $project->load(['client', 'offers.user.rate']);
     }
 
@@ -130,6 +134,6 @@ class ProjectController extends Controller
 
     private function validateOwner($id)
     {
-        return !($id === Auth::id());
+        return ($id !== Auth::id());
     }
 }

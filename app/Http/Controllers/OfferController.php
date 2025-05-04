@@ -26,7 +26,7 @@ class OfferController extends Controller
             return response("you can't add offers to this project", Response::HTTP_FORBIDDEN);
         }
         $offer = new Offer($request->validated());
-        $offer->status = OfferStatus::Accepted->value;
+        $offer->status = OfferStatus::Pending->value;
         $offer->user_id = Auth::id();
         $offer->save();
         return response()->json($offer, Response::HTTP_CREATED);
@@ -36,14 +36,14 @@ class OfferController extends Controller
     {
         $offers = $project->offers()->with(["user"])->get();
         $offers->each(function ($offer) {
-            $offer->user->rate = $offer->user->rates();
+            $offer->user->rate = $offer->user->rates()->avg('rate');
         });
         return response($offers, Response::HTTP_OK);
     }
 
     public function update(UpdateOfferRequest $request, Offer $offer)
     {
-        if (!empty($offer->project->designer_id) && $offer->project->status == Status::InProgress) {
+        if ($offer->user_id !== Auth::id() || $offer->project->status !== Status::Published) {
             $offer->update($request->validated());
             return response()->json($offer);
         }
@@ -60,9 +60,9 @@ class OfferController extends Controller
             $offer->project->status = Status::InProgress->value;
             $offer->project->save();
             $offers = $offer->project->offers()->where('id', '!=', $offer->id)->get();
-            foreach ($offers as $offer) {
-                $offer->status = OfferStatus::Declined->value;
-                $offer->update();
+            foreach ($offers as $otherOffer) {
+                $otherOffer->status = OfferStatus::Declined->value;
+                $otherOffer->update();
             }
             return response($offer, Response::HTTP_CREATED);
         }
@@ -77,7 +77,7 @@ class OfferController extends Controller
 
     public function destroy(Offer $offer)
     {
-        if (!empty($offer->project->designer_id)) {
+        if (empty($offer->project->designer_id)) {
             $offer->delete();
             return response()->noContent();
         }

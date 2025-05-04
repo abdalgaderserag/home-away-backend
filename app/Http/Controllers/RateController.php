@@ -2,31 +2,33 @@
 
 namespace App\Http\Controllers;
 
+use App\Enum\Project\Status;
 use App\Models\Rate;
 use App\Http\Requests\StoreRateRequest;
 use App\Models\Project;
 use Illuminate\Support\Facades\Auth;
+use Symfony\Component\HttpFoundation\Response;
 
 class RateController extends Controller
 {
     public function index($id, $type = "designer")
     {
         $type = $type == "designer" ? "designer" : "client";
-        $rates = Rate::with(['project', $type])->where($type . "_id", '=', $id);
-        return response($rates, 200);
+        $rates = Rate::with(['project', $type])->where($type . "_id", $id)->get();
+        return response()->json($rates, Response::HTTP_OK);
     }
 
     public function store(Project $project, StoreRateRequest $request)
     {
-        if ($project->status == "completed") {
+        if ($project->status == Status::Completed->value) {
             $request->validated();
             $rate = new Rate();
             $rate->rate = $request->rate;
             $rate->description = $request->description;
             if ($project->client_id == Auth::id()) {
-                $rate->designer_id = $rate->project->designer_id;
+                $rate->designer_id = $project->designer_id;
             } elseif ($project->designer_id == Auth::id()) {
-                $rate->client_id = $rate->project->client_id;
+                $rate->client_id = $project->client_id;
             } else {
                 return response("not allowed", 403);
             }
