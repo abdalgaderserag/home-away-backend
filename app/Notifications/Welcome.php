@@ -26,7 +26,7 @@ class Welcome extends Notification
      */
     public function via(object $notifiable): array
     {
-        return ['mail'];
+        return ['database'];
     }
 
     /**
@@ -47,8 +47,9 @@ class Welcome extends Notification
      */
     public function toArray(object $notifiable): array
     {
+        $app_name = config("app.name");
         return [
-            //
+            "message" => _("notification.welcome"),
         ];
     }
 }

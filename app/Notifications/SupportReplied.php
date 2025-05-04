@@ -26,7 +26,7 @@ class SupportReplied extends Notification
      */
     public function via(object $notifiable): array
     {
-        return ['mail'];
+        return ['database'];
     }
 
     /**
@@ -48,7 +48,8 @@ class SupportReplied extends Notification
     public function toArray(object $notifiable): array
     {
         return [
-            //
+            "message" => __("notification.support_reply", ["ticket_title" => $ticket_title]),
+            "ticket_id" => $ticket_id,
         ];
     }
 }

@@ -26,7 +26,7 @@ class Rated extends Notification
      */
     public function via(object $notifiable): array
     {
-        return ['mail'];
+        return ['database'];
     }
 
     /**
@@ -47,8 +47,16 @@ class Rated extends Notification
      */
     public function toArray(object $notifiable): array
     {
+        if ($project)
+            $data = [
+                "message" => __('notification', ["project_title" => $project, "user" => $user]),
+            ];
+        else
+            $data = [
+                "message" => __('notification', ["user" => $user]),
+            ];
         return [
-            //
+            "message" => $message,
         ];
     }
 }

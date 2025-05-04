@@ -26,7 +26,7 @@ class Disposal extends Notification
      */
     public function via(object $notifiable): array
     {
-        return ['mail'];
+        return ['database'];
     }
 
     /**
@@ -48,7 +48,7 @@ class Disposal extends Notification
     public function toArray(object $notifiable): array
     {
         return [
-            //
+            "message" => __("notification.payment_disposal"),
         ];
     }
 }

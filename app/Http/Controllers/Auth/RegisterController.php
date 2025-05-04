@@ -8,6 +8,7 @@ use App\Http\Requests\Auth\RegisterRequest;
 use App\Models\User;
 use App\Models\User\Bio;
 use App\Models\User\Settings;
+use App\Notifications\Welcome;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
@@ -49,6 +50,7 @@ class RegisterController extends Controller
         }
         $token = $user->createToken("token:" . $user->id);
         Auth::login($user);
+        $user->notify(new Welcome);
         return response($token->plainTextToken, 201);
     }
 }

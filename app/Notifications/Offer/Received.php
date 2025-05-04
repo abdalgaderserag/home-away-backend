@@ -26,7 +26,7 @@ class Received extends Notification
      */
     public function via(object $notifiable): array
     {
-        return ['mail'];
+        return ['database'];
     }
 
     /**
@@ -48,7 +48,10 @@ class Received extends Notification
     public function toArray(object $notifiable): array
     {
         return [
-            //
+            "message" => __("notification.offer_received", ["project_title" => $this->project->title]),
+            "project_id" => $this->project->id,
+            "offer_id" => $this->offer->id,
+            "client_id" => $this->project->client_id,
         ];
     }
 }

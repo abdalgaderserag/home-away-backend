@@ -7,7 +7,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class Approved extends Notification
+class Declined extends Notification
 {
     use Queueable;
 
@@ -26,7 +26,7 @@ class Approved extends Notification
      */
     public function via(object $notifiable): array
     {
-        return ['mail'];
+        return ['database'];
     }
 
     /**
@@ -48,7 +48,7 @@ class Approved extends Notification
     public function toArray(object $notifiable): array
     {
         return [
-            //
+            "message" => __("notification.project_declined"),
         ];
     }
 }
