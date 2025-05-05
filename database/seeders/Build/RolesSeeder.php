@@ -13,28 +13,24 @@ class RolesSeeder extends Seeder
      */
     public function run(): void
     {
-        $client = Role::factory()->create([
+        $client = Role::create([
             'name' => 'client',
-            'guard_name' => 'auth',
-            'description' => 'Client role',
+            'guard_name' => 'web',
         ])->givePermissionTo('client');
 
-        Role::factory()->create([
+        Role::create([
             'name' => 'designer',
-            'guard_name' => 'auth',
-            'description' => 'Designer role',
+            'guard_name' => 'web',
         ])->givePermissionTo('designer');
 
-        Role::factory()->create([
-            'name' => 'support',
-            'guard_name' => 'admin',
-            'description' => 'Admin role',
-        ]);
+        // Role::create([
+        //     'name' => 'support',
+        //     'guard_name' => 'admin',
+        // ]);
 
-        Role::factory()->create([
-            'name' => 'admin',
-            'guard_name' => 'admin',
-            'description' => 'Admin role',
-        ]);
+        // Role::create([
+        //     'name' => 'admin',
+        //     'guard_name' => 'admin',
+        // ]);
     }
 }

@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Enum\Offer\MilestoneStatus;
 use App\Enum\Offer\OfferStatus;
 use App\Enum\Offer\OfferType;
 use App\Enum\Project\Status;
 use App\Models\Offer;
 use App\Http\Requests\StoreOfferRequest;
 use App\Http\Requests\UpdateOfferRequest;
+use App\Models\Milestone;
 use App\Models\Project;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
@@ -34,16 +36,19 @@ class OfferController extends Controller
 
     public function show(Project $project)
     {
+        if ($project->client->id !== Auth::id()) {
+            return response("not allowed to see project details", Response::HTTP_FORBIDDEN);
+        }
         $offers = $project->offers()->with(["user"])->get();
         $offers->each(function ($offer) {
-            $offer->user->rate = $offer->user->rates()->avg('rate');
+            $offer->user->rate = $offer->user->rates();
         });
         return response($offers, Response::HTTP_OK);
     }
 
     public function update(UpdateOfferRequest $request, Offer $offer)
     {
-        if ($offer->user_id !== Auth::id() || $offer->project->status !== Status::Published) {
+        if ($offer->user_id !== Auth::id() || $offer->project->status !== Status::Published->value) {
             $offer->update($request->validated());
             return response()->json($offer);
         }
@@ -56,9 +61,16 @@ class OfferController extends Controller
     public function accept(Offer $offer)
     {
         if ($offer->project->client_id == Auth::id()) {
+            if ($offer->type == OfferType::Basic->value) {
+                // todo : fix this to make it require milestones
+                $offer->price = $offer->project->price;
+            }
+            $offer->milestones->first()->status = MilestoneStatus::Pending->value;
             $offer->project->designer_id = $offer->user_id;
             $offer->project->status = Status::InProgress->value;
             $offer->project->save();
+            $offer->status = OfferStatus::Accepted->value;
+            $offer->update();
             $offers = $offer->project->offers()->where('id', '!=', $offer->id)->get();
             foreach ($offers as $otherOffer) {
                 $otherOffer->status = OfferStatus::Declined->value;

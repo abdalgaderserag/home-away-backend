@@ -13,34 +13,34 @@ class CategorySeeder extends Seeder
      */
     public function run(): void
     {
-        Category::factory()->make([
+        Category::create([
             'name' => 'Project Approval',
-            'description' => 'Project Approval',
             'slug' => 'project-approval',
-        ])->save();
+            'is_visible' => true,
+        ]);
 
-        Category::factory()->make([
+        Category::create([
             'name' => "User ID",
-            'description' => "User ID verification request",
-            'slug' => "user-id"
-        ])->save();
+            'slug' => "user-id",
+            'is_visible' => true,
+        ]);
 
-        Category::factory()->make([
+        Category::create([
             'name' => "Company ID",
-            'description' => "Company ID verification request",
-            'slug' => "company-id"
-        ])->save();
+            'slug' => "company-id",
+            'is_visible' => true,
+        ]);
 
-        Category::factory()->make([
+        Category::create([
             'name' => "Address Verification",
-            'description' => "User Address verification request",
             'slug' => "address-verification",
-        ])->save();
+            'is_visible' => true,
+        ]);
 
-        Category::factory()->make([
+        Category::create([
             'name' => "Restore Account",
-            'description' => "Restore account request send a reset password link if approved.",
             'slug' => "restore-account",
-        ])->save();
+            'is_visible' => true,
+        ]);
     }
 }

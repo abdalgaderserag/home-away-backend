@@ -13,9 +13,9 @@ class BuildDatabase extends Seeder
     public function run(): void
     {
         $this->call([
-            RolesSeeder::class,
             PermissionSeeder::class,
             CategorySeeder::class,
+            RolesSeeder::class,
         ]);
     }
 }

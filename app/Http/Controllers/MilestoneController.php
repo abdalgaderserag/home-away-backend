@@ -6,6 +6,7 @@ use App\Enum\Offer\MilestoneStatus;
 use App\Enum\Offer\OfferStatus;
 use App\Enum\Offer\OfferType;
 use App\Enum\Project\Status;
+use App\Http\Requests\MilestoneReviewRequest;
 use App\Models\Milestone;
 use App\Http\Requests\StoreMilestoneRequest;
 use App\Http\Requests\SubmitMilestoneRequest;
@@ -50,11 +51,11 @@ class MilestoneController extends Controller
         $milestone = $offer->milestones()->create($request->validated());
         $isLastMilestone = $price_left - $request->price == 0;
         if ($isLastMilestone) {
-            $offer->status = OfferType::Final->value;
+            $offer->type = OfferType::Final->value;
             $offer->update();
-            $firstMs = $offer->milestones()->first();
-            $firstMs->status = MilestoneStatus::Pending->value;
-            $firstMs->update();
+            // $firstMs = $offer->milestones()->first();
+            // $firstMs->status = MilestoneStatus::Pending->value;
+            // $firstMs->update();
         }
         return response()->json(["milestone" => $milestone, "is_last_milestone" => $isLastMilestone], Response::HTTP_CREATED);
     }
@@ -75,7 +76,7 @@ class MilestoneController extends Controller
 
     public function submit(SubmitMilestoneRequest $request, Milestone $milestone)
     {
-        if ($milestone->status !== MilestoneStatus::Pending->value) {
+        if ($milestone->status !== MilestoneStatus::Pending) {
             return response()->json(["message" => "You can't submit this milestone right now."]);
         }
         $milestone->update([
@@ -86,7 +87,18 @@ class MilestoneController extends Controller
         return response()->json($milestone);
     }
 
-    public function accept(Milestone $milestone)
+    public function acceptOrReject(MilestoneReviewRequest $request)
+    {
+        $milestone = Milestone::find($request->milestone_id);
+        if ($request->action == 'accept') {
+            return $this->accept($milestone);
+        } elseif ($request->action == 'reject') {
+            return $this->reject($milestone);
+        }
+        return response()->json(["message" => "Invalid action"], Response::HTTP_BAD_REQUEST);
+    }
+
+    private function accept(Milestone $milestone)
     {
         if ($milestone->status !== MilestoneStatus::Reviewing->value) {
             return response()->json(["message" => "this milestone is not submitted by designer yet"], Response::HTTP_NOT_ACCEPTABLE);
@@ -102,11 +114,15 @@ class MilestoneController extends Controller
             $milestone->offer->project->update([
                 'status' => Status::Completed->value,
             ]);
+        } else {
+            $milestone->offer->update([
+                'status' => OfferStatus::Pending->value,
+            ]);
         }
         return response()->json(['milestone' => $milestone, 'is_last_milestone' => $lastMs ? true : false]);
     }
 
-    public function reject(Milestone $milestone)
+    private function reject(Milestone $milestone)
     {
         if ($milestone->status !== MilestoneStatus::Reviewing) {
             return response()->json(["message" => "this milestone is not submitted by designer yet"], Response::HTTP_NOT_ACCEPTABLE);
@@ -119,7 +135,9 @@ class MilestoneController extends Controller
 
     public function destroy(Milestone $milestone)
     {
-        $milestone->delete();
-        return response()->noContent();
+        if ($milestone->offer->status === OfferStatus::Pending) {
+            $milestone->delete();
+            return response()->noContent();
+        }
     }
 }

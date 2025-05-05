@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('milestones', function (Blueprint $table) {
             $table->id();
             $table->foreignId('offer_id')->constrained();
-            $table->enum('status', ['waiting', 'pending', 'completed'])->default('waiting');
+            $table->enum('status', ['waiting', 'pending', 'reviewing', 'completed'])->default('waiting');
             $table->float('price');
             $table->text('description');
             $table->timestamp('deadline');

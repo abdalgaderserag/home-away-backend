@@ -4,14 +4,14 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreVerificationRequest extends FormRequest
+class MilestoneReviewRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +22,8 @@ class StoreVerificationRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'attachments' => 'required|file|mimes:jpg,jpeg,png|max:8192',
+            'milestone_id' => 'required|exists:milestones,id',
+            'action' => 'required|in:accept,reject',
         ];
     }
 }

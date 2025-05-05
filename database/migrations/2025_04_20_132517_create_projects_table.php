@@ -27,7 +27,7 @@ return new class extends Migration
             $table->boolean('resources')->default(false);
             $table->enum('skill', ['construction', 'design', 'renovation'])->nullable();
             $table->json('attachments')->nullable();
-            $table->timestamp('approved_at')->nullable();
+            $table->timestamp('published_at')->nullable();
             $table->timestamps();
         });
     }

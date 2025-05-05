@@ -30,9 +30,7 @@ class LoginController extends Controller
         if (!$user || !Hash::check($request->password, $user->password)) {
             return response('Invalid credentials', Response::HTTP_UNAUTHORIZED);
         }
-        $token = $user->createToken('authToken', [
-            'remember' => $request->remember_me
-        ])->plainTextToken;
+        $token = $user->createToken('token:' . $user->id)->plainTextToken;
         return response($token, Response::HTTP_OK);
     }
 
