@@ -34,7 +34,7 @@ class UpdateProjectRequest extends FormRequest
             'max_price' => 'nullable|numeric|gt:min_price',
             'resources' => 'nullable|boolean',
             'skill' => ['nullable', new Enum(Skill::class)],
-            'attachments' => 'json',
+            'attachment' => 'required|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:2048',
         ];
     }
 }

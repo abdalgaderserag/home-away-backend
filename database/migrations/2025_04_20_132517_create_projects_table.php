@@ -26,7 +26,7 @@ return new class extends Migration
             $table->float('max_price')->nullable();
             $table->boolean('resources')->default(false);
             $table->enum('skill', ['construction', 'design', 'renovation'])->nullable();
-            $table->json('attachments')->nullable();
+            $table->json('attachment')->nullable();
             $table->timestamp('published_at')->nullable();
             $table->timestamps();
         });

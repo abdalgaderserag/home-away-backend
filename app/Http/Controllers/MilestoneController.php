@@ -79,8 +79,9 @@ class MilestoneController extends Controller
         if ($milestone->status !== MilestoneStatus::Pending) {
             return response()->json(["message" => "You can't submit this milestone right now."]);
         }
+        $project_path = $milestone->offer->project->id;
         $milestone->update([
-            'attachments' => $request->file('attachments')->store('milestones'),
+            'attachment' => $request->file('attachment')->store("projects/{$project_path}/milestones"),
             'delivery_date' => now(),
             'status' => MilestoneStatus::Reviewing->value,
         ]);

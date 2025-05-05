@@ -24,8 +24,9 @@ class StoreMessageRequest extends FormRequest
         return [
             'sender_id' => 'required|exists:users,id',
             'receiver_id' => 'required|exists:users,id|different:sender_id',
-            'context' => 'required_without:attachments|nullable|string',
-            'attachments' => 'required_without:context|nullable|json',
+            'context' => 'required_without:attachment|nullable|string',
+            'attachment' => 'required_without:context|nullable|array',
+            'attachment.*' => 'file|max:40966|mimes:jpg,jpeg,png,gif,mp4,mov,avi,wmv,doc,docx,pdf,txt,zip,rar,7z|max:2048',
         ];
     }
 
@@ -33,8 +34,8 @@ class StoreMessageRequest extends FormRequest
     {
         return [
             'receiver_id.different' => 'Receiver must be different from sender',
-            'context.required_without' => 'Message must have either text or attachments',
-            'attachments.required_without' => 'Message must have either text or attachments',
+            'context.required_without' => 'Message must have either text or attachment',
+            'attachment.required_without' => 'Message must have either text or attachment',
         ];
     }
 }

@@ -20,7 +20,7 @@ class MessageFactory extends Factory
             'sender_id' => \App\Models\User::factory(),
             'receiver_id' => \App\Models\User::factory(),
             'context' => fake()->optional()->paragraph(),
-            'attachments' => fake()->optional()->randomElements([
+            'attachment' => fake()->optional()->randomElements([
                 ['url' => fake()->imageUrl()],
                 ['document' => fake()->filePath()],
                 [fake()->imageUrl(), fake()->filePath()]

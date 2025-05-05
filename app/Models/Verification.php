@@ -14,13 +14,13 @@ class Verification extends Model
     protected $fillable = [
         'user_id',
         'type',
-        'attachments',
+        'attachment',
         'verified',
     ];
 
     protected $casts = [
         'type' => VerificationType::class,
-        'attachments' => 'array',
+        'attachment' => 'array',
         'verified' => 'boolean',
     ];
 

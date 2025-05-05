@@ -22,7 +22,16 @@ class StoreVerificationRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'attachments' => 'required|file|mimes:jpg,jpeg,png|max:8192',
+            'attachment' => ['required', 'array', 'size:3'],
+            'attachment.*' => 'file|mimes:jpg,jpeg,png,pdf|max:10240',
+        ];
+    }
+
+    public function messages()
+    {
+        return [
+            'attachment.required' => 'You must upload 3 attachment.',
+            'attachment.size' => 'Exactly 3 attachment are required.',
         ];
     }
 }

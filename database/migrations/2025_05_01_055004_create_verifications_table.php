@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained('users');
             $table->enum('type', ['user', 'company', 'address']);
-            $table->json('attachments')->nullable();
+            $table->json('attachment')->nullable();
             $table->boolean('verified')->default(false);
             $table->timestamps();
         });

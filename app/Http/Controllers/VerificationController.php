@@ -7,6 +7,7 @@ use App\Http\Requests\StoreVerificationRequest;
 use App\Models\Verification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\Response;
 
 class VerificationController extends Controller
@@ -46,8 +47,17 @@ class VerificationController extends Controller
                 return response("you have already verified your " . $request->type, Response::HTTP_NOT_MODIFIED);
             }
 
+            $attachment = [];
+
+            if ($request->hasFile('attachment')) {
+                foreach ($request->file('attachment') as $file) {
+                    $path = Storage::put('messages', $file);
+                    $attachment[] = $path;
+                }
+            }
+
             // If it's not verified yet, update the verification with new data
-            $verification->attachments = $request->attachments;
+            $verification->attachment = $attachment;
             $verification->update();
             return response($verification, Response::HTTP_OK);
         }
@@ -55,7 +65,15 @@ class VerificationController extends Controller
         // If no verification exists, create a new one
         $verification = new Verification();
         $verification->user_id = Auth::id();
-        $verification->attachments = $request->attachments;
+        $attachment = [];
+
+        if ($request->hasFile('attachment')) {
+            foreach ($request->file('attachment') as $file) {
+                $path = Storage::put('verifications/' . Auth::id(), $file);
+                $attachment[] = $path;
+            }
+        }
+        $verification->attachment = $attachment;
         $verification->verified = false;
         $verification->type = $request->type;  // Ensure the type is set
         $verification->save();

@@ -34,7 +34,7 @@ class ProjectFactory extends Factory
             'max_price' => fake()->randomFloat(2, 50000, 100000),
             'resources' => fake()->boolean(),
             'skill' => fake()->randomElement(Skill::cases()),
-            'attachments' => json_encode([fake()->imageUrl(), fake()->imageUrl()]),
+            'attachment' => json_encode([fake()->imageUrl(), fake()->imageUrl()]),
         ];
     }
 }

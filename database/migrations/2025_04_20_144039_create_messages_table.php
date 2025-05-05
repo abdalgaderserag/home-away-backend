@@ -18,7 +18,7 @@ return new class extends Migration
             $table->foreignId('sender_id')->constrained('users');
             $table->foreignId('receiver_id')->constrained('users');
             $table->text('context')->nullable();
-            $table->json('attachments')->nullable();
+            $table->json('attachment')->nullable();
             $table->timestamps();
 
             $table->index(['sender_id', 'receiver_id']);

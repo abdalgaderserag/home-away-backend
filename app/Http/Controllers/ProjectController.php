@@ -8,7 +8,9 @@ use App\Http\Requests\StoreProjectRequest;
 use App\Http\Requests\UpdateProjectRequest;
 use App\Models\Project;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\Response;
+
 
 class ProjectController extends Controller
 {
@@ -89,15 +91,31 @@ class ProjectController extends Controller
         if ($this->validateOwner($project->client_id) && $project->status !== Status::Draft->value) {
             return response(["message" => "you are not allowed to edit this project"], 403);
         }
-        $project->update($request->validated());
+        $data = $request->validated();
+
+        if ($request->hasFile('attachment')) {
+            $path = $request->file('attachment')->store("project/{$project->id}", 'public');
+            $data['attachment_path'] = $path;
+        }
+
+        $project->update($data);
         $project->refresh();
         return response()->json($project);
     }
 
     public function save(StoreProjectRequest $request, Project $project)
     {
+        // todo : handle file upload
         if ($this->validateOwner($project->client_id) && $project->status !== Status::Draft->value) {
             return response(["message" => "you are not allowed to edit this project"], 403);
+        }
+        foreach ($request->attachment as $path) {
+            if (!Storage::disk('public')->exists($path)) {
+                return response()->json([
+                    'message' => 'File not found',
+                    'path' => $path,
+                ], Response::HTTP_NOT_FOUND);
+            }
         }
         $project->status = Status::Pending->value;
         $project->update($request->validated());

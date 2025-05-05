@@ -24,16 +24,16 @@ class UpdateMessageRequest extends FormRequest
         return [
             'sender_id' => 'required|exists:users,id',
             'receiver_id' => 'required|exists:users,id|different:sender_id',
-            'context' => 'required_without:attachments|nullable|string',
-            'attachments' => 'required_without:context|nullable|json',
+            'context' => 'required_without:attachment|nullable|string',
+            'attachment' => 'required_without:context|nullable|json',
         ];
     }
     public function messages()
     {
         return [
             'receiver_id.different' => 'Receiver must be different from sender',
-            'context.required_without' => 'Message must have either text or attachments',
-            'attachments.required_without' => 'Message must have either text or attachments',
+            'context.required_without' => 'Message must have either text or attachment',
+            'attachment.required_without' => 'Message must have either text or attachment',
         ];
     }
 }

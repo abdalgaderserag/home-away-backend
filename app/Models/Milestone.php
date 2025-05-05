@@ -16,7 +16,7 @@ class Milestone extends Model
         'status' => MilestoneStatus::class,
         'deadline' => 'datetime',
         'delivery_date' => 'datetime',
-        'attachments' => 'array',
+        'attachment' => 'array',
     ];
 
     protected $fillable = [
@@ -24,7 +24,7 @@ class Milestone extends Model
         'status',
         'deadline',
         'delivery_date',
-        'attachments',
+        'attachment',
         'price',
         'description'
     ];

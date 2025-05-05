@@ -16,7 +16,7 @@ class Chat extends Model
         'first_user',
         'second_user',
         'last_message_id',
-        'attachments',
+        'attachment',
         'is_read',
     ];
 

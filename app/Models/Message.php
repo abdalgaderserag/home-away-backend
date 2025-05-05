@@ -12,14 +12,14 @@ class Message extends Model
     use HasFactory;
 
     protected $casts = [
-        'attachments' => 'array',
+        'attachment' => 'array',
     ];
 
     protected $fillable = [
         'sender_id',
         'receiver_id',
         'context',
-        'attachments'
+        'attachment'
     ];
 
     public function sender(): BelongsTo

@@ -21,7 +21,7 @@ class Project extends Model
         'unit_type' => UnitType::class,
         'skill' => Skill::class,
         'deadline' => 'datetime',
-        'attachments' => 'array',
+        'attachment' => 'array',
     ];
 
     protected $fillable = [
@@ -38,7 +38,7 @@ class Project extends Model
         'max_price',
         'resources',
         'skill',
-        'attachments'
+        'attachment'
     ];
 
     public function client(): BelongsTo

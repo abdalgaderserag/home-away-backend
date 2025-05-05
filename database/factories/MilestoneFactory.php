@@ -22,7 +22,7 @@ class MilestoneFactory extends Factory
             'status' => fake()->randomElement(MilestoneStatus::cases()),
             'deadline' => fake()->dateTimeBetween('+1 week', '+1 month'),
             'delivery_date' => fake()->dateTimeBetween('+1 month', '+2 months'),
-            'attachments' => json_encode([fake()->imageUrl(), fake()->imageUrl()]),
+            'attachment' => json_encode([fake()->imageUrl(), fake()->imageUrl()]),
             'price' => fake()->randomFloat(2, 1000, 10000),
             'description' => fake()->paragraph(),
         ];

@@ -8,6 +8,7 @@ use App\Models\Message;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\Response;
 
 class MessageController extends Controller
@@ -53,20 +54,41 @@ class MessageController extends Controller
 
     public function store(StoreMessageRequest $request, User $user): JsonResponse
     {
+        $chat = Chat::where(function ($query) use ($user) {
+            $query->where('first_user_id', Auth::id())
+                ->where('second_user_id', $user->id);
+        })->orWhere(function ($query) use ($user) {
+            $query->where('first_user_id', $user->id)
+                ->where('second_user_id', Auth::id());
+        })->first();
+        if (!$chat) {
+            $chat = Chat::create([
+                'first_user_id' => Auth::id(),
+                'second_user_id' => $user->id,
+            ]);
+        }
+
+        $attachment = [];
+
+        if ($request->hasFile('attachment')) {
+            foreach ($request->file('attachment') as $file) {
+                $path = Storage::put("messages/{$chat->id}", $file);
+                $attachment[] = $path;
+            }
+        }
         if ($user->id === Auth::id()) {
             return response()->json([
                 'message' => 'Cannot send message to yourself'
             ], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
-        $chat = Chat::firstOrCreateChat(Auth::id(), $user->id);
 
         $message = new Message($request->validated());
         $message->sender()->associate(Auth::user());
         $message->receiver()->associate($user);
         $message->chat()->associate($chat);
         $message->save();
-        
+
         $chat->touch();
 
         return response()->json($message->load(['sender', 'receiver']), Response::HTTP_CREATED);
