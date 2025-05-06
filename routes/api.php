@@ -11,6 +11,7 @@ use App\Http\Controllers\MilestoneController;
 use App\Http\Controllers\OfferController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\RateController;
+use App\Http\Controllers\UploadController;
 use App\Http\Controllers\User\NotificationController;
 use App\Http\Controllers\User\ProfileController;
 use App\Http\Controllers\User\SettingsController;
@@ -39,8 +40,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('user/notifications/{notificationId}/read', [NotificationController::class, 'markAsRead']);
 
 
-    Route::get('projects/create', [ProjectController::class, "create"]);
-    Route::put('projects/{project}/save', [ProjectController::class, "save"]);
+    Route::get('projects/create', [ProjectController::class, "create"])->name('projects.create');
+    Route::put('projects/{project}/save', [ProjectController::class, "save"])->name('projects.save');
     Route::apiResource('projects', ProjectController::class)->except(['index', 'create']);
 
     Route::get('offers', [OfferController::class, 'index']);
@@ -62,6 +63,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('messages', MessageController::class);
     Route::apiResource('rates', RateController::class);
     Route::apiResource('favorite', FavoriteController::class)->only(['index', 'store']);
+
+    Route::post('file', [UploadController::class, 'uploadFile']);
+    Route::delete('file', [UploadController::class, 'removeUploadedFile']);
 });
 
 

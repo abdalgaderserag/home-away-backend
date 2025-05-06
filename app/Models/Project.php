@@ -38,7 +38,6 @@ class Project extends Model
         'max_price',
         'resources',
         'skill',
-        'attachment'
     ];
 
     public function client(): BelongsTo
@@ -54,5 +53,10 @@ class Project extends Model
     public function offers(): HasMany
     {
         return $this->hasMany(Offer::class);
+    }
+
+    public function attachments(): HasMany
+    {
+        return $this->hasMany(Project::class);
     }
 }

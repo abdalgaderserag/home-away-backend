@@ -12,6 +12,7 @@ use App\Http\Requests\StoreMilestoneRequest;
 use App\Http\Requests\SubmitMilestoneRequest;
 use App\Http\Requests\UpdateMilestoneRequest;
 use App\Http\Requests\UpdateOfferRequest;
+use App\Models\Attachment;
 use App\Models\Offer;
 use Google\Service\Texttospeech\Turn;
 use Illuminate\Support\Facades\Auth;
@@ -79,9 +80,9 @@ class MilestoneController extends Controller
         if ($milestone->status !== MilestoneStatus::Pending) {
             return response()->json(["message" => "You can't submit this milestone right now."]);
         }
-        $project_path = $milestone->offer->project->id;
+        $attachment = Attachment::find($request->attachment);
+        $attachment->milestone_id = $milestone->id;
         $milestone->update([
-            'attachment' => $request->file('attachment')->store("projects/{$project_path}/milestones"),
             'delivery_date' => now(),
             'status' => MilestoneStatus::Reviewing->value,
         ]);
@@ -128,6 +129,7 @@ class MilestoneController extends Controller
         if ($milestone->status !== MilestoneStatus::Reviewing) {
             return response()->json(["message" => "this milestone is not submitted by designer yet"], Response::HTTP_NOT_ACCEPTABLE);
         }
+        $milestone->attachment()->delete();
         $milestone->update([
             'status' => MilestoneStatus::Pending->value,
         ]);

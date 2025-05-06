@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreMessageRequest;
+use App\Models\Attachment;
 use App\Models\Chat;
 use App\Models\Message;
 use App\Models\User;
@@ -38,7 +39,7 @@ class MessageController extends Controller
     {
         $chat->load(['messages' => function ($query) {
             $query->orderBy('created_at', 'desc');
-        }, 'first_user', 'second_user']);
+        }, 'first_user', 'second_user', 'messages.attachments']);
 
         $otherUserId = $chat->first_user_id === Auth::id()
             ? $chat->second_user_id
@@ -54,6 +55,12 @@ class MessageController extends Controller
 
     public function store(StoreMessageRequest $request, User $user): JsonResponse
     {
+        if ($user->id === Auth::id()) {
+            return response()->json([
+                'message' => 'Cannot send message to yourself'
+            ], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
+
         $chat = Chat::where(function ($query) use ($user) {
             $query->where('first_user_id', Auth::id())
                 ->where('second_user_id', $user->id);
@@ -68,19 +75,7 @@ class MessageController extends Controller
             ]);
         }
 
-        $attachment = [];
 
-        if ($request->hasFile('attachment')) {
-            foreach ($request->file('attachment') as $file) {
-                $path = Storage::put("messages/{$chat->id}", $file);
-                $attachment[] = $path;
-            }
-        }
-        if ($user->id === Auth::id()) {
-            return response()->json([
-                'message' => 'Cannot send message to yourself'
-            ], Response::HTTP_UNPROCESSABLE_ENTITY);
-        }
 
 
         $message = new Message($request->validated());
@@ -89,8 +84,14 @@ class MessageController extends Controller
         $message->chat()->associate($chat);
         $message->save();
 
+        foreach ($request->attachments as $attach) {
+            $attachment = Attachment::find($attach);
+            $attachment->message_id = $message->id;
+            $attachment->save();
+        }
+
         $chat->touch();
 
-        return response()->json($message->load(['sender', 'receiver']), Response::HTTP_CREATED);
+        return response()->json($message->load(['sender', 'receiver', 'attachments']), Response::HTTP_CREATED);
     }
 }

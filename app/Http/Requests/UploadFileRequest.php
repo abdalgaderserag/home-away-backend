@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreVerificationRequest extends FormRequest
+class UploadFileRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -22,15 +22,7 @@ class StoreVerificationRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'attachments' => 'required|array|size:3|exists:attachments,id'
-        ];
-    }
-
-    public function messages()
-    {
-        return [
-            'attachment.required' => 'You must upload 3 attachment.',
-            'attachment.size' => 'Exactly 3 attachment are required.',
+            //
         ];
     }
 }

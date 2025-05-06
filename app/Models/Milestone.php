@@ -6,6 +6,7 @@ use App\Enum\Offer\MilestoneStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 
 class Milestone extends Model
@@ -16,7 +17,6 @@ class Milestone extends Model
         'status' => MilestoneStatus::class,
         'deadline' => 'datetime',
         'delivery_date' => 'datetime',
-        'attachment' => 'array',
     ];
 
     protected $fillable = [
@@ -24,7 +24,6 @@ class Milestone extends Model
         'status',
         'deadline',
         'delivery_date',
-        'attachment',
         'price',
         'description'
     ];
@@ -44,5 +43,10 @@ class Milestone extends Model
             'offer_id',
             'project_id'
         );
+    }
+
+    public function attachment(): HasOne
+    {
+        return $this->hasOne(Attachment::class);
     }
 }

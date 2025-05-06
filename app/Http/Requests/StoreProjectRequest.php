@@ -34,7 +34,7 @@ class StoreProjectRequest extends FormRequest
             'max_price' => 'required|numeric|gt:min_price',
             'resources' => 'boolean',
             'skill' => ['required', new Enum(Skill::class)],
-            "attachment" => 'required|array',
+            'attachments' => 'nullable|array|size:3|exists:attachments,id'
         ];
     }
 }

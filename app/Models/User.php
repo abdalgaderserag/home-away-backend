@@ -22,6 +22,8 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 
+use function Pest\Laravel\get;
+
 class User extends Authenticatable implements MustVerifyEmail, CanUseTickets
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
@@ -118,6 +120,15 @@ class User extends Authenticatable implements MustVerifyEmail, CanUseTickets
         return $this->hasMany(Ticket::class);
     }
 
+    public function attachment()
+    {
+        return $this->hasOne(Attachment::class);
+    }
+    public function getAvatarAttribute() : string
+    {
+        $attachment = $this->attachment()->get();
+        return $attachment->url;
+    }
     public function hasOpenTicket(User $user): bool
     {
         if ($this->hasRole('support') || $this->hasRole('admin')) {

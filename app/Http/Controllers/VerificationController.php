@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Enum\VerificationType;
 use App\Http\Requests\StoreVerificationRequest;
+use App\Models\Attachment;
 use App\Models\Verification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -46,37 +47,23 @@ class VerificationController extends Controller
             if ($verification->verified) {
                 return response("you have already verified your " . $request->type, Response::HTTP_NOT_MODIFIED);
             }
-
-            $attachment = [];
-
-            if ($request->hasFile('attachment')) {
-                foreach ($request->file('attachment') as $file) {
-                    $path = Storage::put('messages', $file);
-                    $attachment[] = $path;
-                }
-            }
-
             // If it's not verified yet, update the verification with new data
-            $verification->attachment = $attachment;
             $verification->update();
-            return response($verification, Response::HTTP_OK);
-        }
-
-        // If no verification exists, create a new one
-        $verification = new Verification();
-        $verification->user_id = Auth::id();
-        $attachment = [];
-
-        if ($request->hasFile('attachment')) {
-            foreach ($request->file('attachment') as $file) {
-                $path = Storage::put('verifications/' . Auth::id(), $file);
-                $attachment[] = $path;
+            foreach ($request->attachments as $attach) {
+                $attachment = Attachment::find($attach);
+                $attachment->verification_id = $verification->id;
+                $attachment->save();
             }
+            return response($verification, Response::HTTP_OK);
+        } else {
+
+            // If no verification exists, create a new one
+            $verification = new Verification();
+            $verification->user_id = Auth::id();
+            $verification->verified = false;
+            $verification->type = $request->type;
+            $verification->save();
         }
-        $verification->attachment = $attachment;
-        $verification->verified = false;
-        $verification->type = $request->type;  // Ensure the type is set
-        $verification->save();
 
         // Check if all verifications are completed and assign permissions
         $this->checkVerification();

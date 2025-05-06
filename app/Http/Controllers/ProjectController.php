@@ -6,6 +6,7 @@ use App\Enum\Project\Status;
 use App\Http\Requests\Project\IndexRequest;
 use App\Http\Requests\StoreProjectRequest;
 use App\Http\Requests\UpdateProjectRequest;
+use App\Models\Attachment;
 use App\Models\Project;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -91,15 +92,16 @@ class ProjectController extends Controller
         if ($this->validateOwner($project->client_id) && $project->status !== Status::Draft->value) {
             return response(["message" => "you are not allowed to edit this project"], 403);
         }
-        $data = $request->validated();
 
-        if ($request->hasFile('attachment')) {
-            $path = $request->file('attachment')->store("project/{$project->id}", 'public');
-            $data['attachment_path'] = $path;
+        $project->update($request->validated());
+        $project->refresh();
+
+        foreach ($request->attachments as $attach) {
+            $attachment = Attachment::find($attach);
+            $attachment->project_id = $project->id;
+            $attachment->save();
         }
 
-        $project->update($data);
-        $project->refresh();
         return response()->json($project);
     }
 

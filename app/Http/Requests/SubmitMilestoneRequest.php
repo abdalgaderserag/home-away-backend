@@ -22,7 +22,7 @@ class SubmitMilestoneRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'attachment' => 'required|file|mimes:pdf,doc,docx|max:8096',
+            'attachments' => 'required|array|size:3|exists:attachments,id'
         ];
     }
 }

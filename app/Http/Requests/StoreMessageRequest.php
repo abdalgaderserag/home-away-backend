@@ -25,8 +25,7 @@ class StoreMessageRequest extends FormRequest
             'sender_id' => 'required|exists:users,id',
             'receiver_id' => 'required|exists:users,id|different:sender_id',
             'context' => 'required_without:attachment|nullable|string',
-            'attachment' => 'required_without:context|nullable|array',
-            'attachment.*' => 'file|max:40966|mimes:jpg,jpeg,png,gif,mp4,mov,avi,wmv,doc,docx,pdf,txt,zip,rar,7z|max:2048',
+            'attachments' => 'required_without:context|array|size:3|exists:attachments,id'
         ];
     }
 
