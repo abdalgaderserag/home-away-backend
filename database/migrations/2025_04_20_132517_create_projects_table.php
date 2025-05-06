@@ -15,12 +15,12 @@ return new class extends Migration
             $table->id();
             $table->foreignId('client_id')->constrained('users');
             $table->integer('designer_id', 0, 1)->nullable();
+            $table->foreignId('location_id')->constrained('locations');
             $table->enum('status', ['draft', 'pending', 'published', 'in_progress', 'completed'])->default('draft');
             $table->string('title')->nullable();
             $table->text('description')->nullable();
             $table->enum('unit_type', ['house', 'apartment', 'villa'])->nullable();
             $table->integer('space')->nullable();
-            $table->string('location')->nullable();
             $table->timestamp('deadline')->nullable();
             $table->float('min_price')->nullable();
             $table->float('max_price')->nullable();

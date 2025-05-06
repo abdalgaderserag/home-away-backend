@@ -2,7 +2,9 @@
 
 namespace App\Policies;
 
+use App\Enum\User\UserType;
 use App\Models\User;
+use Google\Service\Texttospeech\Turn;
 use Illuminate\Auth\Access\Response;
 
 class UserPolicy
@@ -20,7 +22,10 @@ class UserPolicy
      */
     public function view(User $user, User $model): bool
     {
-        return $user->hasOpenTicket($model) || $user->hasPermissionTo('edit users');
+        if ($user->type === UserType::Client || $user->type === UserType::Designer) {
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -28,7 +33,7 @@ class UserPolicy
      */
     public function create(User $user): bool
     {
-        return $user->hasPermissionTo('edit users');
+        return true;
     }
 
     /**
@@ -36,6 +41,9 @@ class UserPolicy
      */
     public function update(User $user, User $model): bool
     {
+        if ($user->id === $model->id) {
+            return true;
+        }
         return $user->hasOpenTicket($model) || $user->hasPermissionTo('edit users');
     }
 
@@ -44,6 +52,9 @@ class UserPolicy
      */
     public function delete(User $user, User $model): bool
     {
+        if ($user->id === $model->id) {
+            return true;
+        }
         return $user->hasOpenTicket($model) || $user->hasPermissionTo('edit users');
     }
 
@@ -52,6 +63,9 @@ class UserPolicy
      */
     public function restore(User $user, User $model): bool
     {
+        if ($user->id === $model->id) {
+            return true;
+        }
         return false;
     }
 
@@ -60,6 +74,9 @@ class UserPolicy
      */
     public function forceDelete(User $user, User $model): bool
     {
+        if ($user->id === $model->id) {
+            return true;
+        }
         return false;
     }
 }

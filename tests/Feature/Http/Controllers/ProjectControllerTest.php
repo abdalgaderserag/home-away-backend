@@ -15,7 +15,10 @@ uses(\Illuminate\Foundation\Testing\RefreshDatabase::class);
 
 beforeEach(function () {
     Storage::fake('public');
-    $this->user = User::factory()->create();
+    $this->user = User::factory([
+        "type" => 'client'
+    ])->create();
+
     actingAs($this->user);
 });
 
