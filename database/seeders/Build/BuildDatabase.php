@@ -17,6 +17,7 @@ class BuildDatabase extends Seeder
             PermissionSeeder::class,
             CategorySeeder::class,
             RolesSeeder::class,
+            SkillSeeder::class,
         ]);
         $user = User::factory()->create([
             'name' => 'admin',

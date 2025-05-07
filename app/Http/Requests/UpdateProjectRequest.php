@@ -26,14 +26,14 @@ class UpdateProjectRequest extends FormRequest
         return [
             'title' => 'string|max:255',
             'description' => 'nullable|string',
-            'unit_type' => ['nullable', new Enum(UnitType::class)],
+            'unit_type' => 'nullable|exists:unit_types,type',
             'space' => 'nullable|integer|min:1',
             'location' => 'nullable|exists:locations,city',
             'deadline' => 'nullable|date',
             'min_price' => 'nullable|numeric|min:0',
             'max_price' => 'nullable|numeric|gt:min_price',
             'resources' => 'nullable|boolean',
-            'skill' => ['nullable', new Enum(Skill::class)],
+            'skill' => 'nullable|exists:skills,name',
             'attachment' => 'nullable|array|exists:attachments,id'
         ];
     }

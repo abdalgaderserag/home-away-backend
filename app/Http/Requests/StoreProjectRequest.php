@@ -26,14 +26,14 @@ class StoreProjectRequest extends FormRequest
         return [
             'title' => 'required|string|max:255',
             'description' => 'required|string',
-            'unit_type' => ['required', new Enum(UnitType::class)],
+            'unit_type' => 'required|exists:unit_types,type',
             'space' => 'required|integer|min:1',
             'location' => 'required|exists:locations,city',
             'deadline' => 'required|date',
             'min_price' => 'required|numeric|min:0',
             'max_price' => 'required|numeric|gt:min_price',
             'resources' => 'boolean',
-            'skill' => ['required', new Enum(Skill::class)],
+            'skill' => 'required|exists:skills,name',
             'attachment' => 'nullable|array|exists:attachments,id'
         ];
     }
