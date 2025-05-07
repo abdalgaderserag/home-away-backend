@@ -75,7 +75,7 @@ class ProjectController extends Controller
         if ($status !== "") {
             $projects = $projects->where("status", $status);
         }
-        return response()->json($projects->paginate($perPage, ['*'], 'page', $page));
+        return response()->json(["projects" => $projects->paginate($perPage, ['*'], 'page', $page)]);
     }
 
     public function create()
@@ -84,7 +84,7 @@ class ProjectController extends Controller
         $project->client_id = Auth::id();
         $project->status = Status::Draft->value;
         $project->save();
-        return response()->json($project, 201);
+        return response()->json(["project" => $project], Response::HTTP_CREATED);
     }
 
     public function update(UpdateProjectRequest $request, Project $project)
@@ -124,13 +124,13 @@ class ProjectController extends Controller
             return response()->json(['message' => 'Not found'], Response::HTTP_NOT_FOUND);
         }
 
-        return $project->load(['client', 'offers.user.rate']);
+        return response(["project" => $project->load(['client', 'offers.user.rate'])]);
     }
 
     public function destroy(Project $project)
     {
         if ($project->client_id !== Auth::id())
-            return response("you are not the project owner", 403);
+            return response(["message" => "you are not the project owner"], 403);
 
         if (in_array($project->status, [
             Status::InProgress->value,

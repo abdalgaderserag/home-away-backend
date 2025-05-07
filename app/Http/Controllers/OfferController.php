@@ -25,7 +25,7 @@ class OfferController extends Controller
     {
         $project = Project::find($request->project_id);
         if ($project->status != Status::Published) {
-            return response("you can't add offers to this project", Response::HTTP_FORBIDDEN);
+            return response(["message" => "you can't add offers to this project"], Response::HTTP_FORBIDDEN);
         }
         if ($project->client_id === Auth::id())
             return response(["message" => "you can't add offer to your own project"], Response::HTTP_FORBIDDEN);
@@ -33,19 +33,19 @@ class OfferController extends Controller
         $offer->status = OfferStatus::Pending->value;
         $offer->user_id = Auth::id();
         $offer->save();
-        return response()->json($offer, Response::HTTP_CREATED);
+        return response()->json(["offer" => $offer], Response::HTTP_CREATED);
     }
 
     public function show(Project $project)
     {
         if ($project->client->id !== Auth::id()) {
-            return response("not allowed to see project details", Response::HTTP_FORBIDDEN);
+            return response(["message" => "not allowed to see project details"], Response::HTTP_FORBIDDEN);
         }
         $offers = $project->offers()->with(["user"])->get();
         $offers->each(function ($offer) {
             $offer->user->rate = $offer->user->rates();
         });
-        return response($offers, Response::HTTP_OK);
+        return response(["offers" => $offers], Response::HTTP_OK);
     }
 
     public function update(UpdateOfferRequest $request, Offer $offer)
@@ -81,7 +81,7 @@ class OfferController extends Controller
                 $otherOffer->status = OfferStatus::Declined->value;
                 $otherOffer->update();
             }
-            return response($offer, Response::HTTP_CREATED);
+            return response(["offer" => $offer], Response::HTTP_CREATED);
         }
         return response("this offer doesn't belong to one of your projects", Response::HTTP_FORBIDDEN);
     }
@@ -104,6 +104,6 @@ class OfferController extends Controller
             $offer->delete();
             return response()->noContent();
         }
-        return response("not allowed to delete offer after", Response::HTTP_FORBIDDEN);
+        return response(["message" => "not allowed to delete offer after"], Response::HTTP_FORBIDDEN);
     }
 }

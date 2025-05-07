@@ -81,7 +81,7 @@ class MilestoneController extends Controller
             return response()->json(["message" => "You can't edit milestone right now."]);
         }
         $milestone->update($request->validated());
-        return response()->json($milestone);
+        return response()->json(['milestone' => $milestone]);
     }
 
     public function submit(SubmitMilestoneRequest $request, Milestone $milestone)
@@ -98,7 +98,7 @@ class MilestoneController extends Controller
             'delivery_date' => now(),
             'status' => MilestoneStatus::Reviewing->value,
         ]);
-        return response()->json($milestone);
+        return response()->json(["milestone" => $milestone]);
     }
 
     public function acceptOrReject(MilestoneReviewRequest $request)
@@ -152,7 +152,7 @@ class MilestoneController extends Controller
 
     public function destroy(Milestone $milestone)
     {
-        if($milestone->offer->designer_id !== Auth::id()){
+        if ($milestone->offer->designer_id !== Auth::id()) {
             return response()->json(["message" => "You are not authorized to delete this milestone."], Response::HTTP_UNAUTHORIZED);
         }
         if ($milestone->offer->status === OfferStatus::Pending) {

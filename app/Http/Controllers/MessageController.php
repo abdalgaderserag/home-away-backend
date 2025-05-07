@@ -32,7 +32,7 @@ class MessageController extends Controller
                 return $chat->only(['id', 'other_user', 'lastMessage']);
             });
 
-        return response()->json($chats);
+        return response()->json(["chats" => $chats], Response::HTTP_OK);
     }
 
     public function show(Chat $chat): JsonResponse
@@ -53,7 +53,7 @@ class MessageController extends Controller
         ]);
     }
 
-    public function store(StoreMessageRequest $request, User $user): JsonResponse
+    public function store(StoreMessageRequest $request, User $user)
     {
         if ($user->id === Auth::id()) {
             return response()->json([
@@ -91,7 +91,7 @@ class MessageController extends Controller
         }
 
         $chat->touch();
-
-        return response()->json($message->load(['sender', 'receiver', 'attachments']), Response::HTTP_CREATED);
+        $data = $message->load(['sender', 'receiver', 'attachments']);
+        return response(["message" => $data], Response::HTTP_CREATED);
     }
 }

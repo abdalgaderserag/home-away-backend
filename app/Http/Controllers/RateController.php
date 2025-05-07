@@ -15,11 +15,14 @@ class RateController extends Controller
     {
         $type = $type == "designer" ? "designer" : "client";
         $rates = Rate::with(['project', $type])->where($type . "_id", $id)->get();
-        return response()->json($rates, Response::HTTP_OK);
+        return response()->json(["rates" => $rates], Response::HTTP_OK);
     }
 
     public function store(Project $project, StoreRateRequest $request)
     {
+        if ($project->client_id !== Auth::id() || $project->designer_id !== Auth::id()) {
+            return response(["message" => "You are not part of this project and can't rate."], Response::HTTP_UNAUTHORIZED);
+        }
         if ($project->status == Status::Completed->value) {
             $request->validated();
             $rate = new Rate();
@@ -30,17 +33,17 @@ class RateController extends Controller
             } elseif ($project->designer_id == Auth::id()) {
                 $rate->client_id = $project->client_id;
             } else {
-                return response("not allowed", 403);
+                return response(["message" => "not allowed"], Response::HTTP_FORBIDDEN);
             }
             $rate->save();
-            return response()->json($rate->load(['project', 'client', 'designer']), 201);
+            return response()->json(['rate' => $rate->load(['project', 'client', 'designer'])], Response::HTTP_CREATED);
         }
-        return response("not allowed", 403);
+        return response(["message" => "not allowed"], Response::HTTP_FORBIDDEN);
     }
 
     public function show(Rate $rate)
     {
-        return $rate->load(['project', 'client', 'designer']);
+        return response(['rate' => $rate->load(['project', 'client', 'designer'])], Response::HTTP_OK);
     }
 
     // public function update(StoreRateRequest $request, Rate $rate)
