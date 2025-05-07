@@ -22,7 +22,7 @@ class SubmitMilestoneRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'attachments' => 'required|array|size:3|exists:attachments,id'
+            'attachment' => 'required|exists:attachments,id'
         ];
     }
 }

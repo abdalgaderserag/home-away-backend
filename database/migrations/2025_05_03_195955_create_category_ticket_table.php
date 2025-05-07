@@ -18,4 +18,11 @@ return new class extends Migration
             });
         });
     }
+
+    public function down()
+    {
+        $tableName = config('laravel_ticket.table_names.category_ticket', 'category_ticket');
+
+        Schema::dropIfExists($tableName['table']);
+    }
 };

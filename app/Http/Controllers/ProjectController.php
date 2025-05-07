@@ -89,40 +89,32 @@ class ProjectController extends Controller
 
     public function update(UpdateProjectRequest $request, Project $project)
     {
-        if ($this->validateOwner($project->client_id) && $project->status !== Status::Draft->value) {
+        if ($project->client_id !== Auth::id() && $project->status !== Status::Draft->value) {
             return response(["message" => "you are not allowed to edit this project"], 403);
         }
 
         $project->update($request->validated());
         $project->refresh();
-
-        foreach ($request->attachments as $attach) {
+        $attachments = collect();
+        foreach ($request->attachment ? $request->attachment : [] as $attach) {
             $attachment = Attachment::find($attach);
             $attachment->project_id = $project->id;
-            $attachment->save();
+            $attachment->update();
+            $attachments->push($attachment);
         }
-
-        return response()->json($project);
+        return response()->json(["project" => $project, "attachments" => $attachments], Response::HTTP_OK);
     }
 
     public function save(StoreProjectRequest $request, Project $project)
     {
-        // todo : handle file upload
-        if ($this->validateOwner($project->client_id) && $project->status !== Status::Draft->value) {
+        if ($project->client_id !== Auth::id() && $project->status !== Status::Draft->value) {
             return response(["message" => "you are not allowed to edit this project"], 403);
-        }
-        foreach ($request->attachment as $path) {
-            if (!Storage::disk('public')->exists($path)) {
-                return response()->json([
-                    'message' => 'File not found',
-                    'path' => $path,
-                ], Response::HTTP_NOT_FOUND);
-            }
         }
         $project->status = Status::Pending->value;
         $project->update($request->validated());
         return response()->json([
-            'project' => $project->refresh()
+            'project' => $project->refresh(),
+            'attachments' => Attachment::where('project_id', $project->id)->get(),
         ], Response::HTTP_CREATED);
     }
 
@@ -137,7 +129,7 @@ class ProjectController extends Controller
 
     public function destroy(Project $project)
     {
-        if ($this->validateOwner($project->client_id))
+        if ($project->client_id !== Auth::id())
             return response("you are not the project owner", 403);
 
         if (in_array($project->status, [
@@ -150,10 +142,5 @@ class ProjectController extends Controller
         }
         $project->delete();
         return response()->noContent();
-    }
-
-    private function validateOwner($id)
-    {
-        return ($id !== Auth::id());
     }
 }

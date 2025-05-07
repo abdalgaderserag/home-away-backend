@@ -25,4 +25,11 @@ return new class extends Migration
             $table->timestamps();
         });
     }
+
+    public function down()
+    {
+        $tableName = config('laravel_ticket.table_names.tickets', 'tickets');
+
+        Schema::dropIfExists($tableName);
+    }
 };

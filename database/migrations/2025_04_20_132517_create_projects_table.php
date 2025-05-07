@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('client_id')->constrained('users');
             $table->integer('designer_id', 0, 1)->nullable();
-            $table->foreignId('location_id')->constrained('locations');
+            $table->string('location')->nullable();
             $table->enum('status', ['draft', 'pending', 'published', 'in_progress', 'completed'])->default('draft');
             $table->string('title')->nullable();
             $table->text('description')->nullable();
@@ -26,7 +26,6 @@ return new class extends Migration
             $table->float('max_price')->nullable();
             $table->boolean('resources')->default(false);
             $table->enum('skill', ['construction', 'design', 'renovation'])->nullable();
-            $table->json('attachment')->nullable();
             $table->timestamp('published_at')->nullable();
             $table->timestamps();
         });

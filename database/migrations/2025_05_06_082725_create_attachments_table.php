@@ -13,12 +13,12 @@ return new class extends Migration
     {
         Schema::create('attachments', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade')->nullable();
-            $table->foreignId('project_id')->constrained()->onDelete('cascade')->nullable();
-            $table->foreignId('message_id')->constrained()->onDelete('cascade')->nullable();
-            $table->foreignId('milestone_id')->constrained()->onDelete('cascade')->nullable();
-            $table->foreignId('verification_id')->constrained()->onDelete('cascade')->nullable();
-            $table->text("url");
+            $table->foreignId('user_id')->nullable()->constrained()->onDelete('cascade');
+            $table->foreignId('project_id')->nullable()->constrained()->onDelete('cascade');
+            $table->foreignId('message_id')->nullable()->constrained()->onDelete('cascade');
+            $table->foreignId('milestone_id')->nullable()->constrained()->onDelete('cascade');
+            $table->foreignId('verification_id')->nullable()->constrained()->onDelete('cascade');
+            $table->string("url");
             $table->timestamps();
         });
     }

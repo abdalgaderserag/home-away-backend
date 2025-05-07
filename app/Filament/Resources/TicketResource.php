@@ -31,7 +31,7 @@ class TicketResource extends Resource
                                 Forms\Components\TextInput::make('title')
                                     ->required()
                                     ->maxLength(255),
-                                
+
                                 Forms\Components\RichEditor::make('message')
                                     ->required()
                                     ->columnSpanFull()
@@ -39,7 +39,7 @@ class TicketResource extends Resource
                                         'attachFiles',
                                         'codeBlock',
                                     ]),
-                                
+
                                 Forms\Components\Select::make('user_id')
                                     ->label('Created By')
                                     ->relationship('user', 'name')
@@ -47,7 +47,7 @@ class TicketResource extends Resource
                                     ->preload()
                                     ->disabled(),
                             ]),
-                        
+
                         Forms\Components\Tabs\Tab::make('Management')
                             ->schema([
                                 Forms\Components\Select::make('priority')
@@ -59,7 +59,7 @@ class TicketResource extends Resource
                                     ])
                                     ->required()
                                     ->native(false),
-                                
+
                                 Forms\Components\Select::make('status')
                                     ->options([
                                         'open' => 'Open',
@@ -69,16 +69,16 @@ class TicketResource extends Resource
                                     ])
                                     ->required()
                                     ->native(false),
-                                
+
                                 Forms\Components\Toggle::make('is_resolved')
                                     ->label('Mark as Resolved')
                                     ->inline(false),
-                                
+
                                 Forms\Components\Toggle::make('is_locked')
                                     ->label('Lock Ticket')
                                     ->inline(false)
                                     ->helperText('Prevent further comments'),
-                                
+
                                 Forms\Components\Select::make('assigned_to')
                                     ->label('Assign to Agent')
                                     // ->options(User::where('is_agent', true)->pluck('name', 'id'))
@@ -98,18 +98,18 @@ class TicketResource extends Resource
                     ->sortable()
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                
+
                 Tables\Columns\TextColumn::make('title')
                     ->searchable()
                     ->limit(40)
-                    ->tooltip(fn (Ticket $record) => $record->title),
-                
+                    ->tooltip(fn(Ticket $record) => $record->title),
+
                 Tables\Columns\TextColumn::make('user.name')
                     ->label('Created By')
                     ->sortable()
                     ->searchable()
                     ->toggleable(),
-                
+
                 Tables\Columns\BadgeColumn::make('priority')
                     ->colors([
                         'success' => 'low',
@@ -118,7 +118,7 @@ class TicketResource extends Resource
                         'primary' => 'critical',
                     ])
                     ->sortable(),
-                
+
                 Tables\Columns\BadgeColumn::make('status')
                     ->colors([
                         'success' => 'closed',
@@ -127,22 +127,22 @@ class TicketResource extends Resource
                         'info' => 'in_progress',
                     ])
                     ->sortable(),
-                
+
                 Tables\Columns\IconColumn::make('is_resolved')
                     ->boolean()
                     ->sortable()
                     ->label('Resolved'),
-                
+
                 Tables\Columns\IconColumn::make('is_locked')
                     ->boolean()
                     ->sortable()
                     ->label('Locked'),
-                
+
                 Tables\Columns\TextColumn::make('assignedTo.name')
                     ->label('Assigned Agent')
                     ->sortable()
                     ->toggleable(),
-                
+
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime('M d, Y H:i')
                     ->sortable()
@@ -156,22 +156,23 @@ class TicketResource extends Resource
                         'high' => 'High',
                         'critical' => 'Critical',
                     ]),
-                
+
                 Tables\Filters\SelectFilter::make('status')
                     ->options([
                         'open' => 'Open',
                         'in_progress' => 'In Progress',
                         'on_hold' => 'On Hold',
                         'closed' => 'Closed',
-                    ]),
-                
+                    ])
+                    ->default('open'),
+
                 Tables\Filters\TernaryFilter::make('is_resolved'),
                 Tables\Filters\TernaryFilter::make('is_locked'),
-                
+
                 // Tables\Filters\SelectFilter::make('assigned_to')
                 //     ->label('Assigned Agent')
                 //     ->options(User::where('is_agent', true)->pluck('name', 'id')),
-                
+
                 Tables\Filters\Filter::make('created_at')
                     ->form([
                         Forms\Components\DatePicker::make('created_from'),
@@ -179,18 +180,54 @@ class TicketResource extends Resource
                     ]),
             ])
             ->actions([
+                Tables\Actions\Action::make('message')
+                    ->icon('heroicon-o-chat-bubble-left-ellipsis')
+                    ->form([
+                        Forms\Components\RichEditor::make('message')
+                            ->required()
+                            ->disableToolbarButtons(['attachFiles', 'codeBlock'])
+                    ])
+                    ->action(function (Ticket $record, array $data) {
+                        $record->messages()->create([
+                            'user_id' => auth()->id(),
+                            'message' => $data['message']
+                        ]);
+                    }),
+
+                Tables\Actions\Action::make('close')
+                    ->icon('heroicon-o-lock-closed')
+                    ->color('success')
+                    ->form([
+                        Forms\Components\RichEditor::make('message')
+                            ->label('Closing Message')
+                            ->disableToolbarButtons(['attachFiles', 'codeBlock'])
+                    ])
+                    ->action(function (Ticket $record, array $data) {
+                        $record->update([
+                            'status' => 'closed',
+                            'is_resolved' => true
+                        ]);
+
+                        if (!empty($data['message'])) {
+                            $record->messages()->create([
+                                'user_id' => auth()->id(),
+                                'message' => $data['message']
+                            ]);
+                        }
+                    })
+                    ->visible(fn(Ticket $record) => $record->status !== 'closed'),
                 Tables\Actions\Action::make('view')
-                    ->url(fn (Ticket $record): string => TicketResource::getUrl('edit', ['record' => $record]))
+                    ->url(fn(Ticket $record): string => TicketResource::getUrl('edit', ['record' => $record]))
                     ->icon('heroicon-o-eye'),
-                
+
                 Tables\Actions\Action::make('assignToMe')
                     ->label('Assign to Me')
                     ->icon('heroicon-o-user-plus')
                     ->action(function (Ticket $record) {
                         $record->update(['assigned_to' => auth()->id()]);
                     }),
-                    // ->visible(fn () => auth()->user()->is_agent),
-                
+                // ->visible(fn () => auth()->user()->is_agent),
+
                 Tables\Actions\Action::make('closeTicket')
                     ->label('Close')
                     ->color('success')
@@ -198,8 +235,8 @@ class TicketResource extends Resource
                     ->action(function (Ticket $record) {
                         $record->update(['status' => 'closed', 'is_resolved' => true]);
                     })
-                    ->visible(fn (Ticket $record) => $record->status !== 'closed'),
-                
+                    ->visible(fn(Ticket $record) => $record->status !== 'closed'),
+
                 Tables\Actions\DeleteAction::make()
                     ->icon('heroicon-o-trash'),
             ])
@@ -220,7 +257,7 @@ class TicketResource extends Resource
                         ->action(function ($records, array $data) {
                             $records->each->update($data);
                         }),
-                    
+
                     Tables\Actions\BulkAction::make('assignAgents')
                         ->icon('heroicon-o-users')
                         ->form([
@@ -232,7 +269,7 @@ class TicketResource extends Resource
                         ->action(function ($records, array $data) {
                             $records->each->update($data);
                         }),
-                    
+
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ])
@@ -265,6 +302,7 @@ class TicketResource extends Resource
     {
         return parent::getEloquentQuery()
             ->with(['user', 'assignedTo'])
+            ->where('status', 'open')
             ->when(!auth()->user()->is_admin, function ($query) {
                 $query->where('assigned_to', auth()->id());
             });

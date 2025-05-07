@@ -43,6 +43,8 @@ class UploadController extends Controller
             $path = Storage::putFile("/data", $file);
             $attachment->url = $path;
             $attachment->save();
+        }else{
+            return response()->json(['message' => 'File not found'], Response::HTTP_BAD_REQUEST);
         }
         return response(["message" => $attachment], Response::HTTP_OK);
     }

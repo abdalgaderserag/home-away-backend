@@ -27,6 +27,8 @@ class OfferController extends Controller
         if ($project->status != Status::Published) {
             return response("you can't add offers to this project", Response::HTTP_FORBIDDEN);
         }
+        if ($project->client_id === Auth::id())
+            return response(["message" => "you can't add offer to your own project"], Response::HTTP_FORBIDDEN);
         $offer = new Offer($request->validated());
         $offer->status = OfferStatus::Pending->value;
         $offer->user_id = Auth::id();
@@ -48,9 +50,9 @@ class OfferController extends Controller
 
     public function update(UpdateOfferRequest $request, Offer $offer)
     {
-        if ($offer->user_id !== Auth::id() || $offer->project->status !== Status::Published->value) {
+        if ($offer->user_id == Auth::id() && $offer->project->status === Status::Published->value) {
             $offer->update($request->validated());
-            return response()->json($offer);
+            return response()->json(["offer" => $offer]);
         }
         return response(
             "not allowed to change offer",
@@ -60,12 +62,15 @@ class OfferController extends Controller
 
     public function accept(Offer $offer)
     {
+        if ($offer->project->client_id !== Auth::id())
+            return response(["message" => "You are not Authorized to accept offers for this project."], Response::HTTP_FORBIDDEN);
         if ($offer->project->client_id == Auth::id()) {
-            if ($offer->type == OfferType::Basic->value) {
-                // todo : fix this to make it require milestones
+            if ($offer->type == OfferType::Basic) {
+                return response("The designer needs to add milestones to the offer", Response::HTTP_BAD_REQUEST);
                 $offer->price = $offer->project->price;
             }
-            $offer->milestones->first()->status = MilestoneStatus::Pending->value;
+            $fM = $offer->milestones->first();
+            $fM->status = MilestoneStatus::Pending->value;
             $offer->project->designer_id = $offer->user_id;
             $offer->project->status = Status::InProgress->value;
             $offer->project->save();
@@ -83,16 +88,22 @@ class OfferController extends Controller
 
     public function invoice(Offer $offer)
     {
-        $invoice = $offer->milestones()->get('attachment');
-        return response()->json(['invoice' => $invoice], Response::HTTP_OK);
+        if ($offer->user_id === Auth::id() || $offer->project->client_id === Auth::id()) {
+            $invoice = $offer->milestones()->get('attachment');
+            return response()->json(['invoice' => $invoice], Response::HTTP_OK);
+        }
+        return response(["message" => "You don't have access to invoice of this project"], Response::HTTP_FORBIDDEN);
     }
 
     public function destroy(Offer $offer)
     {
-        if (empty($offer->project->designer_id)) {
+        if ($offer->user_id !== Auth::id()) {
+            return response(["message" => "this offer doesn't belong to you and you can't delete it"], Response::HTTP_FORBIDDEN);
+        }
+        if ($offer->project->designer_id === Auth::id()) {
             $offer->delete();
             return response()->noContent();
         }
-        return response("not allowed to delete offer", Response::HTTP_FORBIDDEN);
+        return response("not allowed to delete offer after", Response::HTTP_FORBIDDEN);
     }
 }

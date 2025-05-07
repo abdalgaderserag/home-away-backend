@@ -16,7 +16,6 @@ return new class extends Migration
             $table->foreignId('project_id')->constrained()->nullable();
             $table->foreignId('first_user')->constrained('users');
             $table->foreignId('second_user')->constrained('users');
-            $table->json('attachment')->nullable();
             $table->boolean('is_read')->default(false);
             $table->timestamps();
         });

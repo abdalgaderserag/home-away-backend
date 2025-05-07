@@ -33,6 +33,9 @@ class MilestoneController extends Controller
 
     public function store(StoreMilestoneRequest $request, Offer $offer)
     {
+        if ($offer->user_id !== Auth::id()) {
+            return response()->json(['message' => 'You are not authorized to create milestones for this offer.'], Response::HTTP_UNAUTHORIZED);
+        }
         $sum = $offer->milestones->sum('price');
         $price_left = $offer->price - $sum;
 
@@ -63,11 +66,17 @@ class MilestoneController extends Controller
 
     public function show(Offer $offer)
     {
+        if ($offer->user_id !== Auth::id() && $offer->project->user_id !== Auth::id()) {
+            return response()->json(['message' => 'You are not authorized to view this offer.'], Response::HTTP_UNAUTHORIZED);
+        }
         return response(["offer" => $offer, "milestones" => $offer->milestones()]);
     }
 
     public function update(UpdateMilestoneRequest $request, Milestone $milestone)
     {
+        if ($milestone->offer->user_id !== Auth::id()) {
+            return response()->json(['message' => 'You are not authorized to update this milestone.'], Response::HTTP_UNAUTHORIZED);
+        }
         if ($milestone->offer->project->status !== Status::Published) {
             return response()->json(["message" => "You can't edit milestone right now."]);
         }
@@ -77,8 +86,11 @@ class MilestoneController extends Controller
 
     public function submit(SubmitMilestoneRequest $request, Milestone $milestone)
     {
+        if ($milestone->offer->user_id !== Auth::id()) {
+            return response()->json(["message" => "You are not authorized to submit this milestone."], Response::HTTP_UNAUTHORIZED);
+        }
         if ($milestone->status !== MilestoneStatus::Pending) {
-            return response()->json(["message" => "You can't submit this milestone right now."]);
+            return response()->json(["message" => "You can't submit this milestone right now."], Response::HTTP_FORBIDDEN);
         }
         $attachment = Attachment::find($request->attachment);
         $attachment->milestone_id = $milestone->id;
@@ -92,6 +104,12 @@ class MilestoneController extends Controller
     public function acceptOrReject(MilestoneReviewRequest $request)
     {
         $milestone = Milestone::find($request->milestone_id);
+        if ($milestone->offer->project->client_id !== Auth::id()) {
+            return response()->json(["message" => "You are not authorized to accept of reject this milestone submission."], Response::HTTP_UNAUTHORIZED);
+        }
+        if ($milestone->status !== MilestoneStatus::Reviewing) {
+            return response()->json(["message" => "this milestone is not submitted by designer yet"], Response::HTTP_NOT_ACCEPTABLE);
+        }
         if ($request->action == 'accept') {
             return $this->accept($milestone);
         } elseif ($request->action == 'reject') {
@@ -102,42 +120,41 @@ class MilestoneController extends Controller
 
     private function accept(Milestone $milestone)
     {
-        if ($milestone->status !== MilestoneStatus::Reviewing->value) {
-            return response()->json(["message" => "this milestone is not submitted by designer yet"], Response::HTTP_NOT_ACCEPTABLE);
-        }
         $milestone->update([
-            'status' => MilestoneStatus::Completed->value,
+            'status' => MilestoneStatus::Completed,
         ]);
         $lastMs = $milestone->offer->milestones()->where('status', '!=', MilestoneStatus::Completed)->first();
         if ($lastMs == null) {
             $milestone->offer->update([
-                'status' => OfferStatus::Completed->value,
+                'status' => OfferStatus::Completed,
             ]);
             $milestone->offer->project->update([
-                'status' => Status::Completed->value,
+                'status' => Status::Completed,
             ]);
         } else {
-            $milestone->offer->update([
-                'status' => OfferStatus::Pending->value,
-            ]);
+            $lastMs->status = MilestoneStatus::Pending;
+            $lastMs->update();
         }
         return response()->json(['milestone' => $milestone, 'is_last_milestone' => $lastMs ? true : false]);
     }
 
     private function reject(Milestone $milestone)
     {
-        if ($milestone->status !== MilestoneStatus::Reviewing) {
-            return response()->json(["message" => "this milestone is not submitted by designer yet"], Response::HTTP_NOT_ACCEPTABLE);
-        }
         $milestone->attachment()->delete();
+        $timeDifference = $milestone->deadline->diffInDays($milestone->delivery_date);
         $milestone->update([
             'status' => MilestoneStatus::Pending->value,
+            'deadline' => now()->addDays($timeDifference),
+            'delivery_date' => null,
         ]);
         return response()->json($milestone);
     }
 
     public function destroy(Milestone $milestone)
     {
+        if($milestone->offer->designer_id !== Auth::id()){
+            return response()->json(["message" => "You are not authorized to delete this milestone."], Response::HTTP_UNAUTHORIZED);
+        }
         if ($milestone->offer->status === OfferStatus::Pending) {
             $milestone->delete();
             return response()->noContent();

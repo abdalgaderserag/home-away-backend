@@ -35,21 +35,4 @@ class Attachment extends Model
     {
         return $this->belongsTo(Verification::class);
     }
-
-    public function setUrlAttribute($value)
-    {
-        if (Storage::fileExists($value))
-            return $value;
-        $this->delete();
-        return;
-    }
-
-    public function gerUrlAttribute()
-    {
-        $value = $this->url;
-        if (Storage::fileExists($value))
-            return $value;
-        $this->delete();
-        return;
-    }
 }

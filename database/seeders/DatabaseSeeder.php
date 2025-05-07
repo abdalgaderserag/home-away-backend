@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
 use Database\Seeders\Build\BuildDatabase;
+use Database\Seeders\Build\LocationSeeder;
 use Google\Service\ApigeeRegistry\Build;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -30,7 +30,8 @@ class DatabaseSeeder extends Seeder
             RateSeeder::class,
         ]);*/
         $this->call([
-            BuildDatabase::class
+            BuildDatabase::class,
+            LocationSeeder::class,
         ]);
     }
 }

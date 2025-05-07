@@ -16,4 +16,13 @@ return new class extends Migration
             $table->unsignedBigInteger('assigned_to')->nullable()->references('id')->on('users')->after('is_locked');
         });
     }
+
+    public function down()
+    {
+        $tableName = config('laravel_ticket.table_names.tickets', 'tickets');
+
+        Schema::table($tableName, function (Blueprint $table) {
+            $table->dropColumn('assigned_to');
+        });
+    }
 };

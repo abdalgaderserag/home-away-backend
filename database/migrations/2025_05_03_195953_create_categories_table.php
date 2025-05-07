@@ -20,4 +20,11 @@ return new class extends Migration
             $table->timestamps();
         });
     }
+
+    public function down()
+    {
+        $tableName = config('laravel_ticket.table_names.categories', 'categories');
+
+        Schema::dropIfExists($tableName);
+    }
 };
