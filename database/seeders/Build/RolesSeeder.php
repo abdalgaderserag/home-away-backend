@@ -23,14 +23,14 @@ class RolesSeeder extends Seeder
             'guard_name' => 'web',
         ])->givePermissionTo('designer');
 
-        // Role::create([
-        //     'name' => 'support',
-        //     'guard_name' => 'admin',
-        // ]);
+        Role::create([
+            'name' => 'support',
+            'guard_name' => 'web',
+        ])->givePermissionTo(['edit locations', 'edit users', 'verify edit', 'edit bio']);
 
-        // Role::create([
-        //     'name' => 'admin',
-        //     'guard_name' => 'admin',
-        // ]);
+        Role::create([
+            'name' => 'admin',
+            'guard_name' => 'web',
+        ])->givePermissionTo(['super access']);
     }
 }

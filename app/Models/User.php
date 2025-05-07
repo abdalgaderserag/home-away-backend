@@ -124,10 +124,10 @@ class User extends Authenticatable implements MustVerifyEmail, CanUseTickets
     {
         return $this->hasOne(Attachment::class);
     }
-    public function getAvatarAttribute() : string
+    public function getAvatarAttribute(): string
     {
-        $attachment = $this->attachment()->get();
-        return $attachment->url;
+        $attachment = $this->attachment;
+        return $attachment?->url ?? 'default.png';
     }
     public function hasOpenTicket(User $user): bool
     {

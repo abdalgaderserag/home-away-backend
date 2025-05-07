@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Sanctum\PersonalAccessToken;
 use Laravel\Sanctum\Sanctum;
@@ -26,6 +27,13 @@ class AuthServiceProvider extends ServiceProvider
                 return true;
             }
             return $token->created_at->gt(now()->subMinutes(config('sanctum.expiration')));
+        });
+
+
+        Gate::before(function ($user, $ability) {
+            if ($user->hasRole('admin')) {
+                return true;
+            }
         });
     }
 }

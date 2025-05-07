@@ -17,7 +17,9 @@ class UserResource extends Resource
 {
     protected static ?string $model = User::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-user-circle';
+
+    protected static ?string $navigationGroup = 'Users Data';
 
     public static function form(Form $form): Form
     {
@@ -40,6 +42,11 @@ class UserResource extends Resource
                         'designer' => "Designer",
                     ])
                     ->required(),
+                Forms\Components\TextInput::make('password')
+                    ->password()
+                    ->dehydrated(fn ($state) => !empty($state))
+                    ->required(fn (string $context): bool => $context === 'create')
+                    ->maxLength(255),
             ]);
     }
 

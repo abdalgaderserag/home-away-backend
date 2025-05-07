@@ -17,9 +17,10 @@ class VerifiedMiddleware
     {
         $user = $request->user();
         if ($user->can('verified')) {
+            $user->update(['last_seen_at' => now()]);
             return $next($request);
         }
-        
+
         return response()->json([
             'message' => 'You need to verify your ID to access this resource.',
             'status' => false,
