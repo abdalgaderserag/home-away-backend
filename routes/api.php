@@ -15,15 +15,14 @@ use App\Http\Controllers\UploadController;
 use App\Http\Controllers\User\NotificationController;
 use App\Http\Controllers\User\ProfileController;
 use App\Http\Controllers\User\SettingsController;
+
 use Illuminate\Support\Facades\Route;
 
-Route::apiResource('projects', ProjectController::class)->only(['index']);
+Route::get('projects', [ProjectController::class, 'index']);
 
 Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/logout', [LoginController::class, "logout"])->name('logout');
 
-    Route::post('/password/reset/send', [ResetPasswordController::class, 'sendResetLink']);
-    Route::post('/password/reset', [ResetPasswordController::class, 'reset']);
+    Route::post('logout', [LoginController::class, 'logout'])->name('logout');
 
     // verification for registration verification
     Route::post('/email/verify', [VerificationController::class, 'verifyEmail']);
@@ -31,19 +30,25 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/phone/verify', [VerificationController::class, 'verifyPhone']);
     Route::post('/phone/verify/resend', [VerificationController::class, 'phoneResend']);
 
+    // user related controllers
     Route::get('/user/settings', [SettingsController::class, 'index']);
     Route::put('/user/settings', [SettingsController::class, 'update']);
     Route::get('/user/profile/{id?}', [ProfileController::class, 'profile']);
     Route::put('/user/profile', [ProfileController::class, 'updateProfile']);
 
-    Route::post('/user/notifications', NotificationController::class, 'index');
+    // notification controllers
+    Route::post('/user/notifications', [NotificationController::class, 'index']);
     Route::post('user/notifications/{notificationId}/read', [NotificationController::class, 'markAsRead']);
 
-
+    // project controllers
     Route::get('projects/create', [ProjectController::class, "create"])->name('projects.create');
     Route::put('projects/{project}/save', [ProjectController::class, "save"])->name('projects.save');
-    Route::apiResource('projects', ProjectController::class)->except(['index', 'create']);
+    Route::get('projects/{project}', [ProjectController::class, 'show']);
+    Route::post('projects', [ProjectController::class, 'store']);
+    Route::put('projects/{project}', [ProjectController::class, 'update']);
+    Route::delete('projects/{project}', [ProjectController::class, 'destroy']);
 
+    // offer controllers
     Route::get('offers', [OfferController::class, 'index']);
     Route::post('offers', [OfferController::class, 'store']);
     Route::get('offers/{project}', [OfferController::class, 'show']);
@@ -52,6 +57,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('offers/{offer}/invoice', [OfferController::class, 'invoice']);
     Route::delete('offers/{offer}', [OfferController::class, 'destroy']);
 
+    // milestones controllers
     Route::post('milestones/review', [MilestoneController::class, 'acceptOrReject']);
     Route::get('milestones/{offer}', [MilestoneController::class, 'index']);
     Route::post('milestones/{offer}', [MilestoneController::class, 'store']);
@@ -60,21 +66,40 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('milestones/{milestone}/submit', [MilestoneController::class, 'submit']);
     Route::delete('milestones/{milestone}', [MilestoneController::class, 'destroy']);
 
-    Route::apiResource('messages', MessageController::class);
-    Route::apiResource('rates', RateController::class);
-    Route::apiResource('favorite', FavoriteController::class)->only(['index', 'store']);
+    // chat controllers
+    Route::get('messages', [MessageController::class, 'index']);
+    Route::post('messages', [MessageController::class, 'store']);
+    Route::get('messages/{message}', [MessageController::class, 'show']);
+    Route::put('messages/{message}', [MessageController::class, 'update']);
+    Route::delete('messages/{message}', [MessageController::class, 'destroy']);
 
+    // rating
+    Route::get('rates', [RateController::class, 'index']);
+    Route::post('rates', [RateController::class, 'store']);
+    Route::get('rates/{rate}', [RateController::class, 'show']);
+    Route::put('rates/{rate}', [RateController::class, 'update']);
+    Route::delete('rates/{rate}', [RateController::class, 'destroy']);
+
+    // favorite
+    Route::get('favorite', [FavoriteController::class, 'index']);
+    Route::post('favorite', [FavoriteController::class, 'store']);
+
+    // file upload
     Route::post('file', [UploadController::class, 'uploadFile']);
     Route::delete('file', [UploadController::class, 'removeUploadedFile']);
 });
 
+Route::middleware("guest")->group(function () {
+    // login register
+    Route::post('register', [RegisterController::class, 'register']);
+    Route::post('login', [LoginController::class, 'login']);
 
-Route::post('/login', [LoginController::class, "login"])->name('login');
-Route::post('/register', [RegisterController::class, "register"])->name('register');
-Route::middleware('social.auth')->group(function () {
-    // for web application social authentication
-    Route::get('/auth/{provider}', [SocialAuthController::class, 'redirect']);
-    Route::get('/auth/{provider}/callback', [SocialAuthController::class, 'callback']);
-    // for mobile application social authentication
-    Route::post('/auth/social', [SocialAuthController::class, 'handleSocialLogin']);
+    // Social Authentication
+    Route::get('social/{provider}/redirect', [SocialAuthController::class, 'redirect']);
+    Route::get('social/{provider}/callback', [SocialAuthController::class, 'callback']);
+    Route::post('social/token', [SocialAuthController::class, 'socialLogin']);
+
+    // password reset
+    Route::post('/password/reset-send', [ResetPasswordController::class, 'sendResetLink']);
+    Route::post('/reset-password', [ResetPasswordController::class, 'reset']);
 });

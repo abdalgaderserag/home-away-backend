@@ -41,9 +41,13 @@ class RegisterRequest extends FormRequest
                     }
                 }
             ],
-            'phone' => 'required_without:email|string|unique:users',
-            "password" => "required|min:8",
-            // 'type' => ['required', new Enum(UserType::class)],
+            'phone' => 'required_without:email|string|unique:users,phone',
+            "password" => [
+                "required",
+                "string",
+                "min:8",
+                "regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/",
+            ],
             "type" => 'required|in:client,designer',
         ];
     }

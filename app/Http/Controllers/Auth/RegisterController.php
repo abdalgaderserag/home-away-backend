@@ -2,15 +2,9 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\Enum\User\UserType;
-use App\Enum\VerificationType;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\RegisterRequest;
 use App\Models\User;
-use App\Models\User\Bio;
-use App\Models\User\Settings;
-use App\Models\Verification;
-use App\Notifications\Welcome;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
@@ -18,54 +12,32 @@ use Illuminate\Support\Facades\Hash;
 
 class RegisterController extends Controller
 {
-    public function register(RegisterRequest $request): Response
+    use \App\Traits\OnboardsNewUser;
+
+    public function register(RegisterRequest $request)
     {
-        $user = new User();
-        $user->name = $request->name;
-        if ($request->email) {
-            $user->email = $request->email;
-        } else {
-            $user->phone = $request->phone;
-        }
-        $user->password = Hash::make($request->password);
-        if ($request->type === UserType::Designer->value) {
-            $user->assignRole('designer');
-        } else {
-            $user->assignRole('client');
-        }
-        $user->save();
+        $validated = $request->validated();
 
-        // create user settings
-        $settings = new Settings();
-        $settings->user_id = $user->id;
-        $settings->save();
+        $user = User::create([
+            'name'     => $validated['name'],
+            'email'    => $validated['email'] ?? null,
+            'phone'    => $validated['phone'] ?? null,
+            'password' => Hash::make($validated['password']),
+        ]);
 
-        // create user bio
-        $bio = new Bio();
-        $bio->user_id = $user->id;
-        $bio->save();
+        $this->onboardNewUser($user);
 
-        // create ID verifications
-        $types = [VerificationType::User->value, VerificationType::Address->value, VerificationType::Company->value];
-        foreach ($types as $type) {
-            $v = new Verification();
-            $v->user_id = $user->id;
-            $v->type = $type;
-            $v->save();
-        }
-
-        // send verification request
-        if ($request->email) {
+        // send verification notifications
+        if ($user->email) {
             $user->sendEmailVerificationNotification();
         }
-        if ($request->phone) {
+        if ($user->phone) {
             $user->sendPhoneVerificationNotification();
         }
-        $token = $user->createToken("token:" . $user->id);
-        Auth::login($user);
 
-        // send welcome notification
-        $user->notify(new Welcome);
-        return response($token->plainTextToken, 201);
+        Auth::login($user);
+        $token = $user->createToken("auth-token:{$user->id}")->plainTextToken;
+
+        return response()->json(['token' => $token, 'user' => $user], Response::HTTP_CREATED);
     }
 }

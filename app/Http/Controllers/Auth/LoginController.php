@@ -11,33 +11,30 @@ use Illuminate\Support\Facades\Hash;
 
 class LoginController extends Controller
 {
-    public function login(LoginRequest $request): Response
+    public function login(LoginRequest $request)
     {
-        $user = User::where('email', $request->email)
-            ->orWhere('phone', $request->phone)
+        $user = User::where('email', $request->input('email'))
+            ->orWhere('phone', $request->input('phone'))
             ->first();
 
-        if ($user && !Hash::check($request->password, $user->password)) {
-            if ($user->socialAccounts()->exists()) {
-                return response([
-                    'error' => 'This account was created with social login',
-                    'available_providers' => $user->socialAccounts->pluck('provider')
-                ], 422);
+        if (! $user || ! Hash::check($request->password, $user->password)) {
+            if ($user && $user->socialAccounts()->exists()) {
+                return response()->json([
+                    'error' => 'This account uses social login only',
+                    'providers' => $user->socialAccounts->pluck('provider'),
+                ], Response::HTTP_UNPROCESSABLE_ENTITY);
             }
-            return response(['error' => 'Invalid credentials'], 401);
+            return response()->json(['error' => 'Invalid credentials'], Response::HTTP_UNAUTHORIZED);
         }
 
-        if (!$user || !Hash::check($request->password, $user->password)) {
-            return response('Invalid credentials', Response::HTTP_UNAUTHORIZED);
-        }
-        $token = $user->createToken('token:' . $user->id)->plainTextToken;
-        return response($token, Response::HTTP_OK);
+        $token = $user->createToken("auth-token:{$user->id}")->plainTextToken;
+        return response()->json(['token' => $token, 'user' => $user], Response::HTTP_OK);
     }
 
-    public function logout(): Response
+    public function logout()
     {
         $user = Auth::user();
-        $user->currentAccessToken()->delete();;
-        return response("user logout completed", 200);
+        $user->currentAccessToken()->delete();
+        return response()->json(['message' => 'Logout successful'], Response::HTTP_OK);
     }
 }

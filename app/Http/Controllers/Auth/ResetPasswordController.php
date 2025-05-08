@@ -5,9 +5,8 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
-use Symfony\Component\HttpFoundation\Response;
 
 class ResetPasswordController extends Controller
 {
@@ -33,5 +32,27 @@ class ResetPasswordController extends Controller
         return $status === Password::RESET_LINK_SENT
             ? response()->json($status)
             : response()->json($status, 400);
+    }
+
+    public function reset(Request $request)
+    {
+        $request->validate([
+            'token' => 'required',
+            'email_or_phone' => 'required',
+            'password' => 'required|confirmed|min:8',
+        ]);
+
+        $status = Password::broker()->reset(
+            $request->only('email_or_phone', 'password', 'password_confirmation', 'token'),
+            function ($user, $password) {
+                $user->forceFill([
+                    'password' => Hash::make($password)
+                ])->save();
+            }
+        );
+
+        return $status == Password::PASSWORD_RESET
+            ? response()->json(['message' => 'Password updated successfully'])
+            : response()->json(['error' => 'Invalid token or expired link'], 400);
     }
 }
