@@ -18,11 +18,14 @@ class RegisterController extends Controller
     {
         $validated = $request->validated();
 
+        $verificationCode = random_int(100000, 999999);
+
         $user = User::create([
-            'name'     => $validated['name'],
-            'email'    => $validated['email'] ?? null,
-            'phone'    => $validated['phone'] ?? null,
-            'password' => Hash::make($validated['password']),
+            'name'              => $validated['name'],
+            'email'             => $validated['email'] ?? null,
+            'phone'             => $validated['phone'] ?? null,
+            'password'          => Hash::make($validated['password']),
+            'verification_code' => $verificationCode,
         ]);
 
         $this->onboardNewUser($user);

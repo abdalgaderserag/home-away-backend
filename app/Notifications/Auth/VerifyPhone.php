@@ -2,9 +2,9 @@
 
 namespace App\Notifications\Auth;
 
+use App\Action\SendSmsAction;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
 class VerifyPhone extends Notification
@@ -26,18 +26,22 @@ class VerifyPhone extends Notification
      */
     public function via(object $notifiable): array
     {
-        return ['mail'];
+        return ['sms'];
     }
 
     /**
      * Get the mail representation of the notification.
      */
-    public function toMail(object $notifiable): MailMessage
+    public function toSms(object $notifiable)
     {
-        return (new MailMessage)
-            ->line('The introduction to the notification.')
-            ->action('Notification Action', url('/'))
-            ->line('Thank you for using our application!');
+        $app_name = config('app.name');
+        $verification_code = $notifiable->verification_code;
+        $phone = $notifiable->phone;
+
+        return [
+            'phone' => $phone,
+            'message' => "Please use the following verification code to verify your phone number: {$verification_code}. Thank you for using {$app_name}!"
+        ];
     }
 
     /**
