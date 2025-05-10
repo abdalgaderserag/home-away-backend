@@ -8,6 +8,7 @@ use App\Http\Requests\StoreProjectRequest;
 use App\Http\Requests\UpdateProjectRequest;
 use App\Models\Attachment;
 use App\Models\Project;
+use App\Notifications\Request\ProjectSentForApproval;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\Response;
@@ -112,6 +113,7 @@ class ProjectController extends Controller
         }
         $project->status = Status::Pending->value;
         $project->update($request->validated());
+        $project->client->notify(new ProjectSentForApproval($project));
         return response()->json([
             'project' => $project->refresh(),
             'attachments' => Attachment::where('project_id', $project->id)->get(),

@@ -2,6 +2,7 @@
 
 namespace App\Notifications;
 
+use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -11,12 +12,14 @@ class Rated extends Notification
 {
     use Queueable;
 
+    private User $user;
+
     /**
      * Create a new notification instance.
      */
-    public function __construct()
+    public function __construct(User $user)
     {
-        //
+        $this->user = $user;
     }
 
     /**
@@ -47,16 +50,9 @@ class Rated extends Notification
      */
     public function toArray(object $notifiable): array
     {
-        if ($project)
-            $data = [
-                "message" => __('notification', ["project_title" => $project, "user" => $user]),
-            ];
-        else
-            $data = [
-                "message" => __('notification', ["user" => $user]),
-            ];
+        $user = $this->user->name;
         return [
-            "message" => $message,
+            "message" => __('notification', ["user" => $user]),
         ];
     }
 }

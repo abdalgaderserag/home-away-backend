@@ -1,24 +1,25 @@
 <?php
 
-namespace App\Notifications\Milestone;
+namespace App\Notifications\Request;
 
-use App\Models\Milestone;
+use App\Models\Project;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class Submitted extends Notification
+class ProjectApproved extends Notification
 {
     use Queueable;
 
-    private $milestone;
+    private Project $project;
+
     /**
      * Create a new notification instance.
      */
-    public function __construct(Milestone $milestone)
+    public function __construct(Project $project)
     {
-        $this->milestone = $milestone;
+        $this->project = $project;
     }
 
     /**
@@ -50,9 +51,7 @@ class Submitted extends Notification
     public function toArray(object $notifiable): array
     {
         return [
-            "message" => "{$this->milestone->user->name} has submitted a milestone.",
-            "milestone_id" => $this->milestone->id,
-            "client_id" => $this->milestone->project->client_id,
+            "message" => __("notification.project_approved"),
         ];
     }
 }

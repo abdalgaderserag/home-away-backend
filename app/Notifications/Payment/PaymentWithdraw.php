@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Notifications\Offer;
+namespace App\Notifications\Payment;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class Received extends Notification
+class PaymentWithdraw extends Notification
 {
     use Queueable;
 
@@ -48,10 +48,8 @@ class Received extends Notification
     public function toArray(object $notifiable): array
     {
         return [
-            "message" => __("notification.offer_received", ["project_title" => $this->project->title]),
-            "project_id" => $this->project->id,
-            "offer_id" => $this->offer->id,
-            "client_id" => $this->project->client_id,
+            "message" => __("notification.payment_withdraw"),
+            "amount" => $this->data["price"],
         ];
     }
 }

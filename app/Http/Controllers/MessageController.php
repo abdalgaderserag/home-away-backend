@@ -7,6 +7,7 @@ use App\Models\Attachment;
 use App\Models\Chat;
 use App\Models\Message;
 use App\Models\User;
+use App\Notifications\MessageReceived;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -75,9 +76,6 @@ class MessageController extends Controller
             ]);
         }
 
-
-
-
         $message = new Message($request->validated());
         $message->sender()->associate(Auth::user());
         $message->receiver()->associate($user);
@@ -91,6 +89,9 @@ class MessageController extends Controller
         }
 
         $chat->touch();
+
+        $user->notify(new MessageReceived($message));
+
         $data = $message->load(['sender', 'receiver', 'attachments']);
         return response(["message" => $data], Response::HTTP_CREATED);
     }

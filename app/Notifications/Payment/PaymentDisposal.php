@@ -1,22 +1,25 @@
 <?php
 
-namespace App\Notifications\Offer;
+namespace App\Notifications\Payment;
 
+use App\Models\Milestone;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class Accepted extends Notification
+class PaymentDisposal extends Notification
 {
     use Queueable;
+
+    private Milestone $milestone;
 
     /**
      * Create a new notification instance.
      */
-    public function __construct()
+    public function __construct(Milestone $milestone)
     {
-        //
+        $this->milestone = $milestone;
     }
 
     /**
@@ -48,10 +51,7 @@ class Accepted extends Notification
     public function toArray(object $notifiable): array
     {
         return [
-            "message" => __("notification.offer_accepted", ["project_title" => $this->project->title]),
-            "project_id" => $this->project->id,
-            "offer_id" => $this->offer->id,
-            "client_id" => $this->project->client_id,
+            "message" => __("notification.payment_disposal"),
         ];
     }
 }

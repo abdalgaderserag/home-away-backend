@@ -8,11 +8,11 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class Approved extends Notification
+class ApprovedMilestone extends Notification
 {
     use Queueable;
 
-    private $milestone;
+    private Milestone $milestone;
     /**
      * Create a new notification instance.
      */

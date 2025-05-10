@@ -1,23 +1,20 @@
 <?php
 
-namespace App\Notifications\Request;
+namespace App\Notifications\Payment;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class Approved extends Notification
+class PaymentLinked extends Notification
 {
     use Queueable;
 
     /**
      * Create a new notification instance.
      */
-    public function __construct()
-    {
-        //
-    }
+    public function __construct() {}
 
     /**
      * Get the notification's delivery channels.
@@ -48,7 +45,8 @@ class Approved extends Notification
     public function toArray(object $notifiable): array
     {
         return [
-            "message" => __("notification.project_approved"),
+            "message" => __("notification.payment_linked"),
+            "payment_method" => $this->data["payment_method"],
         ];
     }
 }

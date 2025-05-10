@@ -1,22 +1,25 @@
 <?php
 
-namespace App\Notifications\Request;
+namespace App\Notifications\Milestone;
 
+use App\Models\Milestone;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class SentForApproval extends Notification
+class DeclinedMilestone extends Notification
 {
     use Queueable;
+
+    private $milestone;
 
     /**
      * Create a new notification instance.
      */
-    public function __construct()
+    public function __construct(Milestone $milestone)
     {
-        //
+        $this->milestone = $milestone;
     }
 
     /**
@@ -48,7 +51,8 @@ class SentForApproval extends Notification
     public function toArray(object $notifiable): array
     {
         return [
-            "message" => __("notification.project_sent_for_approval"),
+            "message" => "Your Milestone Submission for {$this->milestone->project->title} has been denied.",
+            "milestone_id" => $this->milestone->id,
         ];
     }
 }

@@ -11,6 +11,8 @@ use App\Http\Requests\StoreOfferRequest;
 use App\Http\Requests\UpdateOfferRequest;
 use App\Models\Milestone;
 use App\Models\Project;
+use App\Notifications\Offer\AcceptedOffer;
+use App\Notifications\Offer\ReceivedOffer;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -33,6 +35,8 @@ class OfferController extends Controller
         $offer->status = OfferStatus::Pending->value;
         $offer->user_id = Auth::id();
         $offer->save();
+        $client = $project->client;
+        $client->notify(new ReceivedOffer($offer));
         return response()->json(["offer" => $offer], Response::HTTP_CREATED);
     }
 
@@ -81,6 +85,8 @@ class OfferController extends Controller
                 $otherOffer->status = OfferStatus::Declined->value;
                 $otherOffer->update();
             }
+            $designer = $offer->user;
+            $designer->notify(new AcceptedOffer($offer));
             return response(["offer" => $offer], Response::HTTP_CREATED);
         }
         return response("this offer doesn't belong to one of your projects", Response::HTTP_FORBIDDEN);

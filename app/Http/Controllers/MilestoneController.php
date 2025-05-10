@@ -14,6 +14,10 @@ use App\Http\Requests\UpdateMilestoneRequest;
 use App\Http\Requests\UpdateOfferRequest;
 use App\Models\Attachment;
 use App\Models\Offer;
+use App\Models\User;
+use App\Notifications\Milestone\ApprovedMilestone;
+use App\Notifications\Milestone\DeclinedMilestone;
+use App\Notifications\Milestone\SubmittedMilestone;
 use Google\Service\Texttospeech\Turn;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
@@ -98,6 +102,10 @@ class MilestoneController extends Controller
             'delivery_date' => now(),
             'status' => MilestoneStatus::Reviewing->value,
         ]);
+
+        $client = $milestone->project->client;
+        $client->notify(new SubmittedMilestone($milestone));
+
         return response()->json(["milestone" => $milestone]);
     }
 
@@ -135,6 +143,8 @@ class MilestoneController extends Controller
             $lastMs->status = MilestoneStatus::Pending;
             $lastMs->update();
         }
+        $designer = $milestone->offer->user;
+        $designer->notify(new ApprovedMilestone($milestone));
         return response()->json(['milestone' => $milestone, 'is_last_milestone' => $lastMs ? true : false]);
     }
 
@@ -147,6 +157,8 @@ class MilestoneController extends Controller
             'deadline' => now()->addDays($timeDifference),
             'delivery_date' => null,
         ]);
+        $designer = $milestone->offer->user;
+        $designer->notify(new DeclinedMilestone($milestone));
         return response()->json($milestone);
     }
 

@@ -2,6 +2,7 @@
 
 namespace App\Notifications;
 
+use App\Models\Message;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -11,12 +12,14 @@ class MessageReceived extends Notification
 {
     use Queueable;
 
+    private Message $message;
+
     /**
      * Create a new notification instance.
      */
-    public function __construct()
+    public function __construct(Message $message)
     {
-        //
+        $this->message = $message;
     }
 
     /**
@@ -47,6 +50,8 @@ class MessageReceived extends Notification
      */
     public function toArray(object $notifiable): array
     {
+        $this->message->load(['sender', 'receiver']);
+        $user = $this->message->sender;
         return [
             "message" => __("notification.message_received", ["sender" => $user]),
         ];
