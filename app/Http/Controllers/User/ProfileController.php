@@ -4,13 +4,17 @@ namespace App\Http\Controllers\User;
 
 use App\Enum\Project\Status;
 use App\Enum\User\UserType;
+use App\Enum\VerificationType;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\User\UpdateBioRequest;
+use App\Models\Attachment;
 use App\Models\Rate;
 use App\Models\User;
+use App\Models\Verification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\Response;
 
 class ProfileController extends Controller
@@ -90,5 +94,74 @@ class ProfileController extends Controller
             'message' => 'Bio updated successfully',
             'bio' => $bio
         ], Response::HTTP_OK);
+    }
+
+    public function changeEmail(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email|unique:users,email,' . Auth::id(),
+        ]);
+        $user = Auth::user();
+        $user->email = $request->email;
+        $user->email_verified_at = null;
+        $user->update();
+        return response([
+            'message' => 'Email updated successfully',
+            'user' => $user
+        ], Response::HTTP_OK);
+    }
+
+    public function changePhone(Request $request)
+    {
+        $request->validate([
+            'phone' => 'required|unique:users,phone,' . Auth::id(),
+        ]);
+        $user = Auth::user();
+        $user->phone = $request->phone;
+        $user->phone_verified_at = null;
+        $user->update();
+        return response([
+            'message' => 'Phone updated successfully',
+            'user' => $user
+        ], Response::HTTP_OK);
+    }
+
+    public function changeAvatar(Request $request)
+    {
+        $request->validate([
+            'attachment' => 'required|exists:attachments,id',
+        ]);
+
+        $user = Auth::user();
+        $attachment = Attachment::find($request->attachment);
+
+        $attachment->user_id = $user->id;
+        $path = $attachment->url;
+        Storage::setVisibility($path, 'public');
+        $attachment->save();
+        $user->touch();
+
+        return response()->json([
+            'message' => 'Avatar updated successfully',
+            'user' => $user
+        ], Response::HTTP_OK);
+    }
+
+    public function changeName(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|min:3',
+        ]);
+
+        $user = Auth::user();
+        $user->name = $request->name;
+        $user->update();
+        $verifications = Verification::where('user_id', $user->id);
+        foreach ($verifications as $verification) {
+            if ($verification->type == VerificationType::User || $verification->type == VerificationType::Address) {
+                $verification->verified = false;
+                $verification->update();
+            }
+        }
     }
 }

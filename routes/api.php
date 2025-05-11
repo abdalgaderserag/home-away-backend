@@ -35,6 +35,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/user/settings', [SettingsController::class, 'update']);
     Route::get('/user/profile/{id?}', [ProfileController::class, 'profile']);
     Route::put('/user/profile', [ProfileController::class, 'updateProfile']);
+    Route::put('/user/profile/bio', [ProfileController::class, 'updateBio']);
+    Route::put('/user/profile/update-password', [ProfileController::class, 'changePassword']);
+    Route::put('/user/profile/update-email', [ProfileController::class, 'changeEmail']);
+    Route::put('/user/profile/update-phone', [ProfileController::class, 'changePhone']);
+    Route::put('/user/profile/update-avatar', [ProfileController::class, 'changeAvatar']);
+    Route::put('/user/profile/update-name', [ProfileController::class, 'changeName']);
 
     // notification controllers
     Route::post('/user/notifications', [NotificationController::class, 'index']);

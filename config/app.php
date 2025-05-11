@@ -123,4 +123,6 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    'default_avatar' => 'https://ui-avatars.com/api/?background=random&size=128&bold=true&rounded=true&color=fff&name='
+
 ];

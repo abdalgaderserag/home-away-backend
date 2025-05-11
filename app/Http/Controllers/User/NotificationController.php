@@ -12,7 +12,7 @@ class NotificationController extends Controller
     /**
      * Handle the incoming request.
      */
-    public function __invoke(Request $request)
+    public function index(Request $request)
     {
         $query = Auth::user()->notifications();
 
