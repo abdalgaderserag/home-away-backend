@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\UploadFileRequest;
 use App\Models\Attachment;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -42,6 +43,7 @@ class UploadController extends Controller
             }*/
             $path = Storage::putFile("/data", $file);
             $attachment->url = $path;
+            $attachment->owner_id = Auth::id();
             $attachment->save();
         }else{
             return response()->json(['message' => 'File not found'], Response::HTTP_BAD_REQUEST);

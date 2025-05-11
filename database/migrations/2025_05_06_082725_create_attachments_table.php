@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('attachments', function (Blueprint $table) {
             $table->id();
+            $table->integer('owner_id', 0, 1);
             $table->foreignId('user_id')->nullable()->constrained()->onDelete('cascade');
             $table->foreignId('project_id')->nullable()->constrained()->onDelete('cascade');
             $table->foreignId('message_id')->nullable()->constrained()->onDelete('cascade');
