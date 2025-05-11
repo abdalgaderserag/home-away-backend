@@ -45,4 +45,14 @@ class NotificationController extends Controller
 
         return response()->json(["message" => "Notification not found"], Response::HTTP_NOT_FOUND);
     }
+
+    public function destroy($notificationId){
+        $notification = Auth::user()->notifications()->find($notificationId);
+        if ($notification) {
+            $notification->delete();
+            return response()->json(["message" => "Notification has been deleted"]);
+        }
+        return response()->json(["message" => "Notification not found"], Response::HTTP_NOT_FOUND);
+
+    }
 }

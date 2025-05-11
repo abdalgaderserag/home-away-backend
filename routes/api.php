@@ -45,6 +45,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // notification controllers
     Route::post('/user/notifications', [NotificationController::class, 'index']);
     Route::post('user/notifications/{notificationId}/read', [NotificationController::class, 'markAsRead']);
+    Route::delete('user/notifications/{notificationId}', [NotificationController::class, 'destroy']);
 
     // project controllers
     Route::get('projects/create', [ProjectController::class, "create"])->name('projects.create');
