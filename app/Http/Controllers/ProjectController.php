@@ -9,6 +9,7 @@ use App\Http\Requests\UpdateProjectRequest;
 use App\Models\Attachment;
 use App\Models\Project;
 use App\Notifications\Request\ProjectSentForApproval;
+use Coderflex\LaravelTicket\Models\Category;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\Response;
@@ -108,11 +109,18 @@ class ProjectController extends Controller
 
     public function save(StoreProjectRequest $request, Project $project)
     {
-        if ($project->client_id !== Auth::id() && $project->status !== Status::Draft->value) {
+        $client = Auth::user();
+        if ($project->client_id !== $client->id && $project->status !== Status::Draft->value) {
             return response(["message" => "you are not allowed to edit this project"], 403);
         }
         $project->status = Status::Pending->value;
         $project->update($request->validated());
+        $ticket = $client->tickets()->create([
+            'title' => $request->title,
+            'message' => $project->id,
+        ]);
+        $category = Category::where('slug', 'project-approval')->first();
+        $ticket->attachCategories($category);
         $project->client->notify(new ProjectSentForApproval($project));
         return response()->json([
             'project' => $project->refresh(),

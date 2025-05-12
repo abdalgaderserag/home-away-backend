@@ -6,6 +6,7 @@ use App\Enum\VerificationType;
 use App\Http\Requests\StoreVerificationRequest;
 use App\Models\Attachment;
 use App\Models\Verification;
+use Coderflex\LaravelTicket\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -42,18 +43,19 @@ class VerificationController extends Controller
             ->where('type', $request->type)
             ->first();
 
-        // If the verification exists and is already verified, return a message
         if ($verification) {
+            // If the verification exists and is already verified, return a message
             if ($verification->verified) {
                 return response("you have already verified your " . $request->type, Response::HTTP_NOT_MODIFIED);
             }
             // If it's not verified yet, update the verification with new data
-            $verification->update();
             foreach ($request->attachments as $attach) {
                 $attachment = Attachment::find($attach);
                 $attachment->verification_id = $verification->id;
                 $attachment->save();
             }
+            $verification->update();
+            $this->createVerificationTicket($request->type);
             return response($verification, Response::HTTP_OK);
         } else {
 
@@ -63,6 +65,7 @@ class VerificationController extends Controller
             $verification->verified = false;
             $verification->type = $request->type;
             $verification->save();
+            $this->createVerificationTicket($request->type);
         }
 
         // Check if all verifications are completed and assign permissions
@@ -83,6 +86,16 @@ class VerificationController extends Controller
         }
         $this->checkVerification();
         return response("you are not the ID owner", Response::HTTP_UNAUTHORIZED);
+    }
+
+    private function createVerificationTicket($type)
+    {
+        $user = Auth::user();
+        $ticket = $user->tickets()->create([
+            'title' => "{$type} Verification request",
+        ]);
+        $category = Category::where('slug', "{$type}-verification")->first();
+        $ticket->attachCategories($category);
     }
 
     private function checkVerification()

@@ -20,14 +20,14 @@ class CategorySeeder extends Seeder
         ]);
 
         Category::create([
-            'name' => "User ID",
-            'slug' => "user-id",
+            'name' => "User Verification",
+            'slug' => "user-verification",
             'is_visible' => true,
         ]);
 
         Category::create([
-            'name' => "Company ID",
-            'slug' => "company-id",
+            'name' => "Company Verification",
+            'slug' => "company-verification",
             'is_visible' => true,
         ]);
 
