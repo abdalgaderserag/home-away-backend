@@ -8,50 +8,38 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class ApprovedMilestone extends Notification
+class ApprovedMilestone extends Notification implements ShouldQueue
 {
     use Queueable;
 
-    private Milestone $milestone;
-    /**
-     * Create a new notification instance.
-     */
-    public function __construct(Milestone $milestone)
-    {
-        $this->milestone = $milestone;
-    }
+    public function __construct(private Milestone $milestone) {}
 
-    /**
-     * Get the notification's delivery channels.
-     *
-     * @return array<int, string>
-     */
     public function via(object $notifiable): array
     {
-        return ['database'];
+        return ['mail', 'database'];
     }
 
-    /**
-     * Get the mail representation of the notification.
-     */
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->line('The introduction to the notification.')
-            ->action('Notification Action', url('/'))
-            ->line('Thank you for using our application!');
+            ->subject(__('notification.milestone_approved_subject'))
+            ->greeting(__('notification.hello', ['name' => $notifiable->name]))
+            ->line(__('notification.milestone_approved', [
+                'project_title' => $this->milestone->project->title
+            ]))
+            ->line(__('notification.thank_you'));
     }
 
-    /**
-     * Get the array representation of the notification.
-     *
-     * @return array<string, mixed>
-     */
     public function toArray(object $notifiable): array
     {
         return [
-            "message" => "Your Milestone Submission for {$this->milestone->project->title} has been approved.",
+            "message" => __("notification.milestone_approved", [
+                "project_title" => $this->milestone->project->title
+            ]),
+            "type" => "milestone_approved",
             "milestone_id" => $this->milestone->id,
+            "project_id" => $this->milestone->project_id,
+            "timestamp" => now()->toDateTimeString(),
         ];
     }
 }

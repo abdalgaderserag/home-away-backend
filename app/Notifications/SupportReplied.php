@@ -26,30 +26,25 @@ class SupportReplied extends Notification
      */
     public function via(object $notifiable): array
     {
-        return ['database'];
+        return ['mail', 'database'];
     }
 
-    /**
-     * Get the mail representation of the notification.
-     */
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->line('The introduction to the notification.')
-            ->action('Notification Action', url('/'))
-            ->line('Thank you for using our application!');
+            ->subject(__('notification.support_reply', ['ticket_title' => $this->ticketTitle]))
+            ->greeting(__('notification.hello', ['name' => $notifiable->name]))
+            ->line(__('notification.support_reply', ['ticket_title' => $this->ticketTitle]))
+            ->line(__('notification.thank_you'));
     }
 
-    /**
-     * Get the array representation of the notification.
-     *
-     * @return array<string, mixed>
-     */
     public function toArray(object $notifiable): array
     {
         return [
-            "message" => __("notification.support_reply", ["ticket_title" => $ticket_title]),
-            "ticket_id" => $ticket_id,
+            "message" => __("notification.support_reply", ["ticket_title" => $this->ticketTitle]),
+            "type" => "support",
+            "ticket_id" => $this->ticketId,
+            "timestamp" => now()->toDateTimeString(),
         ];
     }
 }

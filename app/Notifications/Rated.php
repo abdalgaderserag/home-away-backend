@@ -38,9 +38,10 @@ class Rated extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->line('The introduction to the notification.')
-            ->action('Notification Action', url('/'))
-            ->line('Thank you for using our application!');
+            ->subject(__('notification.designer_rate', ['designer' => $this->rater->name]))
+            ->greeting(__('notification.hello', ['name' => $notifiable->name]))
+            ->line(__('notification.designer_rate', ['designer' => $this->rater->name]))
+            ->line(__('notification.thank_you'));
     }
 
     /**
@@ -52,7 +53,10 @@ class Rated extends Notification
     {
         $user = $this->user->name;
         return [
-            "message" => __('notification', ["user" => $user]),
+            "message" => __('notification.designer_rate', ["designer" => $this->rater->name]),
+            "type" => "rating",
+            "rater_id" => $this->rater->id,
+            "timestamp" => now()->toDateTimeString(),
         ];
     }
 }

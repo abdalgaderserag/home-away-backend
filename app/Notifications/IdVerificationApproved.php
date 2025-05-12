@@ -26,7 +26,7 @@ class IdVerificationApproved extends Notification
      */
     public function via(object $notifiable): array
     {
-        return ['database'];
+        return ['mail', 'database'];
     }
 
     /**
@@ -35,9 +35,10 @@ class IdVerificationApproved extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->line('The introduction to the notification.')
-            ->action('Notification Action', url('/'))
-            ->line('Thank you for using our application!');
+            ->subject(__('notification.id_verification_approved_subject'))
+            ->greeting(__('notification.hello', ['name' => $notifiable->name]))
+            ->line(__('notification.id_verification_approved_mail'))
+            ->line(__('notification.thank_you'));
     }
 
     /**

@@ -29,7 +29,7 @@ class MessageReceived extends Notification
      */
     public function via(object $notifiable): array
     {
-        return ['database'];
+        return ['mail', 'database'];
     }
 
     /**
@@ -38,22 +38,19 @@ class MessageReceived extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->line('The introduction to the notification.')
-            ->action('Notification Action', url('/'))
-            ->line('Thank you for using our application!');
+            ->subject(__('notification.message_received', ['sender' => $this->message->sender->name]))
+            ->greeting(__('notification.hello', ['name' => $notifiable->name]))
+            ->line(__('notification.message_received', ['sender' => $this->message->sender->name]))
+            ->line(__('notification.thank_you'));
     }
 
-    /**
-     * Get the array representation of the notification.
-     *
-     * @return array<string, mixed>
-     */
     public function toArray(object $notifiable): array
     {
-        $this->message->load(['sender', 'receiver']);
-        $user = $this->message->sender;
         return [
-            "message" => __("notification.message_received", ["sender" => $user]),
+            "message" => __("notification.message_received", ["sender" => $this->message->sender->name]),
+            "type" => "message",
+            "message_id" => $this->message->id,
+            "timestamp" => now()->toDateTimeString(),
         ];
     }
 }

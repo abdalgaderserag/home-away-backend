@@ -7,46 +7,34 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class PaymentLinked extends Notification
+class PaymentLinked extends Notification implements ShouldQueue
 {
     use Queueable;
 
-    /**
-     * Create a new notification instance.
-     */
-    public function __construct() {}
+    public function __construct(
+        private string $paymentMethod
+    ) {}
 
-    /**
-     * Get the notification's delivery channels.
-     *
-     * @return array<int, string>
-     */
     public function via(object $notifiable): array
     {
-        return ['database'];
+        return ['mail', 'database'];
     }
 
-    /**
-     * Get the mail representation of the notification.
-     */
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->line('The introduction to the notification.')
-            ->action('Notification Action', url('/'))
-            ->line('Thank you for using our application!');
+            ->subject(__('notification.payment_linked'))
+            ->greeting(__('notification.hello', ['name' => $notifiable->name]))
+            ->line(__('notification.payment_linked', ['method' => $this->paymentMethod]))
+            ->line(__('notification.thank_you'));
     }
 
-    /**
-     * Get the array representation of the notification.
-     *
-     * @return array<string, mixed>
-     */
     public function toArray(object $notifiable): array
     {
         return [
-            "message" => __("notification.payment_linked"),
-            "payment_method" => $this->data["payment_method"],
+            "message" => __("notification.payment_linked", ["method" => $this->paymentMethod]),
+            "type" => "payment_linked",
+            "timestamp" => now()->toDateTimeString(),
         ];
     }
 }
