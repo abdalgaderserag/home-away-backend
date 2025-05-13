@@ -13,10 +13,9 @@ class Chat extends Model
     use HasFactory;
     protected $fillable = [
         'project_id',
-        'first_user',
-        'second_user',
+        'first_user_id',
+        'second_user_id',
         'last_message_id',
-        'attachment',
         'is_read',
     ];
 

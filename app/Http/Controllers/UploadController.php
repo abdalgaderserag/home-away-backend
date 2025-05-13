@@ -45,14 +45,32 @@ class UploadController extends Controller
             $attachment->url = $path;
             $attachment->owner_id = Auth::id();
             $attachment->save();
-        }else{
+        } else {
             return response()->json(['message' => 'File not found'], Response::HTTP_BAD_REQUEST);
         }
         return response(["message" => $attachment], Response::HTTP_OK);
     }
 
-    public function removeUploadedFile(Attachment $attachment)
+    public function getFile($id)
     {
+        $attachment = Attachment::find($id);
+        if (!$attachment) {
+            return response()->json(['message' => 'File not found'], Response::HTTP_NOT_FOUND);
+        }
+        $file = Storage::get($attachment->url);
+        $headers = [
+            'Content-Type' => 'application/octet-stream',
+            'Content-Disposition' => 'attachment; filename="' . basename($attachment->url) . '"',
+        ];
+        return response($file, Response::HTTP_OK, $headers);
+    }
+
+    public function removeUploadedFile($id)
+    {
+        $attachment = Attachment::find($id);
+        if (!$attachment) {
+            return response()->json(['message' => 'File not found'], Response::HTTP_NOT_FOUND);
+        }
         defer(function () use ($attachment) {
             Storage::delete($attachment->url);
             $attachment->delete();

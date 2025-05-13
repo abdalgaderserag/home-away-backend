@@ -24,11 +24,9 @@ class VerificationController extends Controller
             );
         }
 
-
-        $user->update([
-            'email_verified_at' => now(),
-            'verification_code' => null
-        ]);
+        $user->email_verified_at = now();
+        $user->verification_code = null;
+        $user->save();
 
         return response()->json(['message' => 'Email verified successfully']);
     }
@@ -36,6 +34,10 @@ class VerificationController extends Controller
     public function emailResend()
     {
         $user = Auth::user();
+        $verificationCode = random_int(100000, 999999);
+        $user->update([
+            'verification_code' => $verificationCode
+        ]);
         $user->sendEmailVerificationNotification();
         return response('Email verification code has been sended', Response::HTTP_OK);
     }
@@ -70,6 +72,10 @@ class VerificationController extends Controller
     public function phoneResend()
     {
         $user = Auth::user();
+        $verificationCode = random_int(100000, 999999);
+        $user->update([
+            'verification_code' => $verificationCode
+        ]);
         $user->sendPhoneVerificationNotification();
         return response('Phone verification code has been sended', Response::HTTP_OK);
     }

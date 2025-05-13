@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Notifications\Request;
+namespace App\Notifications\Project;
 
 use App\Models\Project;
 use Illuminate\Bus\Queueable;
@@ -12,7 +12,12 @@ class ProjectSentForApproval extends Notification implements ShouldQueue
 {
     use Queueable;
 
-    public function __construct(private Project $project) {}
+    private Project $project;
+
+    public function __construct(Project $project)
+    {
+        $this->project = $project;
+    }
 
     public function via(object $notifiable): array
     {

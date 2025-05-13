@@ -22,6 +22,9 @@ class Message extends Model
         'context',
     ];
 
+    public function chat() : Returntype {
+        
+    }
     public function sender(): BelongsTo
     {
         return $this->belongsTo(User::class, 'sender_id');

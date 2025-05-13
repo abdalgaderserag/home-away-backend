@@ -20,7 +20,7 @@ class OfferController extends Controller
 {
     public function index()
     {
-        return Offer::with(['user', 'project.client'])->where("user_id", Auth::id())->paginate();
+        return Offer::with(['project.client'])->where("user_id", Auth::id())->paginate();
     }
 
     public function store(StoreOfferRequest $request)
@@ -36,12 +36,21 @@ class OfferController extends Controller
         $offer->user_id = Auth::id();
         $offer->save();
         $client = $project->client;
-        $client->notify(new ReceivedOffer($offer));
+        $client->notify(new ReceivedOffer($offer, $project));
         return response()->json(["offer" => $offer], Response::HTTP_CREATED);
     }
 
-    public function show(Project $project)
+    public function show(Offer $offer)
     {
+        if ($offer->user_id !== Auth::id() && $offer->project->client_id !== Auth::id()) {
+            return response(["message" => "not allowed to see offer details"], Response::HTTP_FORBIDDEN);
+        }
+        $offer->load(['project.client', 'milestones']);
+        $offer->milestones->each(function ($milestone) {
+            $milestone->status = MilestoneStatus::from($milestone->status);
+        });
+        $offer->user->rate = $offer->user->rates();
+        return response()->json(["offer" => $offer], Response::HTTP_OK);
         if ($project->client->id !== Auth::id()) {
             return response(["message" => "not allowed to see project details"], Response::HTTP_FORBIDDEN);
         }
@@ -66,27 +75,32 @@ class OfferController extends Controller
 
     public function accept(Offer $offer)
     {
-        if ($offer->project->client_id !== Auth::id())
+        $project = $offer->project;
+        if ($project->client_id !== Auth::id())
             return response(["message" => "You are not Authorized to accept offers for this project."], Response::HTTP_FORBIDDEN);
-        if ($offer->project->client_id == Auth::id()) {
+        if ($project->client_id == Auth::id()) {
+            if ($offer->status == OfferStatus::Accepted->value) {
+                return response("this offer is already accepted", Response::HTTP_BAD_REQUEST);
+            }
             if ($offer->type == OfferType::Basic) {
                 return response("The designer needs to add milestones to the offer", Response::HTTP_BAD_REQUEST);
                 $offer->price = $offer->project->price;
             }
             $fM = $offer->milestones->first();
             $fM->status = MilestoneStatus::Pending->value;
-            $offer->project->designer_id = $offer->user_id;
-            $offer->project->status = Status::InProgress->value;
-            $offer->project->save();
+            $fM->save();
+            $project->designer_id = $offer->user_id;
+            $project->status = Status::InProgress->value;
+            $project->save();
             $offer->status = OfferStatus::Accepted->value;
             $offer->update();
-            $offers = $offer->project->offers()->where('id', '!=', $offer->id)->get();
+            $offers = $project->offers()->where('id', '!=', $offer->id)->get();
             foreach ($offers as $otherOffer) {
                 $otherOffer->status = OfferStatus::Declined->value;
                 $otherOffer->update();
             }
             $designer = $offer->user;
-            $designer->notify(new AcceptedOffer($offer));
+            $designer->notify(new AcceptedOffer($offer, $project));
             return response(["offer" => $offer], Response::HTTP_CREATED);
         }
         return response("this offer doesn't belong to one of your projects", Response::HTTP_FORBIDDEN);

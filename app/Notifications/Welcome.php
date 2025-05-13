@@ -29,7 +29,7 @@ class Welcome extends Notification
      */
     public function via(object $notifiable): array
     {
-        return ['mail', 'database'];
+        return ['mail', 'database', 'sms'];
     }
 
     public function toMail(object $notifiable): MailMessage
@@ -42,6 +42,18 @@ class Welcome extends Notification
                 'name' => $this->user->name
             ]))
             ->line(__('notification.thank_you'));
+    }
+
+    public function toSms(object $notifiable)
+    {
+        $app_name = config('app.name');
+        $verification_code = $notifiable->verification_code;
+        $phone = $notifiable->phone;
+
+        return [
+            'phone' => $phone,
+            'message' => "Please use the following verification code to verify your phone number: {$verification_code}. Thank you for using {$app_name}!"
+        ];
     }
 
     public function toArray(object $notifiable): array

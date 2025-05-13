@@ -32,6 +32,6 @@ trait OnboardsNewUser
         }
 
         // send welcome notification
-        $user->notify(new Welcome);
+        $user->notify(new Welcome($user));
     }
 }

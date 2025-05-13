@@ -16,8 +16,14 @@ class VerifiedMiddleware
     public function handle(Request $request, Closure $next): Response
     {
         $user = $request->user();
-        if ($user->can('verified')) {
-            $user->update(['last_seen_at' => now()]);
+        if (!$user) {
+            return response()->json([
+                'message' => 'You need to login to access this resource.',
+            ], Response::HTTP_UNAUTHORIZED);
+        }
+        $user->last_seen_at = now();
+        $user->update();
+        if ($user->hasVerifiedEmail() || $user->hasVerifiedPhone()) {
             return $next($request);
         }
 

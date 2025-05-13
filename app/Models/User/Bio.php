@@ -11,16 +11,18 @@ class Bio extends Model
 {
     /** @use HasFactory<\Database\Factories\User\BioFactory> */
     use HasFactory;
+
     protected $fillable = [
         'about',
         'price_per_meter',
         'locations',
+        'user_id',
     ];
 
     protected $casts = [
         'locations' => 'array',
     ];
-    
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);

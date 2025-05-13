@@ -12,6 +12,10 @@ class Settings extends Model
     /** @use HasFactory<\Database\Factories\User\SettingsFactory> */
     use HasFactory;
 
+    protected $fillable = [
+        'user_id',
+    ];
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);

@@ -8,10 +8,10 @@ use App\Http\Requests\StoreProjectRequest;
 use App\Http\Requests\UpdateProjectRequest;
 use App\Models\Attachment;
 use App\Models\Project;
-use App\Notifications\Request\ProjectSentForApproval;
+use App\Models\User;
+use App\Notifications\Project\ProjectSentForApproval;
 use Coderflex\LaravelTicket\Models\Category;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\Response;
 
 
@@ -109,7 +109,7 @@ class ProjectController extends Controller
 
     public function save(StoreProjectRequest $request, Project $project)
     {
-        $client = Auth::user();
+        $client = User::find(Auth::id());
         if ($project->client_id !== $client->id && $project->status !== Status::Draft->value) {
             return response(["message" => "you are not allowed to edit this project"], 403);
         }
@@ -121,7 +121,7 @@ class ProjectController extends Controller
         ]);
         $category = Category::where('slug', 'project-approval')->first();
         $ticket->attachCategories($category);
-        $project->client->notify(new ProjectSentForApproval($project));
+        $client->notify(new ProjectSentForApproval($project));
         return response()->json([
             'project' => $project->refresh(),
             'attachments' => Attachment::where('project_id', $project->id)->get(),
@@ -130,11 +130,18 @@ class ProjectController extends Controller
 
     public function show(Project $project)
     {
-        if ($project->status !== Status::Published->value && $project->client_id !== Auth::id()) {
+        if ($project->client_id == Auth::id() || $project->designer_id == Auth::id()) {
+        } elseif ($project->status !== Status::Published->value && $project->client_id !== Auth::id()) {
             return response()->json(['message' => 'Not found'], Response::HTTP_NOT_FOUND);
         }
 
-        return response(["project" => $project->load(['client', 'offers.user.rate'])]);
+        $project->load(['client', 'offers.user']);
+
+        $project->offers->each(function ($offer) {
+            $offer->user->rate = $offer->user->rates();
+        });
+
+        return response(["project" => $project]);
     }
 
     public function destroy(Project $project)

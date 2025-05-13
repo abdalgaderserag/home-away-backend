@@ -18,8 +18,6 @@ class Project extends Model
 
     protected $casts = [
         'status' => Status::class,
-        'unit_type' => UnitType::class,
-        'skill' => Skill::class,
         'deadline' => 'datetime',
         'attachment' => 'array',
     ];

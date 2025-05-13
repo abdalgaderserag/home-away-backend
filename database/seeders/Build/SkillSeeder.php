@@ -3,6 +3,7 @@
 namespace Database\Seeders\Build;
 
 use App\Models\Skill;
+use App\Models\UnitType;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -22,6 +23,10 @@ class SkillSeeder extends Seeder
         ]);
         Skill::create([
             'name' => 'renovation',
+        ]);
+
+        UnitType::create([
+            'type' => 'house',
         ]);
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Notifications\Request;
+namespace App\Notifications\Project;
 
 use App\Models\Project;
 use Illuminate\Bus\Queueable;

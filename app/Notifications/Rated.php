@@ -12,14 +12,14 @@ class Rated extends Notification
 {
     use Queueable;
 
-    private User $user;
+    private User $rater;
 
     /**
      * Create a new notification instance.
      */
     public function __construct(User $user)
     {
-        $this->user = $user;
+        $this->rater = $user;
     }
 
     /**
@@ -51,7 +51,6 @@ class Rated extends Notification
      */
     public function toArray(object $notifiable): array
     {
-        $user = $this->user->name;
         return [
             "message" => __('notification.designer_rate', ["designer" => $this->rater->name]),
             "type" => "rating",

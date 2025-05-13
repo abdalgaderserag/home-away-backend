@@ -133,11 +133,11 @@ class MilestoneController extends Controller
         ]);
         $lastMs = $milestone->offer->milestones()->where('status', '!=', MilestoneStatus::Completed)->first();
         if ($lastMs == null) {
-            $milestone->offer->update([
-                'status' => OfferStatus::Completed,
-            ]);
             $milestone->offer->project->update([
                 'status' => Status::Completed,
+            ]);
+            $milestone->offer->update([
+                'status' => OfferStatus::Completed,
             ]);
         } else {
             $lastMs->status = MilestoneStatus::Pending;

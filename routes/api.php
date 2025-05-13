@@ -16,11 +16,12 @@ use App\Http\Controllers\User\NotificationController;
 use App\Http\Controllers\User\ProfileController;
 use App\Http\Controllers\User\SettingsController;
 use App\Http\Controllers\User\SupportController;
+use App\Http\Middleware\VerifiedMiddleware;
 use Illuminate\Support\Facades\Route;
 
 Route::get('projects', [ProjectController::class, 'index']);
 
-Route::middleware('auth:sanctum')->group(function () {
+Route::middleware(['auth:sanctum'])->group(function () {
 
     Route::post('logout', [LoginController::class, 'logout'])->name('logout');
 
@@ -50,6 +51,14 @@ Route::middleware('auth:sanctum')->group(function () {
     // support and ticket controller
     Route::post('/user/tickets', [SupportController::class, 'store']);
 
+    // file upload
+    Route::post('file', [UploadController::class, 'uploadFile']);
+    Route::get('file/{id}', [UploadController::class, 'getFile']);
+    Route::delete('file/{id}', [UploadController::class, 'removeUploadedFile']);
+});
+
+Route::middleware(['auth:sanctum', VerifiedMiddleware::class])->group(function () {
+
     // project controllers
     Route::get('projects/create', [ProjectController::class, "create"])->name('projects.create');
     Route::put('projects/{project}/save', [ProjectController::class, "save"])->name('projects.save');
@@ -61,7 +70,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // offer controllers
     Route::get('offers', [OfferController::class, 'index']);
     Route::post('offers', [OfferController::class, 'store']);
-    Route::get('offers/{project}', [OfferController::class, 'show']);
+    Route::get('offers/{offer}', [OfferController::class, 'show']);
     Route::put('offers/{offer}', [OfferController::class, 'update']);
     Route::get('offers/{offer}/accept', [OfferController::class, 'accept']);
     Route::get('offers/{offer}/invoice', [OfferController::class, 'invoice']);
@@ -77,26 +86,22 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('milestones/{milestone}', [MilestoneController::class, 'destroy']);
 
     // chat controllers
-    Route::get('messages', [MessageController::class, 'index']);
-    Route::post('messages', [MessageController::class, 'store']);
-    Route::get('messages/{message}', [MessageController::class, 'show']);
-    Route::put('messages/{message}', [MessageController::class, 'update']);
-    Route::delete('messages/{message}', [MessageController::class, 'destroy']);
+    Route::get('chats', [MessageController::class, 'index']);
+    Route::post('chats/{user}', [MessageController::class, 'store']);
+    Route::get('chats/{chat}', [MessageController::class, 'show']);
+    // Route::put('messages/{message}', [MessageController::class, 'update']);
+    // Route::delete('messages/{message}', [MessageController::class, 'destroy']);
 
     // rating
-    Route::get('rates', [RateController::class, 'index']);
-    Route::post('rates', [RateController::class, 'store']);
+    Route::post('rates', [RateController::class, 'index']);
+    Route::post('rates/{project}', [RateController::class, 'store']);
     Route::get('rates/{rate}', [RateController::class, 'show']);
-    Route::put('rates/{rate}', [RateController::class, 'update']);
-    Route::delete('rates/{rate}', [RateController::class, 'destroy']);
+    // Route::put('rates/{rate}', [RateController::class, 'update']);
+    // Route::delete('rates/{rate}', [RateController::class, 'destroy']);
 
     // favorite
     Route::get('favorite', [FavoriteController::class, 'index']);
     Route::post('favorite', [FavoriteController::class, 'store']);
-
-    // file upload
-    Route::post('file', [UploadController::class, 'uploadFile']);
-    Route::delete('file', [UploadController::class, 'removeUploadedFile']);
 });
 
 Route::middleware("guest")->group(function () {

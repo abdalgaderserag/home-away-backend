@@ -16,7 +16,7 @@ class FavoriteController extends Controller
     public function index()
     {
         $favorites = Auth::user()->favorites()->with('project')->get();
-        return view('favorites.index', compact('favorites'));
+        return response($favorites, Response::HTTP_OK);
     }
 
     /**
@@ -27,7 +27,7 @@ class FavoriteController extends Controller
         $request->validate([
             'project_id' => 'required|exists:projects,id',
         ]);
-        
+
         $f = Favorite::where('user_id', Auth::id())
             ->where('project_id', $request->project_id)
             ->first();

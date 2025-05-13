@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::create('chats', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('project_id')->constrained()->nullable();
-            $table->foreignId('first_user')->constrained('users');
-            $table->foreignId('second_user')->constrained('users');
+            $table->foreignId('project_id')->nullable()->constrained('projects');
+            $table->foreignId('first_user_id')->constrained('users');
+            $table->foreignId('second_user_id')->constrained('users');
             $table->boolean('is_read')->default(false);
             $table->timestamps();
         });

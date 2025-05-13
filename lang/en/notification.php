@@ -34,6 +34,7 @@ return [
     // offer
     "{$off}accepted" => "Your offer for :project_title has been accepted",
     "{$off}declined" => "Your offer for :project_title has been declined",
+    "{$off}received" => "an offer has been received for your project :project_title",
 
     // milestone
     "{$mil}approved" => "Your milestone for :project_title has been approved by :client",

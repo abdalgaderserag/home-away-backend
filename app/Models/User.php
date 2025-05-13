@@ -164,11 +164,13 @@ class User extends Authenticatable implements MustVerifyEmail, CanUseTickets
 
     public function sendEmailVerificationNotification()
     {
+
         $this->notify(new VerifyEmail);
     }
 
     public function sendPasswordResetNotification($token)
     {
+
         $this->notify(new ResetPassword($token));
     }
 
@@ -187,7 +189,7 @@ class User extends Authenticatable implements MustVerifyEmail, CanUseTickets
         return ! is_null($this->phone_verified_at);
     }
 
-    public function getAvatarAttribute() : string
+    public function getAvatarAttribute(): string
     {
         $attachment = Attachment::where('user_id', $this->id)->first();
         return $attachment->url ?? config('app.default_avatar') . urlencode($this->name);

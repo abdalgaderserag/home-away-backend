@@ -6,30 +6,50 @@ use App\Enum\Project\Status;
 use App\Models\Rate;
 use App\Http\Requests\StoreRateRequest;
 use App\Models\Project;
+use App\Models\User;
 use App\Notifications\Rated;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Http\Request;
+
+use function Pest\Laravel\get;
 
 class RateController extends Controller
 {
-    public function index($id, $type = "designer")
+    public function index(Request $request)
     {
-        $type = $type == "designer" ? "designer" : "client";
-        $rates = Rate::with(['project', $type])->where($type . "_id", $id)->get();
-        return response()->json(["rates" => $rates], Response::HTTP_OK);
+        $request->validate([
+            'id' => 'required|exists:users,id',
+            'type' => 'required|in:client,designer',
+        ]);
+        $rates = Rate::with(['project', $request->type])->where($request->type . "_id", $request->id)->get();
+        return response()->json(['rate' => Auth::user()->rates(), "rates" => $rates], Response::HTTP_OK);
     }
 
     public function store(Project $project, StoreRateRequest $request)
     {
-        if ($project->client_id !== Auth::id() || $project->designer_id !== Auth::id()) {
+        $isClient = $project->client_id == Auth::id();
+        $isDesigner = $project->designer_id == Auth::id();
+        if (!$isClient && !$isDesigner) {
             return response(["message" => "You are not part of this project and can't rate."], Response::HTTP_UNAUTHORIZED);
         }
+        $old_rate = Rate::where('project_id', $project->id);
 
-        if ($project->status == Status::Completed->value) {
+        if ($isClient) {
+            $old_rate = $old_rate->where('designer_id', $project->designer_id)->first();
+        } elseif ($isDesigner) {
+            $old_rate = $old_rate->where('client_id', $project->client_id)->first();
+        }
+
+        if (!empty($old_rate))
+            return response(["message" => "You have already added rating to this project"], Response::HTTP_UNAUTHORIZED);
+
+        if ($project->status == Status::Completed) {
             $request->validated();
             $rate = new Rate();
             $rate->rate = $request->rate;
             $rate->description = $request->description;
+            $rate->project_id = $project->id;
             if ($project->client_id == Auth::id()) {
                 $rate->designer_id = $project->designer_id;
                 $designer = $rate->designer;

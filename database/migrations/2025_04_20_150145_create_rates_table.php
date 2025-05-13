@@ -15,8 +15,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId('project_id')->constrained();
             $table->enum('type', ['client', 'designer']);
-            $table->foreignId('client_id')->constrained('users');
-            $table->foreignId('designer_id')->constrained('users');
+            $table->foreignId('client_id')->nullable()->constrained('users');
+            $table->foreignId('designer_id')->nullable()->constrained('users');
             $table->unsignedTinyInteger('rate')->default(1);
             $table->text('description');
             $table->timestamps();
