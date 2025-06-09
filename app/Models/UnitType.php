@@ -9,4 +9,6 @@ class UnitType extends Model
 {
     /** @use HasFactory<\Database\Factories\UnitTypeFactory> */
     use HasFactory;
+
+    protected $fillable = ["type"];
 }

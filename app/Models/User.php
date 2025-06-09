@@ -194,4 +194,9 @@ class User extends Authenticatable implements MustVerifyEmail, CanUseTickets
         $attachment = Attachment::where('user_id', $this->id)->first();
         return $attachment->url ?? config('app.default_avatar') . urlencode($this->name);
     }
+
+    public function routeNotificationForTwilio()
+    {
+        return $this->phone;
+    }
 }

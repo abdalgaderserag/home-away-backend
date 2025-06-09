@@ -25,7 +25,7 @@ return new class extends Migration
         Schema::table('chats', function (Blueprint $table) {
             $table->foreignId('last_message_id')
                   ->nullable()
-                  ->after('second_user')
+                  ->after('second_user_id')
                   ->constrained('messages');
         });
     }

@@ -42,7 +42,6 @@ class ProjectResource extends Resource
                     ->default(null),
                 Forms\Components\Textarea::make('description')
                     ->columnSpanFull(),
-                Forms\Components\TextInput::make('unit_type'),
                 Forms\Components\TextInput::make('space')
                     ->numeric()
                     ->default(null),
@@ -59,11 +58,17 @@ class ProjectResource extends Resource
                     ->numeric()
                     ->prefix("$")
                     ->default(null),
+                Forms\Components\Select::make('skill_id')
+                    ->relationship('skill', 'name')
+                    ->searchable()
+                    ->required(),
+                Forms\Components\Select::make('unit_type_id')
+                    ->relationship('unit', 'type')
+                    ->searchable()
+                    ->required(),
+                Forms\Components\DateTimePicker::make('published_at'),
                 Forms\Components\Toggle::make('resources')
                     ->required(),
-                Forms\Components\TextInput::make('skill')
-                    ->enum(UnitType::class),
-                Forms\Components\DateTimePicker::make('published_at'),
             ]);
     }
 

@@ -3,9 +3,8 @@
 namespace App\Models;
 
 use App\Enum\Project\Status;
-use App\Enum\Project\UnitType;
-use App\Enum\Project\Location;
-use App\Enum\Project\Skill;
+use App\Models\Location;
+use App\Models\UnitType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -28,14 +27,14 @@ class Project extends Model
         'status',
         'title',
         'description',
-        'unit_type',
+        'unit_type_id',
         'space',
-        'location',
+        'location_id',
         'deadline',
         'min_price',
         'max_price',
         'resources',
-        'skill',
+        'skill_id',
     ];
 
     public function client(): BelongsTo
@@ -56,5 +55,20 @@ class Project extends Model
     public function attachments(): HasMany
     {
         return $this->hasMany(Project::class);
+    }
+
+    public function location()
+    {
+        return $this->hasMany(Location::class);
+    }
+
+    public function unit()
+    {
+        return $this->hasMany(UnitType::class);
+    }
+
+    public function skill(): HasMany
+    {
+        return $this->hasMany(Skill::class);
     }
 }

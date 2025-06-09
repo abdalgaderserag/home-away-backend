@@ -7,6 +7,8 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use NotificationChannels\Twilio\TwilioChannel;
+use NotificationChannels\Twilio\TwilioMmsMessage;
 
 class Welcome extends Notification
 {
@@ -29,7 +31,15 @@ class Welcome extends Notification
      */
     public function via(object $notifiable): array
     {
-        return ['mail', 'database', 'sms'];
+        return ['mail', 'database', TwilioChannel::class];
+    }
+
+    public function toTwilio($notifiable)
+    {
+        $app_name = config('app.name');
+        $verification_code = $notifiable->verification_code;
+        return (new TwilioMmsMessage())
+            ->content("Please use the following verification code to verify your phone number: {$verification_code}. Thank you for using {$app_name}!");
     }
 
     public function toMail(object $notifiable): MailMessage
