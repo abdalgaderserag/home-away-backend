@@ -1,5 +1,8 @@
 <?php
 
+use App\Models\Location;
+use App\Models\Skill;
+use App\Models\UnitType;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -15,9 +18,9 @@ return new class extends Migration
             $table->id();
             $table->foreignId('client_id')->constrained('users');
             $table->integer('designer_id', 0, 1)->nullable();
-            $table->foreignId('location_id')->constrained('locations');
-            $table->foreignId('skill_id')->constrained('skills');
-            $table->foreignId('unit_type_id')->constrained('unit_types');
+            $table->foreignIdFor(Location::class)->constrained('locations');
+            $table->foreignIdFor(Skill::class)->constrained('skills');
+            $table->foreignIdFor(UnitType::class)->constrained('unit_types');
             // $table->string('location')->nullable();
             // $table->string('skill')->nullable();
             // $table->enum('unit_type', ['house', 'apartment', 'villa'])->nullable();

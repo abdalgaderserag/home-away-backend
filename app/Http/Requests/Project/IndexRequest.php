@@ -31,9 +31,9 @@ class IndexRequest extends FormRequest
             'per_page' => 'nullable|integer|min:1|max:100',
             'page' => 'nullable|integer|min:1',
             'status' => 'nullable|in:' . implode(',', array_column(Status::cases(), 'value')),
-            'unit_type' => 'nullable|in:house,apartment,villa',
-            'location' => 'nullable|exist:locations.,city',
-            'skill' => 'nullable|in:construction,design,renovation',
+            'unit_type' => 'nullable|exist:unit_types,type',
+            'location' => 'nullable|exist:locations,city',
+            'skill' => 'nullable|exist:skills,name',
         ];
     }
 }

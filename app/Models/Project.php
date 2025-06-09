@@ -67,7 +67,7 @@ class Project extends Model
         return $this->hasMany(UnitType::class);
     }
 
-    public function skill(): HasMany
+    public function skill()
     {
         return $this->hasMany(Skill::class);
     }
