@@ -5,9 +5,8 @@ namespace App\Notifications;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
-use Illuminate\Notifications\Notification;
 
-class IdVerificationApproved extends Notification
+class IdVerificationApproved extends NotificationMain
 {
     use Queueable;
 
@@ -17,16 +16,6 @@ class IdVerificationApproved extends Notification
     public function __construct()
     {
         //
-    }
-
-    /**
-     * Get the notification's delivery channels.
-     *
-     * @return array<int, string>
-     */
-    public function via(object $notifiable): array
-    {
-        return ['mail', 'database'];
     }
 
     /**

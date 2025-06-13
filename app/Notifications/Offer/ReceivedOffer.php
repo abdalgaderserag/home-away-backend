@@ -4,12 +4,12 @@ namespace App\Notifications\Offer;
 
 use App\Models\Offer;
 use App\Models\Project;
+use App\Notifications\NotificationMain;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
-use Illuminate\Notifications\Notification;
 
-class ReceivedOffer extends Notification implements ShouldQueue
+class ReceivedOffer extends NotificationMain implements ShouldQueue
 {
     use Queueable;
 
@@ -17,11 +17,6 @@ class ReceivedOffer extends Notification implements ShouldQueue
         private Offer $offer,
         private Project $project
     ) {}
-
-    public function via(object $notifiable): array
-    {
-        return ['mail', 'database'];
-    }
 
     public function toMail(object $notifiable): MailMessage
     {

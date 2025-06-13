@@ -6,9 +6,8 @@ use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
-use Illuminate\Notifications\Notification;
 
-class Rated extends Notification
+class Rated extends NotificationMain
 {
     use Queueable;
 
@@ -20,16 +19,6 @@ class Rated extends Notification
     public function __construct(User $user)
     {
         $this->rater = $user;
-    }
-
-    /**
-     * Get the notification's delivery channels.
-     *
-     * @return array<int, string>
-     */
-    public function via(object $notifiable): array
-    {
-        return ['database'];
     }
 
     /**

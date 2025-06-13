@@ -6,9 +6,8 @@ use App\Models\Message;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
-use Illuminate\Notifications\Notification;
 
-class MessageReceived extends Notification
+class MessageReceived extends NotificationMain
 {
     use Queueable;
 
@@ -20,16 +19,6 @@ class MessageReceived extends Notification
     public function __construct(Message $message)
     {
         $this->message = $message;
-    }
-
-    /**
-     * Get the notification's delivery channels.
-     *
-     * @return array<int, string>
-     */
-    public function via(object $notifiable): array
-    {
-        return ['mail', 'database'];
     }
 
     /**

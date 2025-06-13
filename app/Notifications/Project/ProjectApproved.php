@@ -3,21 +3,16 @@
 namespace App\Notifications\Project;
 
 use App\Models\Project;
+use App\Notifications\NotificationMain;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
-use Illuminate\Notifications\Notification;
 
-class ProjectApproved extends Notification implements ShouldQueue
+class ProjectApproved extends NotificationMain implements ShouldQueue
 {
     use Queueable;
 
     public function __construct(private Project $project) {}
-
-    public function via(object $notifiable): array
-    {
-        return ['mail', 'database'];
-    }
 
     public function toMail(object $notifiable): MailMessage
     {

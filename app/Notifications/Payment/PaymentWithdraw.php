@@ -2,23 +2,18 @@
 
 namespace App\Notifications\Payment;
 
+use App\Notifications\NotificationMain;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
-use Illuminate\Notifications\Notification;
 
-class PaymentWithdraw extends Notification implements ShouldQueue
+class PaymentWithdraw extends NotificationMain implements ShouldQueue
 {
     use Queueable;
 
     public function __construct(
         private float $amount
     ) {}
-
-    public function via(object $notifiable): array
-    {
-        return ['mail', 'database'];
-    }
 
     public function toMail(object $notifiable): MailMessage
     {

@@ -5,6 +5,8 @@ namespace App\Http\Controllers\User;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
+use Symfony\Component\HttpFoundation\Response;
 
 class SettingsController extends Controller
 {
@@ -27,9 +29,24 @@ class SettingsController extends Controller
             'phone' => 'required|boolean'
         ]);
         $user = Auth::user();
-        $user->setting->email = $request->email;
-        $user->setting->phone = $request->phone;
+        $not_set = '';
+        if (empty($user->email)) {
+            $not_set = 'email';
+        } else {
+            $user->setting->mail_notifications = $request->email;
+        }
+        if (empty($user->phone)) {
+            $not_set = 'phone';
+        } else {
+            $user->setting->sms_notifications = $request->phone;
+        }
         $user->setting->update();
-        return response($user->setting);
+        Cache::forget("user:{$user->id}:settings");
+
+        if ($not_set === '') {
+            return response(['settings' => $user->setting], Response::HTTP_OK);
+        } else {
+            return response(['settings' => $user->setting, 'not_set' => $not_set], Response::HTTP_BAD_REQUEST);
+        }
     }
 }

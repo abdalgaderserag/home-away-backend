@@ -3,21 +3,16 @@
 namespace App\Notifications\Milestone;
 
 use App\Models\Milestone;
+use App\Notifications\NotificationMain;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
-use Illuminate\Notifications\Notification;
 
-class DeclinedMilestone extends Notification implements ShouldQueue
+class DeclinedMilestone extends NotificationMain implements ShouldQueue
 {
     use Queueable;
 
     public function __construct(private Milestone $milestone) {}
-
-    public function via(object $notifiable): array
-    {
-        return ['mail', 'database'];
-    }
 
     public function toMail(object $notifiable): MailMessage
     {

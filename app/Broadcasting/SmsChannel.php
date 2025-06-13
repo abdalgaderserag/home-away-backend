@@ -12,6 +12,6 @@ class SmsChannel
         $data = $notification->toSms($notifiable);
 
         $sms = new SendSmsAction();
-        $sms->sendSms($data['phone'], $data['message']);
+        return $sms->sendSms($data['phone'], $data['message']);
     }
 }

@@ -6,11 +6,10 @@ use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
-use Illuminate\Notifications\Notification;
 use NotificationChannels\Twilio\TwilioChannel;
 use NotificationChannels\Twilio\TwilioMmsMessage;
 
-class Welcome extends Notification
+class Welcome extends NotificationMain
 {
     use Queueable;
 
@@ -22,16 +21,6 @@ class Welcome extends Notification
     public function __construct(User $user)
     {
         $this->user = $user;
-    }
-
-    /**
-     * Get the notification's delivery channels.
-     *
-     * @return array<int, string>
-     */
-    public function via(object $notifiable): array
-    {
-        return ['mail', 'database', TwilioChannel::class];
     }
 
     public function toTwilio($notifiable)
