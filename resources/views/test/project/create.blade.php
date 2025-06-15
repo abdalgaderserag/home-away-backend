@@ -103,10 +103,13 @@ const token = localStorage.getItem('auth_token');
         let json;
         try { json = JSON.parse(text); }
         catch { json = text; }
-        console.log(json);
+        if (json.code == 403) {
+          alert(json.message);
+          return;
+        }
         document.getElementById('proId').value = json.project.id;
       } catch (err){
-        console.log(err);
+        alert(err);
       }
       });
 
@@ -159,7 +162,7 @@ const alerts = document.getElementById('alerts');
       }
       return;
     }
-    const dm = "the project with title" + json.project.title + "have been created and waiting for approval by support"
+    const dm = "the project with title " + json.project.title + "have been created and waiting for approval by support"
     alert(dm);
   } catch (err) {
     const div = document.createElement('div');

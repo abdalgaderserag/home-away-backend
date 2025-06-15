@@ -2,6 +2,7 @@
 
 namespace Coderflex\LaravelTicket\Database\Factories;
 
+use Coderflex\LaravelTicket\Models\Category;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -16,6 +17,7 @@ return new class extends Migration
             $table->id();
             $table->uuid('uuid')->nullable();
             $table->foreignId('user_id');
+            // $table->foreignIdFor(Category::class)->nullable()->constrained('categories')->nullOnDelete();
             $table->string('title');
             $table->string('message')->nullable();
             $table->string('priority')->default('low');
