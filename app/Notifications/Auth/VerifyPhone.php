@@ -26,6 +26,10 @@ class VerifyPhone extends Notification
      */
     public function via(object $notifiable): array
     {
+        // todo : remove in prod
+        if (config('app.debug')) {
+            return ['database'];
+        }
         return ['sms'];
     }
 

@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('settings', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained('users');
+            $table->string('lang')->default('en');
             $table->boolean('mail_notifications')->default(true);
             $table->boolean('sms_notifications')->default(true);
             $table->timestamps();

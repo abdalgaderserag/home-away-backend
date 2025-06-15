@@ -26,14 +26,14 @@ class StoreProjectRequest extends FormRequest
         return [
             'title' => 'required|string|max:255',
             'description' => 'required|string',
-            'unit_type' => 'required|exists:unit_types,type',
+            'unit_type_id' => 'required|exists:unit_types,id',
             'space' => 'required|integer|min:1',
-            'location' => 'required|exists:locations,city',
+            'location_id' => 'required|exists:locations,id',
             'deadline' => 'required|date',
             'min_price' => 'required|numeric|min:0',
             'max_price' => 'required|numeric|gt:min_price',
             'resources' => 'boolean',
-            'skill' => 'required|exists:skills,name',
+            'skill_id' => 'required|exists:skills,id',
             'attachment' => 'nullable|array|exists:attachments,id'
         ];
     }

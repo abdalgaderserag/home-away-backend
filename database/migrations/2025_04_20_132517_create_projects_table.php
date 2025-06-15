@@ -18,9 +18,9 @@ return new class extends Migration
             $table->id();
             $table->foreignId('client_id')->constrained('users');
             $table->integer('designer_id', 0, 1)->nullable();
-            $table->foreignIdFor(Location::class)->constrained('locations');
-            $table->foreignIdFor(Skill::class)->constrained('skills');
-            $table->foreignIdFor(UnitType::class)->constrained('unit_types');
+            $table->foreignIdFor(Location::class)->nullable()->constrained('locations');
+            $table->foreignIdFor(Skill::class)->nullable()->constrained('skills');
+            $table->foreignIdFor(UnitType::class)->nullable()->constrained('unit_types');
             // $table->string('location')->nullable();
             // $table->string('skill')->nullable();
             // $table->enum('unit_type', ['house', 'apartment', 'villa'])->nullable();

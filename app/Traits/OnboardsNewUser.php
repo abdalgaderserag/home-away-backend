@@ -7,7 +7,6 @@ use App\Models\User;
 use App\Models\User\Bio;
 use App\Models\User\Settings;
 use App\Models\Verification;
-use App\Notifications\Welcome;
 
 trait OnboardsNewUser
 {
@@ -30,8 +29,5 @@ trait OnboardsNewUser
                 'type' => $type,
             ]);
         }
-
-        // send welcome notification
-        $user->notify(new Welcome($user));
     }
 }

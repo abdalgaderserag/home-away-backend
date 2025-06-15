@@ -59,16 +59,16 @@ class Project extends Model
 
     public function location()
     {
-        return $this->hasMany(Location::class);
+        return $this->belongsTo(Location::class);
     }
 
     public function unit()
     {
-        return $this->hasMany(UnitType::class);
+        return $this->belongsTo(UnitType::class);
     }
 
     public function skill()
     {
-        return $this->hasMany(Skill::class);
+        return $this->belongsTo(Skill::class);
     }
 }

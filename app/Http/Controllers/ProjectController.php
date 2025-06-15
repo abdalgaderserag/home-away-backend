@@ -115,6 +115,7 @@ class ProjectController extends Controller
         }
         $project->status = Status::Pending->value;
         $project->update($request->validated());
+        
         $ticket = $client->tickets()->create([
             'title' => $request->title,
             'message' => $project->id,

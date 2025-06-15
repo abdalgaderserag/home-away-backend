@@ -22,7 +22,7 @@ return new class extends Migration
             $table->timestamp('phone_verified_at')->nullable();
             $table->string('password');
             $table->rememberToken();
-            $table->enum('type', ['client', 'designer'])->default('client');
+            $table->enum('type', ['client', 'designer', 'support'])->nullable();
             $table->timestamp('deleted_at')->nullable();
             $table->timestamps();
         });

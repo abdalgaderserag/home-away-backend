@@ -28,7 +28,7 @@ class VerifiedMiddleware
         }
 
         return response()->json([
-            'message' => 'You need to verify your ID to access this resource.',
+            'message' => 'You need to verify your email or phone to access this resource.',
             'status' => false,
             'code' => Response::HTTP_FORBIDDEN,
         ]);

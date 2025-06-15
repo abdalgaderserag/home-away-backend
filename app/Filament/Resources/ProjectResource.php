@@ -88,11 +88,11 @@ class ProjectResource extends Resource
                 Tables\Columns\TextColumn::make('title')
                     ->searchable()
                     ->searchable(),
-                Tables\Columns\TextColumn::make('unit_type'),
+                Tables\Columns\TextColumn::make('unit.type')->sortable(),
                 Tables\Columns\TextColumn::make('space')
                     ->numeric()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('location')
+                Tables\Columns\TextColumn::make('location.city')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('deadline')
                     ->dateTime()
@@ -107,7 +107,7 @@ class ProjectResource extends Resource
                     ->sortable(),
                 Tables\Columns\IconColumn::make('resources')
                     ->boolean(),
-                Tables\Columns\TextColumn::make('skill'),
+                Tables\Columns\TextColumn::make('skill.name'),
                 Tables\Columns\TextColumn::make('published_at')
                     ->dateTime()
                     ->sortable(),

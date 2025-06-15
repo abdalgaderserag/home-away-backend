@@ -3,6 +3,7 @@
 namespace App\Notifications;
 
 use Illuminate\Notifications\Notification;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 
 class NotificationMain extends Notification
@@ -15,11 +16,16 @@ class NotificationMain extends Notification
      */
     public function via(object $notifiable): array
     {
+        // todo : remove in prod
+        if (config('app.debug')) {
+            return ['database'];
+        }
+
         $channels = ['database'];
         $setting = Cache::remember(
             "user:{$notifiable->getKey()}:settings",
             now()->addDay(),
-            fn() => $notifiable->setting
+            fn() => Auth::user()->setting
         );
 
         if ($setting->mail_notifications) {
