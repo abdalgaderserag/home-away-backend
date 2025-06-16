@@ -31,7 +31,6 @@ class AttachmentsRelationManager extends RelationManager
                     ->image()
                     ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp', 'image/gif'])
                     ->disk('s3')
-                    ->getUploadedFileUrlUsing(fn(string $path): string => Storage::disk('s3')->temporaryUrl($path, now()->addMinutes(5)))
                     ->required()
                     ->columnSpanFull(),
             ]);
@@ -45,6 +44,7 @@ class AttachmentsRelationManager extends RelationManager
                 Tables\Columns\ImageColumn::make('url')
                     ->label('Preview')
                     ->disk('s3')
+                    // This is correct for displaying the image in the table
                     ->url(fn(object $record): ?string => Storage::disk('s3')->temporaryUrl($record->url, now()->addMinutes(5)))
                     ->square()
                     ->size(80),
@@ -72,13 +72,13 @@ class AttachmentsRelationManager extends RelationManager
                     ->label('View')
                     ->icon('heroicon-o-eye')
                     ->color('primary')
+                    // This is correct for generating a temporary URL for the action
                     ->url(fn(object $record): string => Storage::disk('s3')->temporaryUrl($record->url, now()->addMinutes(5), [
                         'ResponseContentType' => Storage::disk('s3')->mimeType($record->url),
                         'ResponseContentDisposition' => 'attachment; filename="' . basename($record->url) . '"',
                     ]))
                     ->openUrlInNewTab(),
             ])
-            ->bulkActions([
-            ]);
+            ->bulkActions([]);
     }
 }
