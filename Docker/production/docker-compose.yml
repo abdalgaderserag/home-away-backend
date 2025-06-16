@@ -1,0 +1,129 @@
+services:
+    app:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        restart: always
+        ports:
+            - "8000:9000"
+        environment:
+            DB_CONNECTION: pgsql
+            DB_HOST: db
+            DB_PORT: 5432
+            DB_DATABASE: ${DB_DATABASE}
+            DB_USERNAME: ${DB_USERNAME}
+            DB_PASSWORD: ${DB_PASSWORD}
+            APP_ENV: production
+            APP_DEBUG: ${APP_DEBUG:-false}
+            APP_KEY: ${APP_KEY}
+
+            SESSION_DRIVER: redis
+            QUEUE_CONNECTION: redis
+            CACHE_STORE: redis
+            FILESYSTEM_DISK: s3
+            MINIO_ENDPOINT: http://minio:9000
+            MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
+            MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
+            MINIO_BUCKET: ${MINIO_BUCKET}
+            MINIO_REGION: ${MINIO_REGION:-us-east-1}
+            AWS_ACCESS_KEY_ID: ${MINIO_ACCESS_KEY}
+            AWS_SECRET_ACCESS_KEY: ${MINIO_SECRET_KEY}
+            AWS_DEFAULT_REGION: ${MINIO_REGION:-us-east-1}
+            AWS_BUCKET: ${MINIO_BUCKET}
+            AWS_ENDPOINT: http://minio:9000
+            AWS_USE_PATH_STYLE_ENDPOINT: true
+            SCOUT_DRIVER: typesense
+            TYPESENSE_HOST: typesense
+            TYPESENSE_PORT: 8108
+            TYPESENSE_PROTOCOL: http
+            TYPESENSE_API_KEY: ${TYPESENSE_API_KEY}
+        volumes:
+            - app_storage:/var/www/html/storage
+            - .:/var/www/html
+        depends_on:
+            - db
+            - minio
+            - redis
+            - typesense
+        networks:
+            - app-network
+
+    nginx:
+        image: nginx:alpine
+        restart: always
+        volumes:
+            - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+            - ./public:/var/www/html/public:ro
+        ports:
+            - "443:443"
+        depends_on:
+            - app
+        networks:
+            - app-network
+
+    db:
+        image: postgres:15-alpine
+        restart: always
+        environment:
+            POSTGRES_DB: ${DB_DATABASE}
+            POSTGRES_USER: ${DB_USERNAME}
+            POSTGRES_PASSWORD: ${DB_PASSWORD}
+        volumes:
+            - db_data:/var/lib/postgresql/data
+        networks:
+            - app-network
+        expose:
+            - 5432
+
+    minio:
+        image: minio/minio
+        restart: always
+        ports:
+            - "9000:9000"
+            - "9001:9001"
+        environment:
+            MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+            MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+        command: server /data --console-address ":9001"
+        volumes:
+            - minio_data:/data
+        networks:
+            - app-network
+
+    redis:
+        image: redis:alpine
+        restart: always
+        networks:
+            - app-network
+        volumes:
+            - redis_data:/data
+        expose:
+            - 6379
+    typesense:
+        image: typesense/typesense:0.25.1
+        restart: always
+        command: --data-dir /data --api-key=${TYPESENSE_API_KEY} --listen-port=8108 --enable-cors
+        environment:
+            TYPESENSE_DATA_DIR: /data
+        ports:
+            - "8108:8108"
+        volumes:
+            - typesense_data:/data
+            - ./typesense/certs:/etc/typesense/certs:ro # Mount SSL certs here if using HTTPS
+        networks:
+            - app-network
+        healthcheck:
+            test: ["CMD", "curl", "-f", "http://localhost:8108/health"]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+
+volumes:
+    db_data:
+    minio_data:
+    app_storage:
+    redis_data:
+
+networks:
+    app-network:
+        driver: bridge
