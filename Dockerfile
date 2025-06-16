@@ -15,7 +15,11 @@ RUN apk add --no-cache \
     make \
     bash \
     nodejs \
-    npm
+    npm \
+    oniguruma-dev \
+    icu-dev \
+    libzip-dev \
+    pkgconf
 
 # Configure and install PHP extensions
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
@@ -27,43 +31,41 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
         exif \
         mbstring \
         fileinfo \
-        json \
-        openssl \
-        tokenizer \
+        intl \
         xml \
         zip \
-    # Remove development headers and build tools to keep the image small
-    && apk del --no-cache libpng-dev libjpeg-turbo-dev freetype-dev libxml2-dev g++ make
+    && docker-php-ext-enable pdo_pgsql gd intl zip mbstring
 
-# Copy Composer from its official image for efficiency
+# Remove build dependencies to keep image size small
+RUN apk del --no-cache \
+    g++ \
+    make \
+    libpng-dev \
+    libjpeg-turbo-dev \
+    freetype-dev \
+    libxml2-dev \
+    postgresql-dev \
+    oniguruma-dev \
+    icu-dev \
+    libzip-dev \
+    pkgconf \
+    unzip \
+    git
+
+# Copy Composer from official image
 COPY --from=composer:latest /usr/bin/composer /usr/local/bin/composer
 
-# Copy only composer.json and package.json/yarn.lock first to leverage Docker cache
-COPY composer.json composer.lock ./
-COPY package.json package-lock.json ./
+# Copy entire source before installing dependencies (artisan must exist)
+COPY . .
 
-# Install PHP dependencies (only production dependencies)
+# Install PHP dependencies (production only)
 RUN composer install --no-dev --optimize-autoloader --no-interaction
 
 # Install Node.js dependencies and build frontend assets
 RUN npm install \
     && npm run build
 
-# Copy the rest of the application source code
-COPY . .
-
-# Run Laravel optimization commands for production that don't depend on DB/APP_KEY
-RUN php artisan cache:clear \
-    && php artisan view:cache \
-    && php artisan route:cache \
-    && php artisan filament:cache-components \
-    && php artisan filament:optimize \
-    && php artisan icons:cache \
-    && php artisan event:cache \
-    && php artisan config:cache \
-    && php artisan optimize
-
-# Set appropriate permissions for Laravel's storage and cache directories
+# Set permissions for Laravel
 RUN chown -R www-data:www-data storage bootstrap/cache \
     && chmod -R 775 storage bootstrap/cache
 
@@ -74,7 +76,8 @@ RUN chmod +x /usr/local/bin/entrypoint.sh
 # Expose port 9000 for PHP-FPM
 EXPOSE 9000
 
-# Set the entrypoint to our custom script
+# Use the entrypoint script
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
-# The CMD will be passed as arguments to the entrypoint script
+
+# Default command
 CMD ["php-fpm"]
