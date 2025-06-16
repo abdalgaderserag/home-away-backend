@@ -7,10 +7,7 @@ use App\Enum\VerificationType;
 use App\Filament\Resources\TicketResource\Pages;
 use App\Models\Category;
 use App\Models\Ticket;
-use App\Notifications\Project\ProjectDeclined;
-use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
-use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -21,10 +18,6 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Request;
-use Illuminate\Support\HtmlString;
-use Filament\Tables\Actions\Action; // Import the Action class
-use Illuminate\Support\Carbon; // Import Carbon for date/time
 
 class TicketResource extends Resource
 {
@@ -41,6 +34,10 @@ class TicketResource extends Resource
 
         return $form
             ->schema([
+                TextInput::make('title')
+                    ->label('Title')
+                    ->required()
+                    ->maxLength(255),
                 TextInput::make('title')
                     ->label('Title')
                     ->required()
@@ -240,7 +237,6 @@ class TicketResource extends Resource
     public static function getRelations(): array
     {
         return [
-            // Define relation managers if needed
         ];
     }
 
@@ -248,6 +244,7 @@ class TicketResource extends Resource
     {
         return [
             'index' => Pages\ListTickets::route('/'),
+            'create' => Pages\CreateTicket::route('/create'),
             'create' => Pages\CreateTicket::route('/create'),
             'edit' => Pages\EditTicket::route('/{record}/edit'),
         ];
