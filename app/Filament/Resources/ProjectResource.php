@@ -6,6 +6,7 @@ use App\Enum\Project\Status;
 use App\Enum\Project\UnitType;
 use App\Filament\Resources\ProjectResource\Pages;
 use App\Filament\Resources\ProjectResource\RelationManagers;
+use App\Filament\Resources\ProjectResource\RelationManagers\AttachmentsRelationManager;
 use App\Models\Project;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -36,6 +37,7 @@ class ProjectResource extends Resource
                     ->default(null),
                 Forms\Components\Select::make('status')
                     ->enum(Status::class)
+                    ->options(Status::class)
                     ->required(),
                 Forms\Components\TextInput::make('title')
                     ->maxLength(255)
@@ -136,7 +138,8 @@ class ProjectResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            // Add the new AttachmentsRelationManager here
+            AttachmentsRelationManager::class,
         ];
     }
 

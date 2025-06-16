@@ -57,6 +57,9 @@ class UploadController extends Controller
         if (!$attachment) {
             return response()->json(['message' => 'File not found'], Response::HTTP_NOT_FOUND);
         }
+        if (!$this->haveAccess($attachment))
+            return response()->json(['message' => "You don't have access to this file."], Response::HTTP_FORBIDDEN);
+
         $file = Storage::get($attachment->url);
         $headers = [
             'Content-Type' => 'application/octet-stream',
@@ -76,5 +79,22 @@ class UploadController extends Controller
             $attachment->delete();
         });
         return response()->noContent();
+    }
+
+    private function haveAccess(Attachment $attachment)
+    {
+        $user_id  = Auth::id();
+        if ($user_id === $attachment->owner_id) {
+            return true;
+        }
+
+        if (!empty($attachment->user_id) || !empty($attachment->project_id)) {
+            return true;
+        }
+
+        if ($attachment->message->sender_id === $user_id || $attachment->message->receiver_id === $user_id)
+            return true;
+
+        return ($attachment->milestone->offer->user_id === $user_id);
     }
 }

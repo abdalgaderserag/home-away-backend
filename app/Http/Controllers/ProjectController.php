@@ -115,13 +115,14 @@ class ProjectController extends Controller
         }
         $project->status = Status::Pending->value;
         $project->update($request->validated());
-        
+        $category = Category::where('slug', 'project-approval')->first();        
         $ticket = $client->tickets()->create([
             'title' => $request->title,
-            'message' => $project->id,
+            'model_id' => $project->id,
+            'category_id' => $category->id,
+            'status' => 'open',
+            'priority' => 'low',
         ]);
-        $category = Category::where('slug', 'project-approval')->first();
-        $ticket->attachCategories($category);
         $client->notify(new ProjectSentForApproval($project));
         return response()->json([
             'project' => $project->refresh(),

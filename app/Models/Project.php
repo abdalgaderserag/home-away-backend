@@ -54,7 +54,7 @@ class Project extends Model
 
     public function attachments(): HasMany
     {
-        return $this->hasMany(Project::class);
+        return $this->hasMany(Attachment::class);
     }
 
     public function location()
@@ -64,7 +64,7 @@ class Project extends Model
 
     public function unit()
     {
-        return $this->belongsTo(UnitType::class);
+        return $this->belongsTo(UnitType::class, 'unit_type_id', 'id');
     }
 
     public function skill()

@@ -29,9 +29,6 @@ class VerificationResource extends Resource
                     ->relationship('user', 'name')
                     ->searchable()
                     ->required(),
-                // Forms\Components\Select::make('type')
-                //     ->enum(VerificationType::class)
-                //     ->required(),
                 Forms\Components\Toggle::make('verified')
                     ->required(),
             ]);

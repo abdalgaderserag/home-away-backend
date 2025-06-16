@@ -11,6 +11,16 @@ class Attachment extends Model
     /** @use HasFactory<\Database\Factories\AttachmentFactory> */
     use HasFactory;
 
+    protected $fillable = [
+        "owner_id",
+        "user_id",
+        "project_id",
+        "message_id",
+        "milestone_id",
+        "verification_id",
+        "url"
+    ];
+
     public function user()
     {
         return $this->belongsTo(User::class);

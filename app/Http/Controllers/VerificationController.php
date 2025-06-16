@@ -55,7 +55,7 @@ class VerificationController extends Controller
                 $attachment->save();
             }
             $verification->update();
-            $this->createVerificationTicket($request->type);
+            $this->createVerificationTicket($verification);
             return response($verification, Response::HTTP_OK);
         } else {
 
@@ -65,7 +65,7 @@ class VerificationController extends Controller
             $verification->verified = false;
             $verification->type = $request->type;
             $verification->save();
-            $this->createVerificationTicket($request->type);
+            $this->createVerificationTicket($verification);
         }
 
         // Check if all verifications are completed and assign permissions
@@ -88,14 +88,18 @@ class VerificationController extends Controller
         return response("you are not the ID owner", Response::HTTP_UNAUTHORIZED);
     }
 
-    private function createVerificationTicket($type)
+    private function createVerificationTicket(Verification $verification)
     {
         $user = Auth::user();
-        $ticket = $user->tickets()->create([
-            'title' => "{$type} Verification request",
-        ]);
         $category = Category::where('slug', "{$type}-verification")->first();
-        $ticket->attachCategories($category);
+
+        $user->tickets()->create([
+            'title' => "{$verification->type} Verification request",
+            'model_id' => $verification->id,
+            'category_id' => $category->id,
+            'status' => 'open',
+            'priority' => 'medium',
+        ]);
     }
 
     private function checkVerification()

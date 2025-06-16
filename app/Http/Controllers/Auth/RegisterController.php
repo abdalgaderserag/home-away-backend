@@ -27,6 +27,7 @@ class RegisterController extends Controller
             'phone'             => $validated['phone'] ?? null,
             'password'          => Hash::make($validated['password']),
             'verification_code' => $verificationCode,
+            'type'              => $validated['type']
         ]);
 
 
