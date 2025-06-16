@@ -3,7 +3,6 @@
 namespace Coderflex\LaravelTicket\Database\Factories;
 
 use Coderflex\LaravelTicket\Models\Category;
-use Coderflex\LaravelTicket\Models\Category;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
