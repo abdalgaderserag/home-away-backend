@@ -2,91 +2,171 @@
 
 namespace App\Filament\Resources;
 
+use App\Enum\Project\Status;
+use App\Enum\VerificationType;
 use App\Filament\Resources\TicketResource\Pages;
-use App\Filament\Resources\TicketResource\RelationManagers\MessagesRelationManager;
-use App\Models\User;
-use Coderflex\LaravelTicket\Models\Ticket;
-use Filament\Forms;
+use App\Models\Category;
+use App\Models\Ticket;
+use App\Notifications\Project\ProjectDeclined;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\DateTimePicker;
+use Filament\Forms\Components\Placeholder;
+use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Request;
+use Illuminate\Support\HtmlString;
+use Filament\Tables\Actions\Action; // Import the Action class
+use Illuminate\Support\Carbon; // Import Carbon for date/time
 
 class TicketResource extends Resource
 {
     protected static ?string $model = Ticket::class;
-    protected static ?string $navigationIcon = 'heroicon-o-ticket';
+
+    protected static ?string $navigationIcon = 'heroicon-o-banknotes';
+
     protected static ?string $navigationGroup = 'Support';
-    protected static ?int $navigationSort = 1;
+
 
     public static function form(Form $form): Form
     {
+        $categorySlugs = Category::pluck('slug', 'id')->toArray();
+
         return $form
             ->schema([
-                Forms\Components\Tabs::make('TicketDetails')
-                    ->tabs([
-                        Forms\Components\Tabs\Tab::make('Ticket Information')
-                            ->schema([
-                                Forms\Components\TextInput::make('title')
-                                    ->required()
-                                    ->maxLength(255),
+                TextInput::make('title')
+                    ->label('Title')
+                    ->required()
+                    ->maxLength(255),
 
-                                Forms\Components\RichEditor::make('message')
-                                    ->required()
-                                    ->columnSpanFull()
-                                    ->disableToolbarButtons([
-                                        'attachFiles',
-                                        'codeBlock',
-                                    ]),
+                Select::make('category_id')
+                    ->label('Category')
+                    ->options(Category::all()->pluck('name', 'id'))
+                    ->searchable()
+                    ->required()
+                    ->live()
+                    ->afterStateUpdated(fn() => null),
 
-                                Forms\Components\Select::make('user_id')
-                                    ->label('Created By')
-                                    ->relationship('user', 'name')
-                                    ->searchable()
-                                    ->preload()
-                                    ->disabled(),
-                            ]),
-
-                        Forms\Components\Tabs\Tab::make('Management')
-                            ->schema([
-                                Forms\Components\Select::make('priority')
-                                    ->options([
-                                        'low' => 'Low',
-                                        'medium' => 'Medium',
-                                        'high' => 'High',
-                                        'critical' => 'Critical',
-                                    ])
-                                    ->required()
-                                    ->native(false),
-
-                                Forms\Components\Select::make('status')
-                                    ->options([
-                                        'open' => 'Open',
-                                        'in_progress' => 'In Progress',
-                                        'on_hold' => 'On Hold',
-                                        'closed' => 'Closed',
-                                    ])
-                                    ->required()
-                                    ->native(false),
-
-                                Forms\Components\Toggle::make('is_resolved')
-                                    ->label('Mark as Resolved')
-                                    ->inline(false),
-
-                                Forms\Components\Toggle::make('is_locked')
-                                    ->label('Lock Ticket')
-                                    ->inline(false)
-                                    ->helperText('Prevent further comments'),
-
-                                Forms\Components\Select::make('assigned_to')
-                                    ->label('Assign to Agent')
-                                    // ->options(User::where('is_agent', true)->pluck('name', 'id'))
-                                    ->searchable()
-                                    ->preload(),
-                            ]),
+                Select::make('status')
+                    ->label('Status')
+                    ->options([
+                        'open' => 'Open',
+                        'closed' => 'Closed',
+                        'archived' => 'Archived',
                     ])
-                    ->columnSpanFull(),
+                    ->required()
+                    ->default('open'),
+
+                Select::make('priority')
+                    ->label('Priority')
+                    ->options([
+                        'low' => 'Low',
+                        'medium' => 'Medium',
+                        'high' => 'High',
+                    ])
+                    ->required()
+                    ->default('medium'),
+
+                Select::make('user_id')
+                    ->label('User')
+                    ->relationship('user', 'name')
+                    ->searchable()
+                    ->required(),
+
+                Section::make('Project Details')
+                    ->relationship('project')
+                    ->schema([
+                        Select::make('client_id')
+                            ->relationship('client', 'name')
+                            ->searchable()
+                            ->disabled(),
+                        Select::make('status')
+                            ->options(Status::class)
+                            ->enum(Status::class)->disabled(),
+                        TextInput::make('title')
+                            ->maxLength(255)
+                            ->default(null)
+                            ->disabled(),
+                        Textarea::make('description')
+                            ->columnSpanFull()
+                            ->disabled(),
+                        TextInput::make('space')
+                            ->numeric()
+                            ->default(null)
+                            ->disabled(),
+                        Select::make('location_id')
+                            ->relationship('location', 'city')
+                            ->searchable()
+                            ->disabled(),
+                        DateTimePicker::make('deadline')
+                            ->disabled(),
+                        TextInput::make('min_price')
+                            ->numeric()
+                            ->prefix("$")
+                            ->default(null)
+                            ->disabled(),
+                        TextInput::make('max_price')
+                            ->numeric()
+                            ->prefix("$")
+                            ->default(null)
+                            ->disabled(),
+                        Select::make('skill_id')
+                            ->relationship('skill', 'name')
+                            ->searchable()
+                            ->disabled(),
+                        Select::make('unit_type_id')
+                            ->relationship('unit', 'type')
+                            ->searchable()
+                            ->disabled(),
+                        DateTimePicker::make('published_at')
+                            ->disabled(),
+                        Toggle::make('resources')
+                            ->disabled(),
+
+                    ])->visible(function (callable $get) use ($categorySlugs) {
+                        $categoryId = $get('category_id');
+
+                        if (!$categoryId) {
+                            return false;
+                        }
+
+                        return ($categorySlugs[$categoryId] ?? null) === 'project-approval';
+                    }),
+                Section::make('Verification')
+                    ->relationship('verification')->schema([
+                        Select::make('user_id')
+                            ->relationship('user', 'name')
+                            ->searchable()
+                            ->required(),
+                        Select::make('type')
+                            ->options(VerificationType::class)
+                            ->enum(VerificationType::class)
+                            ->disabled(true),
+                        Toggle::make('verified')
+                            ->required(),
+                    ])->visible(function (callable $get) use ($categorySlugs) {
+                        $categoryId = $get('category_id');
+
+                        if (!$categoryId)
+                            return false;
+
+                        $hide = false;
+                        switch ($categorySlugs[$categoryId]) {
+                            case 'user-verification':
+                            case 'company-verification':
+                            case 'address-verification':
+                                $hide = true;
+                                break;
+                        }
+                        return $hide;
+                    }),
             ]);
     }
 
@@ -94,194 +174,73 @@ class TicketResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('id')
-                    ->sortable()
-                    ->searchable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-
                 Tables\Columns\TextColumn::make('title')
                     ->searchable()
-                    ->limit(40)
-                    ->tooltip(fn(Ticket $record) => $record->title),
-
-                Tables\Columns\TextColumn::make('user.name')
-                    ->label('Created By')
-                    ->sortable()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('category.name')
+                    ->label('Category')
                     ->searchable()
-                    ->toggleable(),
-
+                    ->sortable(),
+                Tables\Columns\BadgeColumn::make('status')
+                    ->colors([
+                        'success' => 'open',
+                        'danger'  => 'closed',
+                        'warning' => 'archived',
+                    ])
+                    ->sortable(),
                 Tables\Columns\BadgeColumn::make('priority')
                     ->colors([
                         'success' => 'low',
                         'warning' => 'medium',
-                        'danger' => 'high',
-                        'primary' => 'critical',
+                        'danger'  => 'high',
                     ])
                     ->sortable(),
-
-                Tables\Columns\BadgeColumn::make('status')
-                    ->colors([
-                        'success' => 'closed',
-                        'warning' => 'on_hold',
-                        'primary' => 'open',
-                        'info' => 'in_progress',
-                    ])
+                Tables\Columns\TextColumn::make('user.name')
+                    ->label('Assigned To')
+                    ->searchable()
                     ->sortable(),
-
-                Tables\Columns\IconColumn::make('is_resolved')
-                    ->boolean()
-                    ->sortable()
-                    ->label('Resolved'),
-
-                Tables\Columns\IconColumn::make('is_locked')
-                    ->boolean()
-                    ->sortable()
-                    ->label('Locked'),
-
-                Tables\Columns\TextColumn::make('assignedTo.name')
-                    ->label('Assigned Agent')
-                    ->sortable()
-                    ->toggleable(),
-
                 Tables\Columns\TextColumn::make('created_at')
-                    ->dateTime('M d, Y H:i')
-                    ->sortable()
-                    ->toggleable(),
+                    ->dateTime()
+                    ->sortable(),
             ])
             ->filters([
-                Tables\Filters\SelectFilter::make('priority')
-                    ->options([
-                        'low' => 'Low',
-                        'medium' => 'Medium',
-                        'high' => 'High',
-                        'critical' => 'Critical',
-                    ]),
-
+                Tables\Filters\SelectFilter::make('category_id')
+                    ->label('Category')
+                    ->options(Category::all()->pluck('name', 'id')),
                 Tables\Filters\SelectFilter::make('status')
                     ->options([
-                        'open' => 'Open',
-                        'in_progress' => 'In Progress',
-                        'on_hold' => 'On Hold',
-                        'closed' => 'Closed',
-                    ])
-                    ->default('open'),
-
-                Tables\Filters\TernaryFilter::make('is_resolved'),
-                Tables\Filters\TernaryFilter::make('is_locked'),
-
-                // Tables\Filters\SelectFilter::make('assigned_to')
-                //     ->label('Assigned Agent')
-                //     ->options(User::where('is_agent', true)->pluck('name', 'id')),
-
-                Tables\Filters\Filter::make('created_at')
-                    ->form([
-                        Forms\Components\DatePicker::make('created_from'),
-                        Forms\Components\DatePicker::make('created_until'),
+                        'open'     => 'Open',
+                        'closed'   => 'Closed',
+                        'archived' => 'Archived',
+                    ]),
+                Tables\Filters\SelectFilter::make('priority')
+                    ->options([
+                        'low'    => 'Low',
+                        'medium' => 'Medium',
+                        'high'   => 'High',
                     ]),
             ])
             ->actions([
-                Tables\Actions\Action::make('message')
-                    ->icon('heroicon-o-chat-bubble-left-ellipsis')
-                    ->form([
-                        Forms\Components\RichEditor::make('message')
-                            ->required()
-                            ->disableToolbarButtons(['attachFiles', 'codeBlock'])
-                    ])
-                    ->action(function (Ticket $record, array $data) {
-                        $record->messages()->create([
-                            'user_id' => auth()->id(),
-                            'message' => $data['message']
-                        ]);
-                    }),
+                Tables\Actions\ViewAction::make(),
 
-                Tables\Actions\Action::make('close')
-                    ->icon('heroicon-o-lock-closed')
-                    ->color('success')
-                    ->form([
-                        Forms\Components\RichEditor::make('message')
-                            ->label('Closing Message')
-                            ->disableToolbarButtons(['attachFiles', 'codeBlock'])
-                    ])
-                    ->action(function (Ticket $record, array $data) {
-                        $record->update([
-                            'status' => 'closed',
-                            'is_resolved' => true
-                        ]);
+                Tables\Actions\EditAction::make()
+                    ->visible(fn(Ticket $record): bool => $record->assigned_to === Auth::id()),
 
-                        if (!empty($data['message'])) {
-                            $record->messages()->create([
-                                'user_id' => auth()->id(),
-                                'message' => $data['message']
-                            ]);
-                        }
-                    })
-                    ->visible(fn(Ticket $record) => $record->status !== 'closed'),
-                Tables\Actions\Action::make('view')
-                    ->url(fn(Ticket $record): string => TicketResource::getUrl('edit', ['record' => $record]))
-                    ->icon('heroicon-o-eye'),
-
-                Tables\Actions\Action::make('assignToMe')
-                    ->label('Assign to Me')
-                    ->icon('heroicon-o-user-plus')
-                    ->action(function (Ticket $record) {
-                        $record->update(['assigned_to' => auth()->id()]);
-                    }),
-                // ->visible(fn () => auth()->user()->is_agent),
-
-                Tables\Actions\Action::make('closeTicket')
-                    ->label('Close')
-                    ->color('success')
-                    ->icon('heroicon-o-check-circle')
-                    ->action(function (Ticket $record) {
-                        $record->update(['status' => 'closed', 'is_resolved' => true]);
-                    })
-                    ->visible(fn(Ticket $record) => $record->status !== 'closed'),
-
-                Tables\Actions\DeleteAction::make()
-                    ->icon('heroicon-o-trash'),
+                Tables\Actions\Action::make('assign')
+                    ->label('Take Ticket')
+                    ->icon('heroicon-o-clipboard-document-check')
+                    ->action(fn(Ticket $record) => $record->update(['assigned_to' => Auth::id()]))
+                    ->visible(fn(Ticket $record): bool => is_null($record->assigned_to) || $record->assigned_to !== Auth::id()),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\BulkAction::make('updateStatus')
-                        ->icon('heroicon-o-viewfinder-circle')
-                        ->form([
-                            Forms\Components\Select::make('status')
-                                ->options([
-                                    'open' => 'Open',
-                                    'in_progress' => 'In Progress',
-                                    'on_hold' => 'On Hold',
-                                    'closed' => 'Closed',
-                                ])
-                                ->required(),
-                        ])
-                        ->action(function ($records, array $data) {
-                            $records->each->update($data);
-                        }),
-
-                    Tables\Actions\BulkAction::make('assignAgents')
-                        ->icon('heroicon-o-users')
-                        ->form([
-                            Forms\Components\Select::make('assigned_to')
-                                ->label('Assign to Agent')
-                                // ->options(User::where('is_agent', true)->pluck('name', 'id'))
-                                ->required(),
-                        ])
-                        ->action(function ($records, array $data) {
-                            $records->each->update($data);
-                        }),
-
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
-            ])
-            ->defaultSort('created_at', 'desc')
-            ->persistFiltersInSession()
-            ->paginated([10, 25, 50, 100]);
+                Tables\Actions\DeleteBulkAction::make(),
+            ]);
     }
 
     public static function getRelations(): array
     {
         return [
-            MessagesRelationManager::class,
+            // Define relation managers if needed
         ];
     }
 
@@ -289,22 +248,8 @@ class TicketResource extends Resource
     {
         return [
             'index' => Pages\ListTickets::route('/'),
+            'create' => Pages\CreateTicket::route('/create'),
             'edit' => Pages\EditTicket::route('/{record}/edit'),
         ];
-    }
-
-    public static function getNavigationBadge(): ?string
-    {
-        return static::getModel()::where('status', '!=', 'closed')->count();
-    }
-
-    public static function getEloquentQuery(): Builder
-    {
-        return parent::getEloquentQuery()
-            ->with(['user', 'assignedTo'])
-            ->where('status', 'open')
-            ->when(!auth()->user()->is_admin, function ($query) {
-                $query->where('assigned_to', auth()->id());
-            });
     }
 }

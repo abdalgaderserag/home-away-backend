@@ -10,9 +10,6 @@ use App\Models\User\Settings;
 use App\Notifications\Auth\ResetPasswordSms;
 use App\Notifications\Auth\VerifyEmail;
 use App\Notifications\Auth\VerifyPhone;
-use Coderflex\LaravelTicket\Concerns\HasTickets;
-use Coderflex\LaravelTicket\Contracts\CanUseTickets;
-use Coderflex\LaravelTicket\Models\Ticket;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -25,10 +22,10 @@ use Spatie\Permission\Traits\HasRoles;
 
 use function Pest\Laravel\get;
 
-class User extends Authenticatable implements MustVerifyEmail, CanUseTickets
+class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, HasApiTokens, HasRoles, HasTickets;
+    use HasFactory, Notifiable, HasApiTokens, HasRoles;
 
     /**
      * The attributes that are mass assignable.

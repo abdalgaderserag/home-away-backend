@@ -39,20 +39,16 @@ class CategoryResource extends Resource
                                     })
                                     ->unique(ignoreRecord: true)
                                     ->placeholder('Technical Support'),
-                                
+
                                 Forms\Components\TextInput::make('slug')
                                     ->required()
                                     ->maxLength(255)
                                     ->unique(ignoreRecord: true)
                                     ->rules(['alpha_dash:ascii'])
-                                    ->disabled(fn ($operation) => $operation === 'edit'),
-                                
-                                Forms\Components\Textarea::make('description')
-                                    ->rows(3)
-                                    ->maxLength(500)
-                                    ->columnSpanFull(),
+                                    ->disabled(fn($operation) => $operation === 'edit'),
+
                             ]),
-                        
+
                         Forms\Components\Tabs\Tab::make('Settings')
                             ->schema([
                                 Forms\Components\Toggle::make('is_visible')
@@ -69,26 +65,27 @@ class CategoryResource extends Resource
     {
         return $table
             ->columns([
-                
+
                 Tables\Columns\TextColumn::make('name')
                     ->sortable()
                     ->searchable()
-                    ->description(fn (Category $record) => Str::limit($record->description, 40)),
-                
+                    ->description(fn(Category $record) => Str::limit($record->description, 40)),
+
                 Tables\Columns\TextColumn::make('tickets_count')
                     ->counts('tickets')
                     ->sortable()
                     ->label('Tickets')
                     ->numeric()
                     ->toggleable(),
-                
+
                 Tables\Columns\IconColumn::make('is_visible')
                     ->label('Visible')
                     ->boolean()
-                    ->action(fn (Category $record, Tables\Columns\IconColumn $column) => 
+                    ->action(
+                        fn(Category $record, Tables\Columns\IconColumn $column) =>
                         $record->update(['is_visible' => !$record->is_visible])
                     ),
-                
+
                 Tables\Columns\TextColumn::make('updated_at')
                     ->dateTime('M d, Y H:i')
                     ->sortable()
@@ -97,7 +94,7 @@ class CategoryResource extends Resource
             ->filters([
                 Tables\Filters\TernaryFilter::make('is_visible')
                     ->label('Visibility'),
-                
+
                 Tables\Filters\Filter::make('created_at')
                     ->form([
                         Forms\Components\DatePicker::make('created_from'),
@@ -107,7 +104,7 @@ class CategoryResource extends Resource
             ->actions([
                 Tables\Actions\EditAction::make()
                     ->tooltip('Edit Category'),
-                
+
                 Tables\Actions\DeleteAction::make()
                     ->tooltip('Delete Category')
                     ->modalHeading('Delete Category')
@@ -119,7 +116,7 @@ class CategoryResource extends Resource
                         ->before(function ($action, $records) {
                             $records->each->update(['is_visible' => false]);
                         }),
-                    
+
                     Tables\Actions\BulkAction::make('toggleVisibility')
                         ->icon('heroicon-o-eye')
                         ->form([
@@ -139,8 +136,7 @@ class CategoryResource extends Resource
 
     public static function getRelations(): array
     {
-        return [
-        ];
+        return [];
     }
 
     public static function getPages(): array

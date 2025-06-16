@@ -10,9 +10,8 @@ return new class extends Migration
 {
     public function up()
     {
-        $tableName = config('laravel_ticket.table_names.categories', 'categories');
 
-        Schema::create($tableName, function (Blueprint $table) {
+        Schema::create('categories', function (Blueprint $table) {
             $table->id();
             $table->string('name');
             $table->string('slug');
@@ -23,8 +22,6 @@ return new class extends Migration
 
     public function down()
     {
-        $tableName = config('laravel_ticket.table_names.categories', 'categories');
-
-        Schema::dropIfExists($tableName);
+        Schema::dropIfExists('categories');
     }
 };

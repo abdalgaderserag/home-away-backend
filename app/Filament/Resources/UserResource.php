@@ -6,6 +6,8 @@ use App\Filament\Resources\UserResource\Pages;
 use App\Filament\Resources\UserResource\RelationManagers;
 use App\Models\User;
 use Filament\Forms;
+use Filament\Forms\Components\Section;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -44,8 +46,8 @@ class UserResource extends Resource
                     ->required(),
                 Forms\Components\TextInput::make('password')
                     ->password()
-                    ->dehydrated(fn ($state) => !empty($state))
-                    ->required(fn (string $context): bool => $context === 'create')
+                    ->dehydrated(fn($state) => !empty($state))
+                    ->required(fn(string $context): bool => $context === 'create')
                     ->maxLength(255),
             ]);
     }
