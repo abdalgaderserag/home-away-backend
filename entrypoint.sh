@@ -18,17 +18,26 @@ if [ ! -f .env ] || ! grep -q "APP_KEY=" .env || grep -q "APP_KEY=$" .env; then
   php artisan key:generate
 fi
 
-# Clear any previous optimization caches
-php artisan optimize:clear
 
 # Run database migrations
 echo "Running database migrations..."
 php artisan migrate --force
 
+php artisan optimize:clear
+php artisan optimize
+php artisan config:cache
+php artisan view:cache
+php artisan route:cache
+php artisan icons:cache
+php artisan filament:optimize
+php artisan event:cache
+
 # Seed the database (optional, run only if you want initial data)
 echo "Seeding database..."
 php artisan db:seed --force
-
+# Set permissions for Laravel
+chown -R www-data:www-data storage bootstrap/cache \
+    && chmod -R 775 storage bootstrap/cache
 # --- Execute the original CMD ---
 # This ensures that the main process (php-fpm) starts after setup.
 echo "Starting PHP-FPM..."

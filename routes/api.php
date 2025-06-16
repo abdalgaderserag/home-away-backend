@@ -27,9 +27,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     // verification for registration verification
     Route::post('/email/verify', [VerificationController::class, 'verifyEmail']);
-    Route::post('/email/verify/resend', [VerificationController::class, 'emailResend']);
+    Route::get('/email/verify/resend', [VerificationController::class, 'emailResend']);
     Route::post('/phone/verify', [VerificationController::class, 'verifyPhone']);
-    Route::post('/phone/verify/resend', [VerificationController::class, 'phoneResend']);
+    Route::get('/phone/verify/resend', [VerificationController::class, 'phoneResend']);
 
     // user related controllers
     Route::get('/user/settings', [SettingsController::class, 'index']);

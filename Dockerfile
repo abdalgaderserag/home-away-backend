@@ -1,83 +1,94 @@
+# Use official PHP 8.2 FPM base image with Alpine
 FROM php:8.2-fpm-alpine
 
+# Set working directory
 WORKDIR /var/www/html
 
-# Install system dependencies needed for PHP extensions and Node.js
+# Install system and PHP build dependencies
 RUN apk add --no-cache \
     unzip \
     git \
-    postgresql-dev \
-    libpng-dev \
-    libjpeg-turbo-dev \
-    freetype-dev \
-    libxml2-dev \
-    g++ \
-    make \
     bash \
     nodejs \
     npm \
-    oniguruma-dev \
-    icu-dev \
-    libzip-dev \
-    pkgconf
-
-# Configure and install PHP extensions
-RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install -j$(nproc) \
-        pdo_pgsql \
-        pgsql \
-        bcmath \
-        gd \
-        exif \
-        mbstring \
-        fileinfo \
-        intl \
-        xml \
-        zip \
-    && docker-php-ext-enable pdo_pgsql gd intl zip mbstring
-
-# Remove build dependencies to keep image size small
-RUN apk del --no-cache \
     g++ \
     make \
+    icu-dev \
+    oniguruma-dev \
+    postgresql-dev \
     libpng-dev \
     libjpeg-turbo-dev \
     freetype-dev \
     libxml2-dev \
-    postgresql-dev \
-    oniguruma-dev \
+    libzip-dev \
+    pkgconf
+
+# Configure GD with JPEG and FreeType support
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg
+
+# Install PHP extensions
+RUN docker-php-ext-install -j$(nproc) \
+    pdo_pgsql \
+    pgsql \
+    bcmath \
+    gd \
+    exif \
+    mbstring \
+    intl \
+    xml \
+    zip
+
+# Clean up build tools and development headers
+RUN apk del --no-cache \
+    g++ \
+    make \
     icu-dev \
+    oniguruma-dev \
+    postgresql-dev \
+    libpng-dev \
+    libjpeg-turbo-dev \
+    freetype-dev \
+    libxml2-dev \
     libzip-dev \
     pkgconf \
-    unzip \
-    git
+    && rm -rf /var/cache/apk/*
+
+# Reinstall runtime libraries needed for compiled PHP extensions
+RUN apk add --no-cache \
+    libpng \
+    libjpeg-turbo \
+    freetype \
+    libpq \
+    libzip
 
 # Copy Composer from official image
 COPY --from=composer:latest /usr/bin/composer /usr/local/bin/composer
 
-# Copy entire source before installing dependencies (artisan must exist)
+# Copy all source code first
 COPY . .
 
-# Install PHP dependencies (production only)
+# Then install PHP dependencies
 RUN composer install --no-dev --optimize-autoloader --no-interaction
 
 # Install Node.js dependencies and build frontend assets
-RUN npm install \
-    && npm run build
+RUN npm install && npm run build
 
-# Set permissions for Laravel
+# Copy application source code
+COPY . .
+
+# Set correct permissions for Laravel storage paths
 RUN chown -R www-data:www-data storage bootstrap/cache \
     && chmod -R 775 storage bootstrap/cache
 
-# Copy the entrypoint script and make it executable
+# Copy custom entrypoint script
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
-# Expose port 9000 for PHP-FPM
+# Expose PHP-FPM port
 EXPOSE 9000
 
-# Use the entrypoint script
+# Set custom entrypoint
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 
-# Default command
+# Default command to start PHP-FPM
 CMD ["php-fpm"]
