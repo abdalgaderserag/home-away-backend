@@ -135,16 +135,46 @@ class ProfileController extends Controller
         $user = Auth::user();
         $attachment = Attachment::find($request->attachment);
 
-        $attachment->user_id = $user->id;
-        $path = $attachment->url;
-        Storage::setVisibility($path, 'public');
-        $attachment->save();
-        $user->touch();
+        if (!$attachment || empty($attachment->url)) {
+            return response()->json(['message' => 'Attachment not found or no URL.'], Response::HTTP_NOT_FOUND);
+        }
 
-        return response()->json([
-            'message' => 'Avatar updated successfully',
-            'user' => $user
-        ], Response::HTTP_OK);
+        $sourceDisk = 's3';
+        $destinationDisk = 'public';
+
+        $oldPath = $attachment->url;
+
+        $fileName = basename($oldPath);
+        $newPath = 'avatars/' . $user->id . '/' . $fileName;
+
+        if (!Storage::disk($sourceDisk)->exists($oldPath)) {
+            return response()->json([
+                'message' => 'Original attachment file not found.'
+            ], Response::HTTP_NOT_FOUND);
+        }
+
+        try {
+            $fileContent = Storage::disk($sourceDisk)->get($oldPath);
+
+            Storage::disk($destinationDisk)->put($newPath, $fileContent);
+
+            Storage::disk($sourceDisk)->delete($oldPath);
+
+            $attachment->url = $newPath;
+            $attachment->user_id = $user->id;
+            $attachment->save();
+
+            $user->touch();
+
+            return response()->json([
+                'message' => 'Avatar updated and moved successfully.',
+                'user' => $user->fresh()
+            ], Response::HTTP_OK);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Failed to move avatar: ' . $e->getMessage()
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 
     public function changeName(Request $request)

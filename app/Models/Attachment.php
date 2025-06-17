@@ -21,6 +21,11 @@ class Attachment extends Model
         "url"
     ];
 
+    public function owner()
+    {
+        return $this->belongsTo(User::class, 'owner_id', 'id');
+    }
+
     public function user()
     {
         return $this->belongsTo(User::class);

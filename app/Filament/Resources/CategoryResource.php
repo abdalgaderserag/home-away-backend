@@ -3,8 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\CategoryResource\Pages;
-use App\Filament\Resources\CategoryResource\RelationManagers\TicketsRelationManager;
-use Coderflex\LaravelTicket\Models\Category;
+use App\Models\Category;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -71,12 +70,12 @@ class CategoryResource extends Resource
                     ->searchable()
                     ->description(fn(Category $record) => Str::limit($record->description, 40)),
 
-                Tables\Columns\TextColumn::make('tickets_count')
-                    ->counts('tickets')
-                    ->sortable()
-                    ->label('Tickets')
-                    ->numeric()
-                    ->toggleable(),
+                // Tables\Columns\TextColumn::make('tickets')
+                //     ->rea('tickets')
+                //     ->sortable()
+                //     ->label('Tickets')
+                //     ->numeric()
+                //     ->toggleable(),
 
                 Tables\Columns\IconColumn::make('is_visible')
                     ->label('Visible')

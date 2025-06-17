@@ -35,6 +35,7 @@ class Project extends Model
         'max_price',
         'resources',
         'skill_id',
+        'published_at'
     ];
 
     public function client(): BelongsTo

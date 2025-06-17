@@ -90,28 +90,11 @@ class ProjectResource extends Resource
                 Tables\Columns\TextColumn::make('title')
                     ->searchable()
                     ->searchable(),
-                Tables\Columns\TextColumn::make('unit.type')->sortable(),
-                Tables\Columns\TextColumn::make('space')
-                    ->numeric()
-                    ->sortable(),
                 Tables\Columns\TextColumn::make('location.city')
                     ->sortable(),
-                Tables\Columns\TextColumn::make('deadline')
-                    ->dateTime()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('min_price')
-                    ->numeric()
-                    ->prefix("$")
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('max_price')
-                    ->numeric()
-                    ->prefix("$")
-                    ->sortable(),
-                Tables\Columns\IconColumn::make('resources')
-                    ->boolean(),
                 Tables\Columns\TextColumn::make('skill.name'),
                 Tables\Columns\TextColumn::make('published_at')
-                    ->dateTime()
+                    ->dateTime('F j, Y')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()

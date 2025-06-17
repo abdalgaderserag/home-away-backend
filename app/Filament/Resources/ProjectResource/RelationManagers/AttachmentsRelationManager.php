@@ -9,8 +9,8 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Illuminate\Support\Facades\Storage; // Import Storage facade
-use Filament\Tables\Actions\Action; // Import Action class
+use Illuminate\Support\Facades\Storage;
+use Filament\Tables\Actions\Action;
 
 class AttachmentsRelationManager extends RelationManager
 {
@@ -52,9 +52,6 @@ class AttachmentsRelationManager extends RelationManager
                     ->label('File Name')
                     ->toggleable()
                     ->searchable(),
-                Tables\Columns\TextColumn::make('user.name')
-                    ->label('Uploaded By')
-                    ->toggleable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->label('Uploaded At')
@@ -65,7 +62,6 @@ class AttachmentsRelationManager extends RelationManager
                 //
             ])
             ->headerActions([
-                Tables\Actions\CreateAction::make(),
             ])
             ->actions([
                 Action::make('view')
