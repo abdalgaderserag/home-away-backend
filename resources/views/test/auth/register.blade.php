@@ -90,7 +90,7 @@ document.getElementById('register-form').addEventListener('submit', async e => {
 
     // success: store token and redirect
     localStorage.setItem('auth_token', json.token);
-    window.location.href = '/test/projects';
+    window.location.href = '/';
   } catch (err) {
     const div = document.createElement('div');
     div.className = 'bg-red-100 text-red-700 p-2 mb-2 rounded';
