@@ -34,6 +34,7 @@ class OfferController extends Controller
         $offer = new Offer($request->validated());
         $offer->status = OfferStatus::Pending->value;
         $offer->user_id = Auth::id();
+        $offer->type = OfferType::Basic;
         $offer->save();
         $client = $project->client;
         $client->notify(new ReceivedOffer($offer, $project));

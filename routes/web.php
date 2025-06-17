@@ -17,6 +17,10 @@ Route::group(['prefix' => 'test'], function () {
 
     Route::get('projects', fn() => view('test.project.index'));
 
+    Route::get('/projects/{id}', function ($id) {
+        return view('test.project.show')->with(['id' => $id]);
+    });
+
     Route::get('/projects/create', function () {
         $u = DB::table('unit_types')->get('*');
         $loc = DB::table('locations')->get('*');

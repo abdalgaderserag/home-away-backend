@@ -35,7 +35,6 @@ class StoreOfferRequest extends FormRequest
             'deadline' => 'required|date',
             'start_date' => 'required|date|before:deadline',
             'description' => 'required|string',
-            'type' => ['required', new Enum(OfferType::class)],
             'expire_date' => 'required|date|after:start_date',
         ];
     }

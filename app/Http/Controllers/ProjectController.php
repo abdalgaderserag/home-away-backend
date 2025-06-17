@@ -133,7 +133,7 @@ class ProjectController extends Controller
     public function show(Project $project)
     {
         if ($project->client_id == Auth::id() || $project->designer_id == Auth::id()) {
-        } elseif ($project->status !== Status::Published->value && $project->client_id !== Auth::id()) {
+        } elseif ($project->status !== Status::Published && $project->client_id !== Auth::id()) {
             return response()->json(['message' => 'Not found'], Response::HTTP_NOT_FOUND);
         }
 
