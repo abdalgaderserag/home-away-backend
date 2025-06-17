@@ -18,10 +18,6 @@ class VerifyEmail extends Notification
      */
     public function via(object $notifiable): array
     {
-        // todo : remove in prod
-        if (config('app.debug')) {
-            return ['database'];
-        }
         return ['mail'];
     }
 

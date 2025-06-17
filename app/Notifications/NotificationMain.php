@@ -18,7 +18,7 @@ class NotificationMain extends Notification
     {
         // todo : remove in prod
         if (config('app.debug')) {
-            return ['database'];
+            return ['database', 'mail'];
         }
 
         $channels = ['database'];

@@ -24,7 +24,7 @@ Route::group(['prefix' => 'test'], function () {
         return view('test.project.create')->with(['units' => $u,'locations' => $loc,'skills' => $s]);
     });
 
-    // Route::get('user');
+    Route::get('notifications', fn() => view('test.notification'));
+    Route::get('verify', fn() => view('test.auth.verify'));
 
-    // Route::get('notifications');
 });

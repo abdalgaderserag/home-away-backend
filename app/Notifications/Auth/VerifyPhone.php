@@ -28,7 +28,7 @@ class VerifyPhone extends Notification
     {
         // todo : remove in prod
         if (config('app.debug')) {
-            return ['database'];
+            return [];
         }
         return ['sms'];
     }

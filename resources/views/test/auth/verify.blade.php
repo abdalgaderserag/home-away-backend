@@ -69,7 +69,7 @@
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Accept': 'application/json'
+                        'Accept': 'application/json',
                         // If authentication token is needed, add it here:
                         'Authorization': 'Bearer ' + localStorage.getItem('auth_token')
                     },
@@ -108,7 +108,7 @@
                 const response = await fetch('/api/email/verify/resend', {
                     method: 'GET',
                     headers: {
-                        'Accept': 'application/json'
+                        'Accept': 'application/json',
                         'Authorization': 'Bearer ' + localStorage.getItem('auth_token')
                     }
                 });
