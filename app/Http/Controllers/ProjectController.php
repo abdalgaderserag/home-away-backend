@@ -10,6 +10,7 @@ use App\Models\Attachment;
 use App\Models\Project;
 use App\Models\User;
 use App\Notifications\Project\ProjectSentForApproval;
+use App\Traits\TicketInitTrait;
 use Coderflex\LaravelTicket\Models\Category;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
@@ -17,6 +18,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 class ProjectController extends Controller
 {
+    use TicketInitTrait;
+    
     public function index(IndexRequest $request)
     {
         $validated = $request->validated();
@@ -115,7 +118,7 @@ class ProjectController extends Controller
         }
         $project->status = Status::Pending->value;
         $project->update($request->validated());
-        $category = Category::where('slug', 'project-approval')->first();        
+        $category = Category::where('slug', 'project-approval')->first();
         $ticket = $client->tickets()->create([
             'title' => $request->title,
             'model_id' => $project->id,
