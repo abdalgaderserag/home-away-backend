@@ -88,7 +88,6 @@ class ProjectResource extends Resource
                     ->sortable(),
                 Tables\Columns\TextColumn::make('status'),
                 Tables\Columns\TextColumn::make('title')
-                    ->searchable()
                     ->searchable(),
                 Tables\Columns\TextColumn::make('location.city')
                     ->sortable(),

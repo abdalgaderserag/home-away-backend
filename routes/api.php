@@ -5,6 +5,7 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\Auth\SocialAuthController;
 use App\Http\Controllers\Auth\VerificationController;
+use App\Http\Controllers\FaqController;
 use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\MilestoneController;
@@ -20,6 +21,8 @@ use App\Http\Middleware\VerifiedMiddleware;
 use Illuminate\Support\Facades\Route;
 
 Route::get('projects', [ProjectController::class, 'index']);
+Route::get('faq', [FaqController::class, 'index']);
+
 
 Route::middleware(['auth:sanctum'])->group(function () {
 
