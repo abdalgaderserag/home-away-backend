@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Enum\VerificationType;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -17,7 +18,9 @@ class VerificationFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'user_id' => rand(1, 10),
+            'type' => fake()->randomElement(VerificationType::cases()),
+            'verified' => fake()->boolean(),
         ];
     }
 }

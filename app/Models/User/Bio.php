@@ -2,6 +2,7 @@
 
 namespace App\Models\User;
 
+use App\Models\Location;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -15,16 +16,16 @@ class Bio extends Model
     protected $fillable = [
         'about',
         'price_per_meter',
-        'locations',
+        'location_id',
         'user_id',
-    ];
-
-    protected $casts = [
-        'locations' => 'array',
     ];
 
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function location() : BelongsTo {
+        return $this->belongsTo(Location::class);
     }
 }

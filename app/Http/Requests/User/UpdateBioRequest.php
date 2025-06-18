@@ -24,7 +24,7 @@ class UpdateBioRequest extends FormRequest
     {
         return [
             'about' => 'string|max:500',
-            'locations.*' => 'string|max:255|exists:locations,city',
+            'location_id' => 'string|max:255|exists:locations,id',
             'price_per_meter' => 'min:0|float',
         ];
     }

@@ -87,7 +87,7 @@ class ProfileController extends Controller
         // Update bio details
         $bio->about = $request->about;
         $bio->price_per_meter = $request->price_per_meter;
-        $bio->locations = $request->locations;
+        $bio->location_id = $request->location_id;
         $bio->save();
 
         return response()->json([

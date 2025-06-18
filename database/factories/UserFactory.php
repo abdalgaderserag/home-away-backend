@@ -2,6 +2,11 @@
 
 namespace Database\Factories;
 
+use App\Models\Location;
+use App\Models\User;
+use App\Models\User\Bio;
+use App\Models\User\Settings;
+use App\Models\Verification;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -26,7 +31,10 @@ class UserFactory extends Factory
         return [
             'name' => fake()->name(),
             'email' => fake()->unique()->safeEmail(),
+            'phone' => fake()->unique()->phoneNumber(),
             'email_verified_at' => now(),
+            'phone_verified_at' => now(),
+            'type' => fake()->randomElement(['designer', 'client']),
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
         ];
@@ -37,8 +45,34 @@ class UserFactory extends Factory
      */
     public function unverified(): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state(fn(array $attributes) => [
             'email_verified_at' => null,
         ]);
+    }
+
+    public function configure()
+    {
+        return $this->afterCreating(function (User $user) {
+            if ($user->id == 5) {
+                Verification::factory(3)->create([
+                    'user_id' => $user->id,
+                    'verified' => false
+                ]);
+            }
+            Verification::factory(3)->create([
+                'user_id' => $user->id,
+            ]);
+
+            Settings::factory()->create([
+                'user_id' => $user->id
+            ]);
+            if ($user->id != 1)
+                Bio::factory()->create([
+                    'user_id' => $user->id,
+                    'about' => fake()->paragraph,
+                    'price_per_meter' => (rand(1, 10) * 1000),
+                    'location_id' => Location::all()->random()->id
+                ]);
+        });
     }
 }

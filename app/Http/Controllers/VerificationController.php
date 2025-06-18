@@ -6,6 +6,7 @@ use App\Enum\VerificationType;
 use App\Http\Requests\StoreVerificationRequest;
 use App\Models\Attachment;
 use App\Models\Verification;
+use App\Traits\TicketInitTrait;
 use Coderflex\LaravelTicket\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -14,6 +15,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 class VerificationController extends Controller
 {
+
+    use TicketInitTrait;
     /**
      * Display a listing of the resource.
      */
@@ -86,20 +89,6 @@ class VerificationController extends Controller
         }
         $this->checkVerification();
         return response("you are not the ID owner", Response::HTTP_UNAUTHORIZED);
-    }
-
-    private function createVerificationTicket(Verification $verification)
-    {
-        $user = Auth::user();
-        $category = Category::where('slug', "{$type}-verification")->first();
-
-        $user->tickets()->create([
-            'title' => "{$verification->type} Verification request",
-            'model_id' => $verification->id,
-            'category_id' => $category->id,
-            'status' => 'open',
-            'priority' => 'medium',
-        ]);
     }
 
     private function checkVerification()

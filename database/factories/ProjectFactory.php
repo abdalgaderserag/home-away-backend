@@ -3,9 +3,9 @@
 namespace Database\Factories;
 
 use App\Enum\Project\Status;
-use App\Enum\Project\UnitType;
-use App\Enum\Project\Location;
-use App\Enum\Project\Skill;
+use App\Models\Location;
+use App\Models\Skill;
+use App\Models\UnitType;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -21,20 +21,18 @@ class ProjectFactory extends Factory
     public function definition(): array
     {
         return [
-            // 'client_id' => \App\Models\User::factory(),
-            // 'designer_id' => \App\Models\User::factory()->nullable(),
             'status' => fake()->randomElement(Status::cases()),
             'title' => fake()->sentence(),
             'description' => fake()->paragraph(),
-            'unit_type' => fake()->randomElement(UnitType::cases()),
-            'space' => fake()->numberBetween(50, 500),
-            'location' => \App\Models\Location::factory(),
+            'unit_type_id' => UnitType::all()->random()->id,
+            'space' => fake()->numberBetween(100, 500),
+            'location_id' => Location::all()->random()->id,
             'deadline' => fake()->dateTimeBetween('+1 month', '+1 year'),
             'min_price' => fake()->randomFloat(2, 10000, 50000),
             'max_price' => fake()->randomFloat(2, 50000, 100000),
             'resources' => fake()->boolean(),
-            'skill' => fake()->randomElement(Skill::cases()),
-            'attachment' => json_encode([fake()->imageUrl(), fake()->imageUrl()]),
+            'skill_id' => Skill::all()->random()->id,
+            'published_at' => now(),
         ];
     }
 }

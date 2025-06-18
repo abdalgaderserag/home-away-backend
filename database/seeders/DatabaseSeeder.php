@@ -4,7 +4,6 @@ namespace Database\Seeders;
 
 use Database\Seeders\Build\BuildDatabase;
 use Database\Seeders\Build\LocationSeeder;
-use Google\Service\ApigeeRegistry\Build;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -33,5 +32,10 @@ class DatabaseSeeder extends Seeder
             BuildDatabase::class,
             LocationSeeder::class,
         ]);
+        if (config('app.debug')) {
+            $this->call(
+                FakeDataSeeder::class
+            );
+        }
     }
 }

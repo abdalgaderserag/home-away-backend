@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Location;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -18,7 +19,7 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->text('about')->nullable();
             $table->float('price_per_meter')->nullable();
-            $table->json('locations')->default("[]");
+            $table->foreignIdFor(Location::class)->nullable()->constrained('locations');
             $table->timestamps();
         });
     }

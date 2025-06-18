@@ -19,7 +19,7 @@ use Symfony\Component\HttpFoundation\Response;
 class ProjectController extends Controller
 {
     use TicketInitTrait;
-    
+
     public function index(IndexRequest $request)
     {
         $validated = $request->validated();
@@ -118,15 +118,7 @@ class ProjectController extends Controller
         }
         $project->status = Status::Pending->value;
         $project->update($request->validated());
-        $category = Category::where('slug', 'project-approval')->first();
-        $ticket = $client->tickets()->create([
-            'title' => $request->title,
-            'model_id' => $project->id,
-            'category_id' => $category->id,
-            'status' => 'open',
-            'priority' => 'low',
-        ]);
-        $client->notify(new ProjectSentForApproval($project));
+        $this->projectApprovalTicket($client, $project);
         return response()->json([
             'project' => $project->refresh(),
             'attachments' => Attachment::where('project_id', $project->id)->get(),
