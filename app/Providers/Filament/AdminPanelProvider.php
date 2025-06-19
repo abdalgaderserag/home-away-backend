@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use Althinect\FilamentSpatieRolesPermissions\FilamentSpatieRolesPermissionsPlugin;
 use App\Filament\Pages\Settings;
 use App\Filament\Resources\AdminResource\Widgets\PulseSupportUsage;
 use App\Filament\Resources\DashboardResource\Widgets\OnlineUsersChart;
@@ -81,8 +82,9 @@ class AdminPanelProvider extends PanelProvider
                 TwoFactorAuthenticationPlugin::make()
                     ->enableTwoFactorAuthentication()
                     // ->enablePasskeyAuthentication()
-                    ->addTwoFactorMenuItem()
                     // ->forceTwoFactorSetup()
+                    ->addTwoFactorMenuItem(),
+                FilamentSpatieRolesPermissionsPlugin::make()
             ]);
     }
 }
