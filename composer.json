@@ -23,7 +23,8 @@
         "league/flysystem-aws-s3-v3": "^3.29",
         "spatie/laravel-permission": "^6.17",
         "stephenjude/filament-two-factor-authentication": "^2.0",
-        "twilio/sdk": "^8.6"
+        "twilio/sdk": "^8.6",
+        "vormkracht10/filament-mails": "^2.3"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",

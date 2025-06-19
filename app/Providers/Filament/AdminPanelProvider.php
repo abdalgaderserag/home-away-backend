@@ -31,6 +31,8 @@ use Dotswan\FilamentLaravelPulse\Widgets\PulseSlowQueries;
 use Dotswan\FilamentLaravelPulse\Widgets\PulseSlowRequests;
 use Dotswan\FilamentLaravelPulse\Widgets\PulseUsage;
 use Stephenjude\FilamentTwoFactorAuthentication\TwoFactorAuthenticationPlugin;
+use Vormkracht10\FilamentMails\Facades\FilamentMails;
+use Vormkracht10\FilamentMails\FilamentMailsPlugin;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -85,6 +87,8 @@ class AdminPanelProvider extends PanelProvider
                     // ->forceTwoFactorSetup()
                     ->addTwoFactorMenuItem(),
                 FilamentSpatieRolesPermissionsPlugin::make()
-            ]);
+            ])
+            ->plugin(FilamentMailsPlugin::make())
+            ->routes(fn() => FilamentMails::routes());
     }
 }
