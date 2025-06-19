@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Resources\AdminResource\Widgets\PulseSupportUsage;
 use App\Filament\Resources\DashboardResource\Widgets\OnlineUsersChart;
 use App\Filament\Resources\DashboardResource\Widgets\StatsOverview;
 use Filament\Http\Middleware\Authenticate;
@@ -19,6 +20,14 @@ use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use Dotswan\FilamentLaravelPulse\Widgets\PulseCache;
+use Dotswan\FilamentLaravelPulse\Widgets\PulseExceptions;
+use Dotswan\FilamentLaravelPulse\Widgets\PulseQueues;
+use Dotswan\FilamentLaravelPulse\Widgets\PulseServers;
+use Dotswan\FilamentLaravelPulse\Widgets\PulseSlowOutGoingRequests;
+use Dotswan\FilamentLaravelPulse\Widgets\PulseSlowQueries;
+use Dotswan\FilamentLaravelPulse\Widgets\PulseSlowRequests;
+use Dotswan\FilamentLaravelPulse\Widgets\PulseUsage;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -42,7 +51,15 @@ class AdminPanelProvider extends PanelProvider
                 // Widgets\AccountWidget::class,
                 // Widgets\FilamentInfoWidget::class,
                 StatsOverview::class,
-                OnlineUsersChart::class,
+                // OnlineUsersChart::class,
+                PulseServers::class,
+                PulseCache::class,
+                PulseExceptions::class,
+                PulseUsage::class,
+                PulseQueues::class,
+                PulseSlowQueries::class,
+                PulseSlowRequests::class,
+                PulseSlowOutGoingRequests::class,
             ])
             ->middleware([
                 EncryptCookies::class,
