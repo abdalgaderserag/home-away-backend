@@ -28,6 +28,7 @@ use Dotswan\FilamentLaravelPulse\Widgets\PulseSlowOutGoingRequests;
 use Dotswan\FilamentLaravelPulse\Widgets\PulseSlowQueries;
 use Dotswan\FilamentLaravelPulse\Widgets\PulseSlowRequests;
 use Dotswan\FilamentLaravelPulse\Widgets\PulseUsage;
+use Stephenjude\FilamentTwoFactorAuthentication\TwoFactorAuthenticationPlugin;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -74,6 +75,12 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
+            ])->plugins([
+                TwoFactorAuthenticationPlugin::make()
+                    ->enableTwoFactorAuthentication()
+                    ->enablePasskeyAuthentication()
+                    ->addTwoFactorMenuItem()
+                    // ->forceTwoFactorSetup()
             ]);
     }
 }
