@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Pages\Settings;
 use App\Filament\Resources\AdminResource\Widgets\PulseSupportUsage;
 use App\Filament\Resources\DashboardResource\Widgets\OnlineUsersChart;
 use App\Filament\Resources\DashboardResource\Widgets\StatsOverview;
@@ -46,6 +47,7 @@ class AdminPanelProvider extends PanelProvider
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
             ->pages([
                 Pages\Dashboard::class,
+                Settings::class,
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([
@@ -78,7 +80,7 @@ class AdminPanelProvider extends PanelProvider
             ])->plugins([
                 TwoFactorAuthenticationPlugin::make()
                     ->enableTwoFactorAuthentication()
-                    ->enablePasskeyAuthentication()
+                    // ->enablePasskeyAuthentication()
                     ->addTwoFactorMenuItem()
                     // ->forceTwoFactorSetup()
             ]);

@@ -84,10 +84,7 @@ return [
         ],
 
         'usage' => [
-            'columnSpan' => [
-                'md' => 6,
-                'xl' => 6,
-            ],
+            'columnSpan' => 'full',
             'rows' => 2,
             'cols' => 'full',
             'ignoreAfter' => '1 day',
