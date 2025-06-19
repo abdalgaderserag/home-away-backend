@@ -36,7 +36,7 @@ class MilestonePolicy
      */
     public function create(User $user): bool
     {
-        return $user->hasRole('designer');
+        return $user->hasRole('designer access');
     }
 
     /**

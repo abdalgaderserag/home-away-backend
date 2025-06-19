@@ -26,4 +26,9 @@ return new class extends Migration
                 ->after('mailer');
         });
     }
+
+    public function down()
+    {
+        Schema::dropIfExists(config('mails.database.tables.events'));
+    }
 };

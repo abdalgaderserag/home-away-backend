@@ -13,7 +13,7 @@ return new class extends Migration
 
         $authenticatableTableName = (new $authenticatableClass)->getTable();
 
-        Schema::create('passkeys', function (Blueprint $table) use ($authenticatableTableName,$authenticatableClass) {
+        Schema::create('passkeys', function (Blueprint $table) use ($authenticatableTableName, $authenticatableClass) {
             $table->id();
 
             $table
@@ -28,5 +28,10 @@ return new class extends Migration
             $table->timestamp('last_used_at')->nullable();
             $table->timestamps();
         });
+    }
+
+    public function down()
+    {
+        Schema::dropIfExists('passkeys');
     }
 };

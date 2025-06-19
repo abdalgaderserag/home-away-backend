@@ -16,17 +16,17 @@ class RolesSeeder extends Seeder
         $client = Role::create([
             'name' => 'client',
             'guard_name' => 'web',
-        ])->givePermissionTo('client');
+        ])->givePermissionTo('client access');
 
         Role::create([
             'name' => 'designer',
             'guard_name' => 'web',
-        ])->givePermissionTo('designer');
+        ])->givePermissionTo('designer access');
 
         Role::create([
             'name' => 'support',
             'guard_name' => 'web',
-        ])->givePermissionTo(['edit locations', 'edit users', 'verify edit', 'edit bio']);
+        ])->givePermissionTo(['edit projects', 'edit users', 'edit locations', 'edit skills', 'edit unite types', 'edit faq']);
 
         Role::create([
             'name' => 'admin',

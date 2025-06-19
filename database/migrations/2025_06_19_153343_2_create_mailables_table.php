@@ -16,4 +16,9 @@ return new class extends Migration
             $table->morphs('mailable');
         });
     }
+
+    public function down()
+    {
+        Schema::dropIfExists(config('mails.database.tables.polymorph'));
+    }
 };

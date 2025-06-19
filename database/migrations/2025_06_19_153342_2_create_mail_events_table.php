@@ -29,4 +29,9 @@ return new class extends Migration
             $table->timestamp('occurred_at')->nullable();
         });
     }
+
+    public function down()
+    {
+        Schema::dropIfExists(config('mails.database.tables.events'));
+    }
 };
