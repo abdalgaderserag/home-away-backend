@@ -32,3 +32,5 @@ Route::group(['prefix' => 'test'], function () {
     Route::get('verify', fn() => view('test.auth.verify'));
 
 });
+
+Route::get('/pulse',fn()=> abort(404));

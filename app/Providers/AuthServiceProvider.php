@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Models\User;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Sanctum\PersonalAccessToken;
@@ -30,10 +31,8 @@ class AuthServiceProvider extends ServiceProvider
         });
 
 
-        Gate::before(function ($user, $ability) {
-            if ($user->hasRole('admin')) {
-                return true;
-            }
+        Gate::before(function (User $user, $ability) {
+            return $user->hasRole('admin');
         });
     }
 }
