@@ -28,5 +28,6 @@ class PermissionSeeder extends Seeder
         Permission::create(['name' => 'mail access']);
         Permission::create(['name' => 'edit role and permissions']);
         Permission::create(['name' => 'edit categories']);
+        Permission::create(['name' => 'send messages']);
     }
 }

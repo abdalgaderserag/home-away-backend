@@ -26,7 +26,7 @@ class RolesSeeder extends Seeder
         Role::create([
             'name' => 'support',
             'guard_name' => 'web',
-        ])->givePermissionTo(['edit projects', 'edit users', 'edit locations', 'edit skills', 'edit unite types', 'edit faq']);
+        ])->givePermissionTo(['edit projects', 'edit users', 'edit locations', 'edit skills', 'edit unite types', 'edit faq', 'send messages']);
 
         Role::create([
             'name' => 'admin',

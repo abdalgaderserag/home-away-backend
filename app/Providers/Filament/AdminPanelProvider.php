@@ -6,8 +6,7 @@ use Althinect\FilamentSpatieRolesPermissions\FilamentSpatieRolesPermissionsPlugi
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use App\Filament\Pages\PulseOverview;
 use App\Filament\Pages\Settings;
-use App\Filament\Resources\AdminResource\Widgets\PulseSupportUsage;
-use App\Filament\Resources\DashboardResource\Widgets\OnlineUsersChart;
+use App\Filament\Pages\ViewChat;
 use App\Filament\Resources\DashboardResource\Widgets\StatsOverview;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
@@ -17,7 +16,6 @@ use Filament\Pages;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
-use Filament\Widgets;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
@@ -54,6 +52,7 @@ class AdminPanelProvider extends PanelProvider
                 Pages\Dashboard::class,
                 Settings::class,
                 PulseOverview::class,
+                ViewChat::class
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([
