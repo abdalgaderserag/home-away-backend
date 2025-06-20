@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\LocationResource\Pages;
 use App\Filament\Resources\LocationResource\RelationManagers;
+use App\Filament\Traits\PermissionsTrait;
 use App\Models\Location;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -15,6 +16,11 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class LocationResource extends Resource
 {
+    use PermissionsTrait;
+    protected static function getPermissionType(): string
+    {
+        return 'edit locations';
+    }
     protected static ?string $model = Location::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-map-pin';

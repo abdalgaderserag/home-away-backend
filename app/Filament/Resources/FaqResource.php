@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\FaqResource\Pages;
+use App\Filament\Traits\PermissionsTrait;
 use App\Models\Faq;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\TextInput;
@@ -14,6 +15,11 @@ use Filament\Tables\Table;
 
 class FaqResource extends Resource
 {
+    use PermissionsTrait;
+    protected static function getPermissionType(): string
+    {
+        return 'edit faq';
+    }
     protected static ?string $model = Faq::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-question-mark-circle';

@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\SkillResource\Pages;
 use App\Filament\Resources\SkillResource\RelationManagers;
+use App\Filament\Traits\PermissionsTrait;
 use App\Models\Skill;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -15,6 +16,11 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class SkillResource extends Resource
 {
+    use PermissionsTrait;
+    protected static function getPermissionType(): string
+    {
+        return 'edit skills';
+    }
     protected static ?string $model = Skill::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-briefcase';

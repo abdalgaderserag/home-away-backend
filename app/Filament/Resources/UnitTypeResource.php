@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\UnitTypeResource\Pages;
 use App\Filament\Resources\UnitTypeResource\RelationManagers;
+use App\Filament\Traits\PermissionsTrait;
 use App\Models\UnitType;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -15,6 +16,11 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class UnitTypeResource extends Resource
 {
+    use PermissionsTrait;
+    protected static function getPermissionType(): string
+    {
+        return 'edit unite types';
+    }
     protected static ?string $model = UnitType::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-building-office-2';

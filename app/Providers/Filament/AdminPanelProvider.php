@@ -3,6 +3,7 @@
 namespace App\Providers\Filament;
 
 use Althinect\FilamentSpatieRolesPermissions\FilamentSpatieRolesPermissionsPlugin;
+use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use App\Filament\Pages\PulseOverview;
 use App\Filament\Pages\Settings;
 use App\Filament\Resources\AdminResource\Widgets\PulseSupportUsage;
@@ -83,6 +84,7 @@ class AdminPanelProvider extends PanelProvider
             ->authMiddleware([
                 Authenticate::class,
             ])->plugins([
+                FilamentShieldPlugin::make(),
                 TwoFactorAuthenticationPlugin::make()
                     ->enableTwoFactorAuthentication()
                     // ->enablePasskeyAuthentication()

@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Enum\VerificationType;
 use App\Filament\Resources\VerificationResource\Pages;
 use App\Filament\Resources\VerificationResource\RelationManagers;
+use App\Filament\Traits\PermissionsTrait;
 use App\Models\Verification;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -16,6 +17,11 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class VerificationResource extends Resource
 {
+    use PermissionsTrait;
+    protected static function getPermissionType(): string
+    {
+        return 'edit verification';
+    }
     protected static ?string $model = Verification::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-check-badge';

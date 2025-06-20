@@ -7,6 +7,7 @@ use App\Enum\Project\UnitType;
 use App\Filament\Resources\ProjectResource\Pages;
 use App\Filament\Resources\ProjectResource\RelationManagers;
 use App\Filament\Resources\ProjectResource\RelationManagers\AttachmentsRelationManager;
+use App\Filament\Traits\PermissionsTrait;
 use App\Models\Project;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -18,6 +19,12 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class ProjectResource extends Resource
 {
+    use PermissionsTrait;
+    protected static function getPermissionType(): string
+    {
+        return 'edit projects';
+    }
+    
     protected static ?string $model = Project::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-home-modern';

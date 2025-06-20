@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\CategoryResource\Pages;
+use App\Filament\Traits\PermissionsTrait;
 use App\Models\Category;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -14,6 +15,11 @@ use Illuminate\Validation\Rule;
 
 class CategoryResource extends Resource
 {
+    use PermissionsTrait;
+    protected static function getPermissionType(): string
+    {
+        return 'edit categories';
+    }
     protected static ?string $model = Category::class;
     protected static ?string $navigationIcon = 'heroicon-o-tag';
     protected static ?string $navigationGroup = 'Ticketing System';
