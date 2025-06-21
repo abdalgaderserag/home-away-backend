@@ -40,29 +40,27 @@ class Welcome extends NotificationMain
                 'app_name' => config('app.name'),
                 'name' => $this->user->name
             ]))
+            ->action(__('notification.get_started'), route('dashboard'))
             ->line(__('notification.thank_you'));
     }
 
     public function toSms(object $notifiable)
     {
         $app_name = config('app.name');
-        $verification_code = $notifiable->verification_code;
-        $phone = $notifiable->phone;
+        $user_name = $this->user->name;
 
         return [
-            'phone' => $phone,
-            'message' => "Please use the following verification code to verify your phone number: {$verification_code}. Thank you for using {$app_name}!"
+            'phone' => $notifiable->phone,
+            'message' => "Welcome to {$app_name}, {$user_name}! We're excited to have you on board. Get started by exploring our platform."
         ];
     }
 
     public function toArray(object $notifiable): array
     {
         return [
-            "message" => __("notification.welcome", [
-                'app_name' => config('app.name'),
-                'name' => $this->user->name
-            ]),
+            "message" => __("notification.welcome", ["name" => $this->user->name]),
             "type" => "welcome",
+            "user_id" => $this->user->id,
             "timestamp" => now()->toDateTimeString(),
         ];
     }

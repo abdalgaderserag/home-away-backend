@@ -14,6 +14,14 @@ class Settings extends Model
 
     protected $fillable = [
         'user_id',
+        'lang',
+        'mail_notifications',
+        'sms_notifications'
+    ];
+
+    protected $casts = [
+        'mail_notifications' => 'boolean',
+        'sms_notifications' => 'boolean',
     ];
 
     public function user(): BelongsTo

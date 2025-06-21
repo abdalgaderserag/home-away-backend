@@ -80,6 +80,20 @@ class User extends Authenticatable implements MustVerifyEmail, FilamentUser, Has
         return $this->hasOne(Settings::class);
     }
 
+    /**
+     * Get the user's settings, creating default settings if none exist.
+     */
+    public function getSettingsAttribute()
+    {
+        return $this->settings()->firstOrCreate([
+            'user_id' => $this->id,
+        ], [
+            'lang' => 'en',
+            'mail_notifications' => true,
+            'sms_notifications' => true,
+        ]);
+    }
+
     public function client_projects(): HasMany
     {
         return $this->hasMany(Project::class, 'client_id', 'id');

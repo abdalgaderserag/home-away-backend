@@ -23,6 +23,10 @@ use Illuminate\Support\Facades\Route;
 Route::get('projects', [ProjectController::class, 'index']);
 Route::get('faq', [FaqController::class, 'index']);
 
+// Broadcasting routes for real-time notifications
+Route::post('/broadcasting/auth', function () {
+    return response()->json(['message' => 'Broadcasting authenticated']);
+})->middleware('auth:sanctum');
 
 Route::middleware(['auth:sanctum'])->group(function () {
 
@@ -50,6 +54,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/user/notifications', [NotificationController::class, 'index']);
     Route::post('user/notifications/{notificationId}/read', [NotificationController::class, 'markAsRead']);
     Route::delete('user/notifications/{notificationId}', [NotificationController::class, 'destroy']);
+    Route::post('user/notifications/mark-all-read', [NotificationController::class, 'markAllAsRead']);
+    Route::get('user/notifications/unread-count', [NotificationController::class, 'unreadCount']);
 
     // support and ticket controller
     Route::post('/user/tickets', [SupportController::class, 'store']);

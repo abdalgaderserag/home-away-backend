@@ -24,12 +24,27 @@ class ProjectApproved extends NotificationMain implements ShouldQueue
             ->line(__('notification.thank_you'));
     }
 
+    /**
+     * Get the SMS representation of the notification.
+     */
+    public function toSms(object $notifiable)
+    {
+        $app_name = config('app.name');
+        $project_title = $this->project->title;
+
+        return [
+            'phone' => $notifiable->phone,
+            'message' => "Great news! Your project '{$project_title}' has been approved on {$app_name}. Check your dashboard for details."
+        ];
+    }
+
     public function toArray(object $notifiable): array
     {
         return [
             "message" => __("notification.project_approved"),
             "type" => "project_approved",
             "project_id" => $this->project->id,
+            "project_title" => $this->project->title,
             "timestamp" => now()->toDateTimeString(),
         ];
     }

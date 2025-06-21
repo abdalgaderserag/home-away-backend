@@ -2,12 +2,15 @@
 
 namespace App\Notifications;
 
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 
-class NotificationMain extends Notification
+class NotificationMain extends Notification implements ShouldQueue
 {
+    use Queueable;
 
     /**
      * Get the notification's delivery channels.
@@ -16,26 +19,38 @@ class NotificationMain extends Notification
      */
     public function via(object $notifiable): array
     {
-        // todo : remove in prod
-        if (config('app.debug')) {
-            return ['database', 'mail'];
-        }
-
+        // Always include database notifications
         $channels = ['database'];
-        $setting = Cache::remember(
+        
+        // Get user settings from cache or database
+        $settings = Cache::remember(
             "user:{$notifiable->getKey()}:settings",
             now()->addDay(),
-            fn() => Auth::user()->setting
+            fn() => $notifiable->settings
         );
 
-        if ($setting->mail_notifications) {
+        // Add mail notifications if enabled and user has email
+        if ($settings && $settings->mail_notifications && $notifiable->email) {
             $channels[] = 'mail';
         }
 
-        if ($setting->sms_notifications) {
+        // Add SMS notifications if enabled and user has phone
+        if ($settings && $settings->sms_notifications && $notifiable->phone) {
             $channels[] = 'sms';
         }
 
         return $channels;
+    }
+
+    /**
+     * Get the notification's default queue name.
+     */
+    public function viaQueues(): array
+    {
+        return [
+            'mail' => 'emails',
+            'sms' => 'sms',
+            'database' => 'notifications',
+        ];
     }
 }

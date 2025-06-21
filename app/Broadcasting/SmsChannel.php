@@ -2,8 +2,8 @@
 
 namespace App\Channels;
 
+use App\Jobs\SendSmsJob;
 use Illuminate\Notifications\Notification;
-use App\Action\SendSmsAction;
 
 class SmsChannel
 {
@@ -11,7 +11,9 @@ class SmsChannel
     {
         $data = $notification->toSms($notifiable);
 
-        $sms = new SendSmsAction();
-        return $sms->sendSms($data['phone'], $data['message']);
+        // Dispatch the SMS job to the queue
+        SendSmsJob::dispatch($data['phone'], $data['message']);
+
+        return true;
     }
 }

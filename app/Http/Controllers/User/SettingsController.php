@@ -16,7 +16,7 @@ class SettingsController extends Controller
     public function index()
     {
         $user = Auth::user();
-        return response($user->setting);
+        return response($user->settings);
     }
 
     /**
@@ -28,25 +28,39 @@ class SettingsController extends Controller
             'email' => 'required|boolean',
             'phone' => 'required|boolean'
         ]);
+
         $user = Auth::user();
         $not_set = '';
         if (empty($user->email)) {
             $not_set = 'email';
         } else {
-            $user->setting->mail_notifications = $request->email;
+            $settings->mail_notifications = $request->mail_notifications;
         }
-        if (empty($user->phone)) {
-            $not_set = 'phone';
+        
+        // Check if phone is set before allowing SMS notifications
+        if ($request->sms_notifications && empty($user->phone)) {
+            $notSet[] = 'phone';
         } else {
-            $user->setting->sms_notifications = $request->phone;
+            $settings->sms_notifications = $request->sms_notifications;
         }
-        $user->setting->update();
+        
+        // Update language if provided
+        if ($request->has('lang')) {
+            $settings->lang = $request->lang;
+        }
+        
+        $settings->save();
+        
+        // Clear the cache
         Cache::forget("user:{$user->id}:settings");
 
-        if ($not_set === '') {
-            return response(['settings' => $user->setting], Response::HTTP_OK);
+        if (empty($notSet)) {
+            return response(['settings' => $settings], Response::HTTP_OK);
         } else {
-            return response(['settings' => $user->setting, 'not_set' => $not_set], Response::HTTP_BAD_REQUEST);
+            return response([
+                'settings' => $settings, 
+                'not_set' => $notSet
+            ], Response::HTTP_BAD_REQUEST);
         }
     }
 }
