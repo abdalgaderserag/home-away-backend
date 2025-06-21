@@ -22,7 +22,6 @@
         "laravel/socialite": "^5.20",
         "laravel/tinker": "^2.10.1",
         "league/flysystem-aws-s3-v3": "^3.29",
-        "monzer/filament-chatify-integration": "^1.0",
         "spatie/laravel-permission": "^6.17",
         "stephenjude/filament-two-factor-authentication": "^2.0",
         "twilio/sdk": "^8.6",

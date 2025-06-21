@@ -42,7 +42,32 @@ class EditTicket extends EditRecord
             case 'company-verification':
             case 'address-verification':
                 return $this->verification();
+            case 'restore-account';
+                return $this->restoreAccount();
+            case 'others';
+                return $this->others();
         }
+        return [];
+    }
+
+    private function restoreAccount(): array
+    {
+        return [];
+        // return [
+        //     Actions\Action::make('message')
+        //         ->label('Send Message to Use')
+        //         ->icon('heroicon-o-check-circle')
+        //         ->color('success')
+        //         ->action(function () {
+        //             $record = $this->getRecord();
+        //             $ticket_id = $record->ticket_id;
+        //             Redirect::to(route('filament.admin.resources.chats.view-chat', $ticket_id));
+        //         })
+        // ];
+    }
+
+    private function messaging(): array
+    {
         return [];
     }
 
@@ -95,7 +120,7 @@ class EditTicket extends EditRecord
                         $project->update([
                             'status' => Status::Draft,
                         ]);
-                        if ($project->owner) { // Changed from client to owner for consistency with previous discussion
+                        if ($project->owner) {
                             $project->owner->notify(new ProjectDeclined($project));
                         }
                     }
@@ -103,10 +128,10 @@ class EditTicket extends EditRecord
 
                     \Filament\Notifications\Notification::make()
                         ->title('Project Denied')
-                        ->success() // Consider changing to 'danger' or 'warning'
+                        ->success()
                         ->send();
                 })
-                ->after(fn() => Redirect::to(TicketResource::getUrl('index'))), // Redirect after deny
+                ->after(fn() => Redirect::to(TicketResource::getUrl('index'))),
         ];
     }
 
